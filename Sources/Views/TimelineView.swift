@@ -151,7 +151,7 @@ struct TimelineSiteCard: View {
                 .fill(Color.orange.opacity(0.3))
                 .frame(width: 40, height: 40)
                 .overlay(
-                    Image(systemName: "building.columns")
+                    Image(systemName: site.placeType.icon)
                         .font(.caption)
                         .foregroundColor(.orange)
                 )
@@ -160,7 +160,7 @@ struct TimelineSiteCard: View {
                 Text(site.name)
                     .font(.caption)
                     .fontWeight(.medium)
-                Text("\(site.stories.count) stories")
+                Text("\(site.subLocations?.count ?? 0) places to see")
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
