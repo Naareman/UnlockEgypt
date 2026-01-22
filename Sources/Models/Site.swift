@@ -74,6 +74,16 @@ struct ArabicPhrase: Identifiable, Codable {
     let pronunciation: String
 }
 
+// MARK: - Quiz Question
+struct QuizQuestion: Identifiable, Codable {
+    let id: String
+    let question: String
+    let options: [String]
+    let correctAnswerIndex: Int
+    let explanation: String
+    let funFact: String?
+}
+
 // MARK: - Tourism Type
 enum TourismType: String, Codable, CaseIterable {
     case pharaonic = "Pharaonic"

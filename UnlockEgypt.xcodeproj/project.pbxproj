@@ -17,12 +17,10 @@
 		A2CFCFF8D7E0BF7E7E5EEAB8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC24DBD6EAF7D147295A873 /* HomeView.swift */; };
 		D6C5C300F6A78983BB82FA1B /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A743CC6095177F1C16AF27D /* TimelineView.swift */; };
 		DCE51CABB88067B5F1AD431C /* ContentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ABEF41434D1BD825DFD111 /* ContentService.swift */; };
-		E26AE3EA73951B42F2119B12 /* Quiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024BC0A32759E622B6C3C1E7 /* Quiz.swift */; };
 		F7EB1A610BE04D0995B8D011 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C655EFF89BCC81397E4C297 /* HomeViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		024BC0A32759E622B6C3C1E7 /* Quiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quiz.swift; sourceTree = "<group>"; };
 		04A4240FBF2FEF5A443113C9 /* SiteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteDetailView.swift; sourceTree = "<group>"; };
 		083B7A3EBB130E21DB918BAC /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
 		1ACF0F42FDEF6A7DFE2A0965 /* StoryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryCardView.swift; sourceTree = "<group>"; };
@@ -88,7 +86,6 @@
 		85EFDAD5FCA1D9BD7733748B /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				024BC0A32759E622B6C3C1E7 /* Quiz.swift */,
 				CE8D6D578E4017673E26E884 /* Site.swift */,
 			);
 			path = Models;
@@ -179,7 +176,6 @@
 				A2CFCFF8D7E0BF7E7E5EEAB8 /* HomeView.swift in Sources */,
 				F7EB1A610BE04D0995B8D011 /* HomeViewModel.swift in Sources */,
 				49BEB05A9921AAC2294B98C9 /* NearbyView.swift in Sources */,
-				E26AE3EA73951B42F2119B12 /* Quiz.swift in Sources */,
 				6CDF98DAD3D39F4CC78DFB25 /* SampleData.swift in Sources */,
 				74DFD778EC40700FCC1D0F0E /* Site.swift in Sources */,
 				47E02FD623C5202B92D3D605 /* SiteDetailView.swift in Sources */,
