@@ -1,101 +1,243 @@
 import SwiftUI
 
 // MARK: - Story Cards Flow View
-/// Displays story cards in a swipeable/tappable flow
 struct StoryCardsView: View {
     let subLocation: SubLocation
     @State private var currentIndex = 0
     @State private var selectedAnswer: Int? = nil
     @State private var showingAnswer = false
+    @State private var sessionPoints = 0
+    @State private var showCompletion = false
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var viewModel: HomeViewModel
 
     var body: some View {
         ZStack {
-            // Background
-            Color.black.ignoresSafeArea()
+            // Dark gradient background
+            LinearGradient(
+                colors: [Color(hex: "1a1a2e"), Color(hex: "0f0f1a")],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // Progress bar
-                progressBar
-                    .padding(.horizontal)
-                    .padding(.top, 8)
+            if showCompletion {
+                completionView
+            } else {
+                VStack(spacing: 0) {
+                    // Header
+                    storyHeader
+                        .padding(.horizontal)
+                        .padding(.top, 8)
 
-                // Card content
-                TabView(selection: $currentIndex) {
-                    ForEach(Array(subLocation.storyCards.enumerated()), id: \.element.id) { index, card in
-                        SingleCardView(
-                            card: card,
-                            selectedAnswer: currentIndex == index ? $selectedAnswer : .constant(nil),
-                            showingAnswer: currentIndex == index ? $showingAnswer : .constant(false),
-                            onNext: { goToNext() }
-                        )
-                        .tag(index)
+                    // Progress bar
+                    progressBar
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+
+                    // Card content
+                    TabView(selection: $currentIndex) {
+                        ForEach(Array(subLocation.storyCards.enumerated()), id: \.element.id) { index, card in
+                            SingleCardView(
+                                card: card,
+                                selectedAnswer: currentIndex == index ? $selectedAnswer : .constant(nil),
+                                showingAnswer: currentIndex == index ? $showingAnswer : .constant(false),
+                                onCorrectAnswer: {
+                                    if let quiz = card.quizQuestion {
+                                        viewModel.correctQuizAnswer(quiz.id)
+                                        sessionPoints += 10
+                                    }
+                                },
+                                onNext: { goToNext() }
+                            )
+                            .tag(index)
+                        }
                     }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+                    .tabViewStyle(.page(indexDisplayMode: .never))
 
-                // Navigation hints
-                navigationHints
-                    .padding(.bottom, 20)
+                    // Navigation
+                    navigationBar
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
+                }
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Done") {
-                    dismiss()
-                }
-                .foregroundColor(.white)
-            }
-        }
-        .toolbarBackground(.hidden, for: .navigationBar)
-    }
-
-    // MARK: - Progress Bar
-    private var progressBar: some View {
-        HStack(spacing: 4) {
-            ForEach(0..<subLocation.storyCards.count, id: \.self) { index in
-                Capsule()
-                    .fill(index <= currentIndex ? Color.white : Color.white.opacity(0.3))
-                    .frame(height: 3)
-            }
+        .navigationBarHidden(true)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            // Award discovery point when starting
+            viewModel.discoverPlace(subLocation.id)
+            sessionPoints += 1
         }
     }
 
-    // MARK: - Navigation Hints
-    private var navigationHints: some View {
+    // MARK: - Story Header
+    private var storyHeader: some View {
         HStack {
-            if currentIndex > 0 {
-                Button(action: goToPrevious) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
+            Button(action: { dismiss() }) {
+                Image(systemName: "xmark")
+                    .font(.title3)
                     .foregroundColor(.white.opacity(0.7))
-                }
             }
 
             Spacer()
 
-            if currentIndex < subLocation.storyCards.count - 1 {
-                Button(action: goToNext) {
-                    HStack {
-                        Text("Next")
-                        Image(systemName: "chevron.right")
-                    }
+            VStack(spacing: 2) {
+                Text(subLocation.name)
+                    .font(.headline)
                     .foregroundColor(.white)
-                }
-            } else {
-                Button(action: { dismiss() }) {
-                    HStack {
-                        Text("Finish")
-                        Image(systemName: "checkmark")
-                    }
-                    .foregroundColor(.green)
-                }
+                Text("\(currentIndex + 1) of \(subLocation.storyCards.count)")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.5))
+            }
+
+            Spacer()
+
+            // Points earned this session
+            HStack(spacing: 4) {
+                Image(systemName: "star.fill")
+                    .foregroundColor(Color(hex: "d4af37"))
+                Text("+\(sessionPoints)")
+                    .fontWeight(.bold)
+                    .foregroundColor(Color(hex: "d4af37"))
+            }
+            .font(.caption)
+        }
+    }
+
+    // MARK: - Progress Bar
+    private var progressBar: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                // Background
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color.white.opacity(0.2))
+                    .frame(height: 4)
+
+                // Progress
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color(hex: "d4af37"))
+                    .frame(width: geo.size.width * CGFloat(currentIndex + 1) / CGFloat(subLocation.storyCards.count), height: 4)
+                    .animation(.easeInOut, value: currentIndex)
             }
         }
-        .padding(.horizontal, 24)
+        .frame(height: 4)
+    }
+
+    // MARK: - Navigation Bar
+    private var navigationBar: some View {
+        HStack {
+            // Back button
+            Button(action: goToPrevious) {
+                HStack {
+                    Image(systemName: "chevron.left")
+                    Text("Back")
+                }
+                .foregroundColor(currentIndex > 0 ? .white : .clear)
+            }
+            .disabled(currentIndex == 0)
+
+            Spacer()
+
+            // Next/Finish button
+            Button(action: {
+                if currentIndex == subLocation.storyCards.count - 1 {
+                    // Show completion screen
+                    withAnimation {
+                        showCompletion = true
+                    }
+                    viewModel.completeSubLocation(subLocation.id)
+                } else {
+                    goToNext()
+                }
+            }) {
+                HStack {
+                    Text(currentIndex == subLocation.storyCards.count - 1 ? "Finish" : "Next")
+                    Image(systemName: currentIndex == subLocation.storyCards.count - 1 ? "checkmark" : "chevron.right")
+                }
+                .fontWeight(.semibold)
+                .foregroundColor(.black)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(Color(hex: "d4af37"))
+                .cornerRadius(25)
+            }
+        }
+    }
+
+    // MARK: - Completion View
+    private var completionView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            // Success icon
+            ZStack {
+                Circle()
+                    .fill(Color(hex: "d4af37").opacity(0.2))
+                    .frame(width: 120, height: 120)
+                Circle()
+                    .fill(Color(hex: "d4af37").opacity(0.3))
+                    .frame(width: 100, height: 100)
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.system(size: 50))
+                    .foregroundColor(Color(hex: "d4af37"))
+            }
+
+            VStack(spacing: 8) {
+                Text("🎉 Congratulations!")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+
+                Text("You explored \(subLocation.name)")
+                    .font(.headline)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+
+            // Points summary
+            VStack(spacing: 16) {
+                HStack {
+                    Text("Points earned")
+                        .foregroundColor(.white.opacity(0.6))
+                    Spacer()
+                    Text("+\(sessionPoints) pts")
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(hex: "d4af37"))
+                }
+
+                Divider()
+                    .background(Color.white.opacity(0.2))
+
+                HStack {
+                    Text("Total points")
+                        .foregroundColor(.white.opacity(0.6))
+                    Spacer()
+                    Text("\(viewModel.totalPoints) pts")
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                }
+            }
+            .padding()
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(16)
+            .padding(.horizontal, 32)
+
+            Spacer()
+
+            // Done button
+            Button(action: { dismiss() }) {
+                Text("Done")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color(hex: "d4af37"))
+                    .cornerRadius(25)
+            }
+            .padding(.horizontal, 32)
+            .padding(.bottom, 32)
+        }
     }
 
     private func goToNext() {
@@ -124,38 +266,47 @@ struct SingleCardView: View {
     let card: StoryCard
     @Binding var selectedAnswer: Int?
     @Binding var showingAnswer: Bool
+    let onCorrectAnswer: () -> Void
     let onNext: () -> Void
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                // Image placeholder
-                if card.imageName != nil {
-                    RoundedRectangle(cornerRadius: 16)
+            VStack(spacing: 24) {
+                // Image area
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20)
                         .fill(LinearGradient(
-                            colors: [.orange.opacity(0.6), .brown.opacity(0.8)],
+                            colors: [Color(hex: "d4af37").opacity(0.2), Color(hex: "8b7355").opacity(0.3)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
-                        .frame(height: 250)
-                        .overlay(
-                            Image(systemName: cardIcon)
-                                .font(.system(size: 60))
-                                .foregroundColor(.white.opacity(0.5))
-                        )
-                        .padding(.horizontal)
+                        .frame(height: 220)
+
+                    // Placeholder image based on card type
+                    VStack(spacing: 12) {
+                        Image(systemName: cardIcon)
+                            .font(.system(size: 50))
+                            .foregroundColor(Color(hex: "d4af37").opacity(0.6))
+                        Text(cardTypeLabel)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(Color(hex: "d4af37").opacity(0.8))
+                    }
                 }
+                .padding(.horizontal)
 
-                // Card content based on type
+                // Content based on type
                 switch card.type {
-                case .intro, .story, .summary:
+                case .intro:
+                    introContent
+                case .story:
                     storyContent
-
                 case .fact:
                     factContent
-
                 case .quiz:
                     quizContent
+                case .summary:
+                    summaryContent
                 }
 
                 Spacer(minLength: 100)
@@ -164,65 +315,114 @@ struct SingleCardView: View {
         }
     }
 
-    // MARK: - Story Content
-    private var storyContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    // MARK: - Card Type Helpers
+    private var cardIcon: String {
+        switch card.type {
+        case .intro: return "play.circle.fill"
+        case .story: return "book.fill"
+        case .fact: return "lightbulb.fill"
+        case .quiz: return "questionmark.circle.fill"
+        case .summary: return "checkmark.seal.fill"
+        }
+    }
+
+    private var cardTypeLabel: String {
+        switch card.type {
+        case .intro: return "INTRODUCTION"
+        case .story: return "THE STORY"
+        case .fact: return "FUN FACT"
+        case .quiz: return "QUIZ TIME"
+        case .summary: return "SUMMARY"
+        }
+    }
+
+    // MARK: - Intro Content
+    private var introContent: some View {
+        VStack(spacing: 16) {
+            Text("Let's Begin")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(Color(hex: "d4af37"))
+                .tracking(2)
+
             if let content = card.content {
                 Text(content)
-                    .font(.body)
+                    .font(.title3)
+                    .fontWeight(.medium)
                     .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
                     .lineSpacing(6)
             }
         }
         .padding(.horizontal, 24)
     }
 
-    // MARK: - Fact Content ("Did you know?")
+    // MARK: - Story Content
+    private var storyContent: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let content = card.content {
+                Text(content)
+                    .font(.body)
+                    .foregroundColor(.white.opacity(0.9))
+                    .lineSpacing(8)
+            }
+        }
+        .padding(.horizontal, 24)
+    }
+
+    // MARK: - Fact Content
     private var factContent: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             HStack {
                 Image(systemName: "lightbulb.fill")
                     .font(.title)
-                    .foregroundColor(.yellow)
-                Text("Did you know?")
-                    .font(.headline)
-                    .foregroundColor(.yellow)
+                    .foregroundColor(Color(hex: "d4af37"))
+                Text("DID YOU KNOW?")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color(hex: "d4af37"))
+                    .tracking(2)
             }
 
             if let fact = card.funFact {
                 Text(fact)
-                    .font(.body)
+                    .font(.title3)
+                    .fontWeight(.medium)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .lineSpacing(6)
             }
         }
         .padding(24)
-        .background(Color.yellow.opacity(0.15))
-        .cornerRadius(16)
+        .background(Color(hex: "d4af37").opacity(0.1))
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color(hex: "d4af37").opacity(0.3), lineWidth: 1)
+        )
         .padding(.horizontal, 24)
     }
 
     // MARK: - Quiz Content
     private var quizContent: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Question header
             HStack {
                 Image(systemName: "questionmark.circle.fill")
                     .font(.title2)
-                    .foregroundColor(.blue)
-                Text("Quick Quiz")
-                    .font(.headline)
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color(hex: "4da6ff"))
+                Text("QUICK QUIZ")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color(hex: "4da6ff"))
+                    .tracking(2)
             }
 
             if let question = card.quizQuestion {
                 Text(question.question)
                     .font(.title3)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
                     .foregroundColor(.white)
 
-                // Options
                 VStack(spacing: 12) {
                     ForEach(0..<question.options.count, id: \.self) { index in
                         QuizOptionButton(
@@ -236,47 +436,65 @@ struct SingleCardView: View {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     showingAnswer = true
                                 }
+                                if index == question.correctAnswerIndex {
+                                    onCorrectAnswer()
+                                }
                             }
                         }
                     }
                 }
 
-                // Explanation
                 if showingAnswer {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Image(systemName: selectedAnswer == question.correctAnswerIndex ? "checkmark.circle.fill" : "info.circle.fill")
                                 .foregroundColor(selectedAnswer == question.correctAnswerIndex ? .green : .orange)
-                            Text(selectedAnswer == question.correctAnswerIndex ? "Correct!" : "Not quite!")
+                            Text(selectedAnswer == question.correctAnswerIndex ? "Correct! +10 pts" : "Not quite!")
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
                         }
 
                         Text(question.explanation)
                             .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.7))
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.white.opacity(0.05))
                     .cornerRadius(12)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
         }
         .padding(24)
-        .background(Color.blue.opacity(0.15))
-        .cornerRadius(16)
+        .background(Color(hex: "4da6ff").opacity(0.1))
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color(hex: "4da6ff").opacity(0.3), lineWidth: 1)
+        )
         .padding(.horizontal, 24)
     }
 
-    private var cardIcon: String {
-        switch card.type {
-        case .intro: return "play.circle"
-        case .story: return "book"
-        case .fact: return "lightbulb"
-        case .quiz: return "questionmark.circle"
-        case .summary: return "checkmark.circle"
+    // MARK: - Summary Content
+    private var summaryContent: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.seal.fill")
+                .font(.system(size: 50))
+                .foregroundColor(Color(hex: "d4af37"))
+
+            Text("Story Complete!")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+
+            if let content = card.content {
+                Text(content)
+                    .font(.body)
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+            }
         }
+        .padding(.horizontal, 24)
     }
 }
 
@@ -319,12 +537,12 @@ struct QuizOptionButton: View {
     private var backgroundColor: Color {
         if showResult {
             if let isCorrect = isCorrect, isCorrect {
-                return .green.opacity(0.3)
+                return .green.opacity(0.2)
             } else if isSelected {
-                return .red.opacity(0.3)
+                return .red.opacity(0.2)
             }
         }
-        return .white.opacity(0.1)
+        return Color.white.opacity(0.1)
     }
 
     private var borderColor: Color {
@@ -335,23 +553,21 @@ struct QuizOptionButton: View {
                 return .red
             }
         }
-        return isSelected ? .white : .clear
+        return isSelected ? Color(hex: "4da6ff") : .clear
     }
 }
 
 #Preview {
-    NavigationStack {
-        StoryCardsView(subLocation: SubLocation(
-            id: "great_pyramid",
-            name: "The Great Pyramid",
-            arabicName: "الهرم الأكبر",
-            shortDescription: "The tomb of Pharaoh Khufu",
-            imageName: "great_pyramid",
-            storyCards: [
-                StoryCard(id: "1", type: .intro, imageName: "pyramid", content: "Welcome to the Great Pyramid of Giza, the last surviving wonder of the ancient world.", funFact: nil, quizQuestion: nil),
-                StoryCard(id: "2", type: .story, imageName: "pyramid2", content: "Built around 2560 BCE for Pharaoh Khufu, this massive structure took about 20 years to complete.", funFact: nil, quizQuestion: nil),
-                StoryCard(id: "3", type: .fact, imageName: nil, content: nil, funFact: "The Great Pyramid was the tallest man-made structure in the world for over 3,800 years!", quizQuestion: nil)
-            ]
-        ))
-    }
+    StoryCardsView(subLocation: SubLocation(
+        id: "test",
+        name: "Great Pyramid",
+        arabicName: "الهرم الأكبر",
+        shortDescription: "Test",
+        imageName: nil,
+        storyCards: [
+            StoryCard(id: "1", type: .intro, imageName: nil, content: "Welcome to the Great Pyramid!", funFact: nil, quizQuestion: nil),
+            StoryCard(id: "2", type: .fact, imageName: nil, content: nil, funFact: "It was the tallest structure for 3,800 years!", quizQuestion: nil)
+        ]
+    ))
+    .environmentObject(HomeViewModel())
 }

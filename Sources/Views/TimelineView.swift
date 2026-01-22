@@ -2,90 +2,117 @@ import SwiftUI
 
 struct HistoryTimelineView: View {
     let sites: [Site]
+    @State private var scrollTarget: Era? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Journey Through Time")
-                .font(.headline)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Header
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("JOURNEY THROUGH TIME")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(hex: "d4af37"))
+                        .tracking(2)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 0) {
-                    ForEach(Era.allCases, id: \.self) { era in
-                        TimelineEraSection(
-                            era: era,
-                            sites: sites.filter { $0.era == era }
-                        )
+                    Text("5,000 years of history")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal)
+
+                // Horizontal era selector (clickable)
+                ScrollViewReader { scrollProxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 0) {
+                            ForEach(Era.allCases, id: \.self) { era in
+                                TimelineEraPill(
+                                    era: era,
+                                    hasSites: !sites.filter { $0.era == era }.isEmpty
+                                ) {
+                                    withAnimation(.easeInOut(duration: 0.5)) {
+                                        scrollTarget = era
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+
+                    // Vertical detailed timeline
+                    ScrollViewReader { verticalProxy in
+                        VStack(spacing: 0) {
+                            ForEach(Era.allCases, id: \.self) { era in
+                                TimelineEraRow(
+                                    era: era,
+                                    sites: sites.filter { $0.era == era },
+                                    isLast: era == Era.allCases.last
+                                )
+                                .id(era)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .onChange(of: scrollTarget) { _, newValue in
+                            if let era = newValue {
+                                withAnimation(.easeInOut(duration: 0.5)) {
+                                    verticalProxy.scrollTo(era, anchor: .top)
+                                }
+                            }
+                        }
                     }
                 }
             }
-
-            // Vertical detailed timeline
-            VStack(spacing: 0) {
-                ForEach(Era.allCases, id: \.self) { era in
-                    TimelineEraRow(
-                        era: era,
-                        sites: sites.filter { $0.era == era },
-                        isLast: era == Era.allCases.last
-                    )
-                }
-            }
+            .padding(.vertical)
         }
     }
 }
 
-// MARK: - Timeline Era Section (Horizontal)
-struct TimelineEraSection: View {
+// MARK: - Timeline Era Pill (Clickable)
+struct TimelineEraPill: View {
     let era: Era
-    let sites: [Site]
+    let hasSites: Bool
+    let action: () -> Void
 
     var body: some View {
-        VStack(spacing: 8) {
-            // Era indicator
-            Circle()
-                .fill(eraColor)
-                .frame(width: 16, height: 16)
+        Button(action: action) {
+            VStack(spacing: 6) {
+                // Era indicator
+                Circle()
+                    .fill(hasSites ? eraColor : Color.white.opacity(0.2))
+                    .frame(width: 14, height: 14)
+                    .shadow(color: hasSites ? eraColor.opacity(0.5) : .clear, radius: 3)
 
-            // Era name
-            Text(era.rawValue)
-                .font(.caption2)
-                .fontWeight(.semibold)
-                .frame(width: 80)
-                .multilineTextAlignment(.center)
-
-            // Year range
-            Text(era.yearRange)
-                .font(.system(size: 8))
-                .foregroundColor(.secondary)
-                .frame(width: 80)
-
-            // Sites count
-            if !sites.isEmpty {
-                Text("\(sites.count) sites")
+                // Era name
+                Text(era.shortName)
                     .font(.caption2)
-                    .foregroundColor(.accentColor)
+                    .fontWeight(.medium)
+                    .foregroundColor(hasSites ? .white : .white.opacity(0.4))
+                    .frame(width: 70)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
             }
+            .frame(width: 80)
         }
-        .frame(width: 100)
 
         // Connector line
         if era != Era.allCases.last {
             Rectangle()
-                .fill(Color.secondary.opacity(0.3))
-                .frame(width: 40, height: 2)
+                .fill(Color.white.opacity(0.2))
+                .frame(width: 30, height: 2)
         }
     }
 
     private var eraColor: Color {
         switch era {
-        case .preDynastic: return .purple
-        case .oldKingdom: return .orange
-        case .middleKingdom: return .yellow
-        case .newKingdom: return .red
-        case .latePeriod: return .blue
-        case .ptolemaic: return .green
-        case .roman: return .pink
-        case .islamic: return .teal
-        case .modern: return .gray
+        case .preDynastic: return Color(hex: "9b59b6")
+        case .oldKingdom: return Color(hex: "d4af37")
+        case .middleKingdom: return Color(hex: "f39c12")
+        case .newKingdom: return Color(hex: "e74c3c")
+        case .latePeriod: return Color(hex: "3498db")
+        case .ptolemaic: return Color(hex: "2ecc71")
+        case .roman: return Color(hex: "e91e63")
+        case .islamic: return Color(hex: "00bcd4")
+        case .modern: return Color(hex: "95a5a6")
         }
     }
 }
@@ -101,30 +128,32 @@ struct TimelineEraRow: View {
             // Timeline indicator
             VStack(spacing: 0) {
                 Circle()
-                    .fill(sites.isEmpty ? Color.secondary.opacity(0.3) : Color.accentColor)
-                    .frame(width: 12, height: 12)
+                    .fill(sites.isEmpty ? Color.white.opacity(0.2) : Color(hex: "d4af37"))
+                    .frame(width: 14, height: 14)
+                    .shadow(color: sites.isEmpty ? .clear : Color(hex: "d4af37").opacity(0.5), radius: 4)
 
                 if !isLast {
                     Rectangle()
-                        .fill(Color.secondary.opacity(0.3))
+                        .fill(Color.white.opacity(0.15))
                         .frame(width: 2)
-                        .frame(minHeight: 60)
+                        .frame(minHeight: sites.isEmpty ? 60 : 80)
                 }
             }
 
             // Content
-            VStack(alignment: .leading, spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(era.rawValue)
                         .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
                     Text(era.yearRange)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color(hex: "d4af37"))
                 }
 
                 if !sites.isEmpty {
-                    VStack(spacing: 8) {
+                    VStack(spacing: 10) {
                         ForEach(sites) { site in
                             NavigationLink(destination: SiteDetailView(site: site)) {
                                 TimelineSiteCard(site: site)
@@ -132,57 +161,84 @@ struct TimelineEraRow: View {
                             .buttonStyle(PlainButtonStyle())
                         }
                     }
+                } else {
+                    Text("No sites from this era yet")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.4))
+                        .italic()
                 }
             }
-            .padding(.bottom, isLast ? 0 : 16)
+            .padding(.bottom, isLast ? 0 : 20)
 
             Spacer()
         }
     }
 }
 
-// MARK: - Timeline Site Card
+// MARK: - Timeline Site Card (Dark Theme)
 struct TimelineSiteCard: View {
     let site: Site
 
     var body: some View {
         HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 6)
-                .fill(Color.orange.opacity(0.3))
-                .frame(width: 40, height: 40)
-                .overlay(
-                    Image(systemName: site.placeType.icon)
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                )
+            // Image placeholder with gradient
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(LinearGradient(
+                        colors: [Color(hex: "d4af37").opacity(0.3), Color(hex: "8b7355").opacity(0.4)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 50, height: 50)
 
-            VStack(alignment: .leading, spacing: 2) {
+                Image(systemName: site.placeType.icon)
+                    .font(.title3)
+                    .foregroundColor(Color(hex: "d4af37"))
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
                 Text(site.name)
-                    .font(.caption)
+                    .font(.subheadline)
                     .fontWeight(.medium)
-                Text("\(site.subLocations?.count ?? 0) places to see")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white)
+
+                HStack(spacing: 4) {
+                    Image(systemName: "rectangle.stack.fill")
+                        .font(.system(size: 9))
+                    Text("\(site.subLocations?.count ?? 0) places to explore")
+                        .font(.caption2)
+                }
+                .foregroundColor(.white.opacity(0.5))
             }
 
             Spacer()
 
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white.opacity(0.3))
         }
-        .padding(8)
-        .background(Color(uiColor: .systemBackground))
-        .cornerRadius(8)
-        .shadow(color: .black.opacity(0.05), radius: 2)
+        .padding(12)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(hex: "d4af37").opacity(0.15), lineWidth: 1)
+        )
     }
 }
 
 #Preview {
     NavigationStack {
-        ScrollView {
+        ZStack {
+            LinearGradient(
+                colors: [Color(hex: "1a1a2e"), Color(hex: "16213e")],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
             HistoryTimelineView(sites: SampleData.sites)
-                .padding()
         }
     }
+    .preferredColorScheme(.dark)
 }

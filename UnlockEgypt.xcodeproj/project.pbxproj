@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2DFFC3DF8ED5B99EFC1A24A0 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA7EE2ED6A1396953281822 /* Color+Hex.swift */; };
 		3211969CA2187367D725D2EB /* UnlockEgyptApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DEFBA780197451E21D52EA /* UnlockEgyptApp.swift */; };
 		47E02FD623C5202B92D3D605 /* SiteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A4240FBF2FEF5A443113C9 /* SiteDetailView.swift */; };
 		49BEB05A9921AAC2294B98C9 /* NearbyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046D43C5138CF7BB4F75847 /* NearbyView.swift */; };
@@ -30,6 +31,7 @@
 		3A743CC6095177F1C16AF27D /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
 		9AC24DBD6EAF7D147295A873 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		B046D43C5138CF7BB4F75847 /* NearbyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyView.swift; sourceTree = "<group>"; };
+		BBA7EE2ED6A1396953281822 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		CE8D6D578E4017673E26E884 /* Site.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Site.swift; sourceTree = "<group>"; };
 		E2DEFBA780197451E21D52EA /* UnlockEgyptApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockEgyptApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -43,12 +45,21 @@
 			);
 			sourceTree = "<group>";
 		};
+		4243DD9B664F485622094228 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				BBA7EE2ED6A1396953281822 /* Color+Hex.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		48D12E7A50E62AD468E22D28 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				1CB154A67F98F6041C294C25 /* Info.plist */,
 				E2DEFBA780197451E21D52EA /* UnlockEgyptApp.swift */,
 				832F60E8C48DED2E746D00B9 /* Data */,
+				4243DD9B664F485622094228 /* Extensions */,
 				85EFDAD5FCA1D9BD7733748B /* Models */,
 				8E7A29CB86E95856740D8E32 /* Services */,
 				B7CBC3E5CA1D39F998C075B8 /* Views */,
@@ -160,6 +171,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2DFFC3DF8ED5B99EFC1A24A0 /* Color+Hex.swift in Sources */,
 				A2CFCFF8D7E0BF7E7E5EEAB8 /* HomeView.swift in Sources */,
 				F7EB1A610BE04D0995B8D011 /* HomeViewModel.swift in Sources */,
 				49BEB05A9921AAC2294B98C9 /* NearbyView.swift in Sources */,

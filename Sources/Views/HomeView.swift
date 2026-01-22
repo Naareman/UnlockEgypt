@@ -6,56 +6,114 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Tab selector at top
-                tabSelector
-                    .padding(.horizontal)
-                    .padding(.vertical, 12)
+            ZStack {
+                // Dark gradient background
+                LinearGradient(
+                    colors: [Color(hex: "1a1a2e"), Color(hex: "16213e")],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
 
-                // Content based on selected tab
-                TabView(selection: $selectedTab) {
-                    AllSitesView(viewModel: viewModel)
-                        .tag(HomeTab.allSites)
+                VStack(spacing: 0) {
+                    // Custom header
+                    headerView
+                        .padding(.horizontal)
+                        .padding(.top, 8)
 
-                    NearbyView(sites: viewModel.sites)
-                        .tag(HomeTab.nearby)
+                    // Tab selector
+                    tabSelector
+                        .padding(.horizontal)
+                        .padding(.vertical, 12)
 
-                    HistoryTimelineView(sites: viewModel.sites)
-                        .tag(HomeTab.timeline)
+                    // Content
+                    TabView(selection: $selectedTab) {
+                        AllSitesView(viewModel: viewModel)
+                            .tag(HomeTab.allSites)
+
+                        NearbyView(sites: viewModel.sites)
+                            .tag(HomeTab.nearby)
+
+                        HistoryTimelineView(sites: viewModel.sites)
+                            .tag(HomeTab.timeline)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            .background(Color(uiColor: .systemGroupedBackground))
-            .navigationTitle("Unlock Egypt")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarHidden(true)
         }
+        .environmentObject(viewModel)
+        .preferredColorScheme(.dark)
+    }
+
+    // MARK: - Header View
+    private var headerView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("UNLOCK")
+                        .font(.system(size: 32, weight: .black))
+                        .foregroundColor(.white)
+                    + Text(" EGYPT")
+                        .font(.system(size: 32, weight: .black))
+                        .foregroundColor(Color(hex: "d4af37")) // Gold
+
+                    Text("Discover 5,000 years of history")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+
+                Spacer()
+
+                // Profile/Points button
+                VStack(spacing: 4) {
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "d4af37").opacity(0.2))
+                            .frame(width: 50, height: 50)
+                        Image(systemName: "trophy.fill")
+                            .font(.title2)
+                            .foregroundColor(Color(hex: "d4af37"))
+                    }
+                    Text("\(viewModel.totalPoints) pts")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(hex: "d4af37"))
+                }
+            }
+        }
+        .padding(.vertical, 8)
     }
 
     // MARK: - Tab Selector
     private var tabSelector: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             ForEach(HomeTab.allCases, id: \.self) { tab in
                 Button(action: {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         selectedTab = tab
                     }
                 }) {
-                    VStack(spacing: 4) {
+                    VStack(spacing: 6) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 18))
+                            .font(.system(size: 18, weight: .medium))
+                            .frame(width: 24, height: 24)
                         Text(tab.title)
                             .font(.caption)
                             .fontWeight(.medium)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(selectedTab == tab ? Color.accentColor : Color.clear)
-                    .foregroundColor(selectedTab == tab ? .white : .secondary)
+                    .padding(.vertical, 12)
+                    .background(
+                        selectedTab == tab ?
+                        Color(hex: "d4af37") :
+                        Color.white.opacity(0.1)
+                    )
+                    .foregroundColor(selectedTab == tab ? .black : .white.opacity(0.7))
+                    .cornerRadius(12)
                 }
             }
         }
-        .background(Color(uiColor: .systemGray5))
-        .cornerRadius(12)
     }
 }
 
@@ -65,7 +123,7 @@ enum HomeTab: CaseIterable {
 
     var title: String {
         switch self {
-        case .allSites: return "All Sites"
+        case .allSites: return "Explore"
         case .nearby: return "Nearby"
         case .timeline: return "Timeline"
         }
@@ -73,9 +131,9 @@ enum HomeTab: CaseIterable {
 
     var icon: String {
         switch self {
-        case .allSites: return "square.grid.2x2"
-        case .nearby: return "location"
-        case .timeline: return "clock"
+        case .allSites: return "safari.fill"
+        case .nearby: return "location.fill"
+        case .timeline: return "clock.fill"
         }
     }
 }
@@ -86,7 +144,9 @@ struct AllSitesView: View {
     @State private var selectedEra: Era? = nil
     @State private var selectedType: PlaceType? = nil
     @State private var selectedCity: City? = nil
-    @State private var showingFilters = false
+    @State private var showEraFilter = false
+    @State private var showTypeFilter = false
+    @State private var showCityFilter = false
 
     var filteredSites: [Site] {
         viewModel.sites
@@ -98,10 +158,6 @@ struct AllSitesView: View {
             .sorted { $0.name < $1.name }
     }
 
-    var activeFiltersCount: Int {
-        [selectedEra != nil, selectedType != nil, selectedCity != nil].filter { $0 }.count
-    }
-
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -110,9 +166,9 @@ struct AllSitesView: View {
 
                 // Sites count
                 HStack {
-                    Text("Showing \(filteredSites.count) sites")
+                    Text("\(filteredSites.count) sites to explore")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white.opacity(0.6))
                     Spacer()
                 }
                 .padding(.horizontal)
@@ -121,7 +177,7 @@ struct AllSitesView: View {
                 LazyVStack(spacing: 12) {
                     ForEach(filteredSites) { site in
                         NavigationLink(destination: SiteDetailView(site: site)) {
-                            SiteRow(site: site)
+                            SiteCard(site: site)
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -130,66 +186,64 @@ struct AllSitesView: View {
             }
             .padding(.vertical)
         }
+        .sheet(isPresented: $showEraFilter) {
+            FilterSheet(
+                title: "Select Era",
+                options: Era.allCases.map { ($0.rawValue, $0) },
+                selected: $selectedEra,
+                isPresented: $showEraFilter
+            )
+            .presentationDetents([.medium])
+        }
+        .sheet(isPresented: $showTypeFilter) {
+            FilterSheet(
+                title: "Select Type",
+                options: PlaceType.allCases.map { ($0.rawValue, $0) },
+                selected: $selectedType,
+                isPresented: $showTypeFilter
+            )
+            .presentationDetents([.medium])
+        }
+        .sheet(isPresented: $showCityFilter) {
+            FilterSheet(
+                title: "Select City",
+                options: City.allCases.map { ($0.rawValue, $0) },
+                selected: $selectedCity,
+                isPresented: $showCityFilter
+            )
+            .presentationDetents([.medium])
+        }
     }
 
     // MARK: - Filter Bar
     private var filterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                // Era filter
                 FilterChip(
                     title: selectedEra?.shortName ?? "Era",
                     isActive: selectedEra != nil,
                     icon: "calendar"
                 ) {
-                    showFilterMenu(for: .era)
-                }
-                .contextMenu {
-                    Button("All Eras") { selectedEra = nil }
-                    Divider()
-                    ForEach(Era.allCases, id: \.self) { era in
-                        Button(era.rawValue) { selectedEra = era }
-                    }
+                    showEraFilter = true
                 }
 
-                // Type filter
                 FilterChip(
                     title: selectedType?.rawValue ?? "Type",
                     isActive: selectedType != nil,
                     icon: "building.2"
                 ) {
-                    showFilterMenu(for: .type)
-                }
-                .contextMenu {
-                    Button("All Types") { selectedType = nil }
-                    Divider()
-                    ForEach(PlaceType.allCases, id: \.self) { type in
-                        Button {
-                            selectedType = type
-                        } label: {
-                            Label(type.rawValue, systemImage: type.icon)
-                        }
-                    }
+                    showTypeFilter = true
                 }
 
-                // City filter
                 FilterChip(
                     title: selectedCity?.rawValue ?? "City",
                     isActive: selectedCity != nil,
                     icon: "mappin"
                 ) {
-                    showFilterMenu(for: .city)
-                }
-                .contextMenu {
-                    Button("All Cities") { selectedCity = nil }
-                    Divider()
-                    ForEach(City.allCases, id: \.self) { city in
-                        Button(city.rawValue) { selectedCity = city }
-                    }
+                    showCityFilter = true
                 }
 
-                // Clear all
-                if activeFiltersCount > 0 {
+                if selectedEra != nil || selectedType != nil || selectedCity != nil {
                     Button(action: clearFilters) {
                         HStack(spacing: 4) {
                             Image(systemName: "xmark.circle.fill")
@@ -206,10 +260,6 @@ struct AllSitesView: View {
         }
     }
 
-    private func showFilterMenu(for filter: FilterType) {
-        // Context menu handles this
-    }
-
     private func clearFilters() {
         withAnimation {
             selectedEra = nil
@@ -217,9 +267,58 @@ struct AllSitesView: View {
             selectedCity = nil
         }
     }
+}
 
-    enum FilterType {
-        case era, type, city
+// MARK: - Filter Sheet
+struct FilterSheet<T: Hashable>: View {
+    let title: String
+    let options: [(String, T)]
+    @Binding var selected: T?
+    @Binding var isPresented: Bool
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Button(action: {
+                    selected = nil
+                    isPresented = false
+                }) {
+                    HStack {
+                        Text("All")
+                        Spacer()
+                        if selected == nil {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(Color(hex: "d4af37"))
+                        }
+                    }
+                }
+
+                ForEach(options, id: \.1) { option in
+                    Button(action: {
+                        selected = option.1
+                        isPresented = false
+                    }) {
+                        HStack {
+                            Text(option.0)
+                            Spacer()
+                            if selected == option.1 {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(Color(hex: "d4af37"))
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        isPresented = false
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -242,59 +341,85 @@ struct FilterChip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isActive ? Color.accentColor : Color(uiColor: .systemGray5))
-            .foregroundColor(isActive ? .white : .primary)
+            .background(isActive ? Color(hex: "d4af37") : Color.white.opacity(0.1))
+            .foregroundColor(isActive ? .black : .white)
             .cornerRadius(20)
         }
     }
 }
 
-// MARK: - Site Row
-struct SiteRow: View {
+// MARK: - Site Card (Dark Theme)
+struct SiteCard: View {
     let site: Site
 
     var body: some View {
-        HStack(spacing: 12) {
-            // Image placeholder
-            RoundedRectangle(cornerRadius: 10)
-                .fill(LinearGradient(
-                    colors: [.orange.opacity(0.5), .brown.opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ))
-                .frame(width: 70, height: 70)
-                .overlay(
-                    Image(systemName: site.placeType.icon)
-                        .font(.title2)
-                        .foregroundColor(.white)
-                )
+        HStack(spacing: 14) {
+            // Enhanced image placeholder with Egyptian styling
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(LinearGradient(
+                        colors: [Color(hex: "d4af37").opacity(0.35), Color(hex: "8b7355").opacity(0.5)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 80, height: 80)
 
-            VStack(alignment: .leading, spacing: 4) {
+                // Decorative border pattern
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [Color(hex: "d4af37").opacity(0.5), Color(hex: "d4af37").opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 2
+                    )
+                    .frame(width: 80, height: 80)
+
+                Image(systemName: site.placeType.icon)
+                    .font(.system(size: 30, weight: .light))
+                    .foregroundColor(Color(hex: "d4af37"))
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
                 Text(site.name)
                     .font(.headline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.white)
 
-                Text(site.city.rawValue)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 4) {
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.caption2)
+                    Text(site.city.rawValue)
+                        .font(.caption)
+                }
+                .foregroundColor(Color(hex: "d4af37"))
 
-                HStack(spacing: 8) {
+                HStack(spacing: 12) {
                     Label(site.era.shortName, systemImage: "calendar")
-                    Label(site.placeType.rawValue, systemImage: site.placeType.icon)
+                    if let subLocations = site.subLocations {
+                        Label("\(subLocations.count) places", systemImage: "rectangle.stack")
+                    }
                 }
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white.opacity(0.5))
             }
 
             Spacer()
 
-            Image(systemName: "chevron.right")
-                .foregroundColor(.secondary)
-                .font(.caption)
+            // Arrow indicator
+            VStack {
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(Color(hex: "d4af37").opacity(0.6))
+            }
         }
         .padding()
-        .background(Color(uiColor: .systemBackground))
-        .cornerRadius(12)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color(hex: "d4af37").opacity(0.2), lineWidth: 1)
+        )
     }
 }
 

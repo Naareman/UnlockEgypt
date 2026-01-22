@@ -7,40 +7,82 @@ struct NearbyView: View {
     @State private var sortedSites: [SiteWithDistance] = []
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header
-            HStack {
-                Image(systemName: "location.fill")
-                    .foregroundColor(.accentColor)
-                Text("Sites Near You")
-                    .font(.headline)
-            }
-
-            // Location status
-            locationStatusView
-
-            // Sites list
-            if !sortedSites.isEmpty {
-                VStack(spacing: 12) {
-                    ForEach(sortedSites) { item in
-                        NavigationLink(destination: SiteDetailView(site: item.site)) {
-                            NearbySiteRow(site: item.site, distance: item.formattedDistance)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Header
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "location.fill")
+                            .foregroundColor(Color(hex: "d4af37"))
+                        Text("SITES NEAR YOU")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color(hex: "d4af37"))
+                            .tracking(2)
                     }
-                }
-            } else if locationManager.authorizationStatus == .authorizedWhenInUse ||
-                      locationManager.authorizationStatus == .authorizedAlways {
-                // Loading or no sites
-                VStack(spacing: 12) {
-                    ProgressView()
-                    Text("Finding sites near you...")
+
+                    Text("Discover historical sites around your location")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white.opacity(0.6))
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
+                .padding(.horizontal)
+
+                // Location status
+                locationStatusView
+                    .padding(.horizontal)
+
+                // Sites list
+                if !sortedSites.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        // Current location info
+                        if let location = locationManager.location {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "mappin.circle.fill")
+                                        .foregroundColor(.green)
+                                    if !locationManager.locationName.isEmpty {
+                                        Text(locationManager.locationName)
+                                            .font(.caption)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.white.opacity(0.8))
+                                    } else {
+                                        Text("Getting location...")
+                                            .font(.caption)
+                                            .foregroundColor(.white.opacity(0.5))
+                                    }
+                                }
+                                Text("\(location.coordinate.latitude, specifier: "%.4f"), \(location.coordinate.longitude, specifier: "%.4f")")
+                                    .font(.caption2)
+                                    .foregroundColor(.white.opacity(0.4))
+                            }
+                            .padding(.horizontal)
+                        }
+
+                        LazyVStack(spacing: 12) {
+                            ForEach(sortedSites) { item in
+                                NavigationLink(destination: SiteDetailView(site: item.site)) {
+                                    NearbySiteRow(site: item.site, distance: item.formattedDistance)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                } else if locationManager.authorizationStatus == .authorizedWhenInUse ||
+                          locationManager.authorizationStatus == .authorizedAlways {
+                    // Loading or no sites
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .tint(Color(hex: "d4af37"))
+                        Text("Finding sites near you...")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 60)
+                }
             }
+            .padding(.vertical)
         }
         .onAppear {
             locationManager.requestPermission()
@@ -74,12 +116,12 @@ struct NearbyView: View {
 
         case .authorizedWhenInUse, .authorizedAlways:
             if locationManager.location != nil {
-                HStack {
+                HStack(spacing: 6) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
                     Text("Location active")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white.opacity(0.6))
                 }
             }
 
@@ -91,7 +133,11 @@ struct NearbyView: View {
     // MARK: - Helper Methods
     private func updateSortedSites(from userLocation: CLLocation) {
         sortedSites = sites.map { site in
-            let distance = userLocation.distance(from: site.location)
+            let siteLocation = CLLocation(
+                latitude: site.coordinates.latitude,
+                longitude: site.coordinates.longitude
+            )
+            let distance = userLocation.distance(from: siteLocation)
             return SiteWithDistance(site: site, distance: distance)
         }
         .sorted { $0.distance < $1.distance }
@@ -113,63 +159,74 @@ struct SiteWithDistance: Identifiable {
     var formattedDistance: String {
         if distance < 1000 {
             return "\(Int(distance)) m"
-        } else {
+        } else if distance < 100_000 {
             return String(format: "%.1f km", distance / 1000)
+        } else {
+            return String(format: "%.0f km", distance / 1000)
         }
     }
 }
 
-// MARK: - Nearby Site Row
+// MARK: - Nearby Site Row (Dark Theme)
 struct NearbySiteRow: View {
     let site: Site
     let distance: String
 
     var body: some View {
-        HStack(spacing: 12) {
-            // Image placeholder
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.orange.opacity(0.3))
-                .frame(width: 50, height: 50)
-                .overlay(
-                    Image(systemName: "building.columns")
-                        .foregroundColor(.orange)
-                )
+        HStack(spacing: 14) {
+            // Image placeholder with gradient
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(LinearGradient(
+                        colors: [Color(hex: "d4af37").opacity(0.3), Color(hex: "8b7355").opacity(0.5)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 60, height: 60)
 
-            VStack(alignment: .leading, spacing: 4) {
+                Image(systemName: site.placeType.icon)
+                    .font(.title2)
+                    .foregroundColor(Color(hex: "d4af37"))
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
                 Text(site.name)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(.headline)
+                    .foregroundColor(.white)
 
-                Text(site.era.rawValue)
+                Text(site.city.rawValue)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color(hex: "d4af37"))
             }
 
             Spacer()
 
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .trailing, spacing: 6) {
                 HStack(spacing: 4) {
-                    Image(systemName: "location")
+                    Image(systemName: "location.fill")
                         .font(.caption2)
                     Text(distance)
-                        .font(.caption)
-                        .fontWeight(.medium)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                 }
-                .foregroundColor(.accentColor)
+                .foregroundColor(Color(hex: "d4af37"))
 
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white.opacity(0.3))
             }
         }
         .padding()
-        .background(Color(uiColor: .systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 3)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color(hex: "d4af37").opacity(0.2), lineWidth: 1)
+        )
     }
 }
 
-// MARK: - Location Prompt Card
+// MARK: - Location Prompt Card (Dark Theme)
 struct LocationPromptCard: View {
     let title: String
     let message: String
@@ -177,47 +234,59 @@ struct LocationPromptCard: View {
     let action: () -> Void
 
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "location.circle")
-                .font(.largeTitle)
-                .foregroundColor(.accentColor)
+        VStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color(hex: "d4af37").opacity(0.2))
+                    .frame(width: 70, height: 70)
+                Image(systemName: "location.circle.fill")
+                    .font(.system(size: 40))
+                    .foregroundColor(Color(hex: "d4af37"))
+            }
 
             Text(title)
                 .font(.headline)
+                .foregroundColor(.white)
 
             Text(message)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white.opacity(0.6))
                 .multilineTextAlignment(.center)
 
             Button(action: action) {
                 Text(buttonTitle)
                     .fontWeight(.semibold)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-                    .background(Color.accentColor)
-                    .foregroundColor(.white)
-                    .cornerRadius(20)
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 12)
+                    .background(Color(hex: "d4af37"))
+                    .cornerRadius(25)
             }
         }
-        .padding()
+        .padding(24)
         .frame(maxWidth: .infinity)
-        .background(Color(uiColor: .systemGray6))
-        .cornerRadius(12)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color(hex: "d4af37").opacity(0.2), lineWidth: 1)
+        )
     }
 }
 
 // MARK: - Location Manager
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
+    private let geocoder = CLGeocoder()
 
     @Published var location: CLLocation?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
+    @Published var locationName: String = ""
 
     override init() {
         super.init()
         manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        manager.desiredAccuracy = kCLLocationAccuracyBest
         authorizationStatus = manager.authorizationStatus
     }
 
@@ -238,15 +307,54 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        location = locations.last
+        guard let newLocation = locations.last else { return }
+
+        // Only update if location changed significantly (100m)
+        if let oldLocation = location {
+            if newLocation.distance(from: oldLocation) < 100 {
+                return
+            }
+        }
+
+        location = newLocation
+        reverseGeocode(newLocation)
+    }
+
+    private func reverseGeocode(_ location: CLLocation) {
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
+            guard let self = self, let placemark = placemarks?.first else { return }
+
+            DispatchQueue.main.async {
+                var parts: [String] = []
+
+                if let neighborhood = placemark.subLocality {
+                    parts.append(neighborhood)
+                }
+                if let city = placemark.locality {
+                    parts.append(city)
+                }
+                if let country = placemark.country {
+                    parts.append(country)
+                }
+
+                self.locationName = parts.joined(separator: ", ")
+            }
+        }
     }
 }
 
 #Preview {
     NavigationStack {
-        ScrollView {
+        ZStack {
+            LinearGradient(
+                colors: [Color(hex: "1a1a2e"), Color(hex: "16213e")],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
             NearbyView(sites: SampleData.sites)
-                .padding()
         }
     }
+    .preferredColorScheme(.dark)
 }
