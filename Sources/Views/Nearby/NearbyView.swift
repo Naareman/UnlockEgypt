@@ -353,7 +353,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             )
             .ignoresSafeArea()
 
-            NearbyView(sites: SampleData.sites)
+            NearbyView(sites: PreviewData.sites)
         }
     }
     .preferredColorScheme(.dark)

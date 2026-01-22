@@ -237,7 +237,7 @@ struct TimelineSiteCard: View {
             )
             .ignoresSafeArea()
 
-            HistoryTimelineView(sites: SampleData.sites)
+            HistoryTimelineView(sites: PreviewData.sites)
         }
     }
     .preferredColorScheme(.dark)

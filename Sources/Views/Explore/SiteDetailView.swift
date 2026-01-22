@@ -435,6 +435,6 @@ struct PhraseRow: View {
 
 #Preview {
     NavigationStack {
-        SiteDetailView(site: SampleData.sites[0])
+        SiteDetailView(site: PreviewData.sites[0])
     }
 }

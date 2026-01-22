@@ -7,36 +7,60 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		241F1A8BD6F19B3CE81D1AC3 /* SiteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 338A86CD68D877CD68EB7E81 /* SiteCard.swift */; };
+		2C774FA2C563EFEF8E4550C3 /* NearbyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D296DB521A3C10FA856E98 /* NearbyView.swift */; };
 		2DFFC3DF8ED5B99EFC1A24A0 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA7EE2ED6A1396953281822 /* Color+Hex.swift */; };
-		3211969CA2187367D725D2EB /* UnlockEgyptApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DEFBA780197451E21D52EA /* UnlockEgyptApp.swift */; };
-		47E02FD623C5202B92D3D605 /* SiteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A4240FBF2FEF5A443113C9 /* SiteDetailView.swift */; };
-		49BEB05A9921AAC2294B98C9 /* NearbyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B046D43C5138CF7BB4F75847 /* NearbyView.swift */; };
-		5DCFCFDA730117C7F75303FC /* StoryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACF0F42FDEF6A7DFE2A0965 /* StoryCardView.swift */; };
-		6CDF98DAD3D39F4CC78DFB25 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 083B7A3EBB130E21DB918BAC /* SampleData.swift */; };
+		4B2FC2B8A66A39EAD33FA023 /* StoryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE4D0FA0F6795BA3B9FE440 /* StoryCardView.swift */; };
+		4B5E3AD917F01F94370CDF0B /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0A7385325D2DE9AB174B16 /* Theme.swift */; };
 		74DFD778EC40700FCC1D0F0E /* Site.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8D6D578E4017673E26E884 /* Site.swift */; };
-		A2CFCFF8D7E0BF7E7E5EEAB8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC24DBD6EAF7D147295A873 /* HomeView.swift */; };
-		D6C5C300F6A78983BB82FA1B /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A743CC6095177F1C16AF27D /* TimelineView.swift */; };
+		78237D92F1B5A6B8E381544D /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F68FECBC70D34FDEA24A5DC4 /* HomeViewModel.swift */; };
+		8D7D3AB6C922772715D8247C /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41E33B384E631BB686E723E /* PreviewData.swift */; };
+		8FFE9AFAE22A4FBFC2111FD7 /* SiteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2F4689E322BABE6BF8862B /* SiteDetailView.swift */; };
+		95F1C24C2C703CDC8E07BD05 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B001C5D6ECBF3506266A554 /* HomeView.swift */; };
+		A4A317600FA7503F1B46BE2F /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92EC383452AC8C0BFE02B2D /* TimelineView.swift */; };
+		ACDD7DD77D291F0D372503BD /* PointsBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CD62194AA07DBAE3AE20F3E /* PointsBadge.swift */; };
 		DCE51CABB88067B5F1AD431C /* ContentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ABEF41434D1BD825DFD111 /* ContentService.swift */; };
-		F7EB1A610BE04D0995B8D011 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C655EFF89BCC81397E4C297 /* HomeViewModel.swift */; };
+		E32E9029F773F83D95112137 /* UnlockEgyptApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3F625C609C2FE50D61B090 /* UnlockEgyptApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		04A4240FBF2FEF5A443113C9 /* SiteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteDetailView.swift; sourceTree = "<group>"; };
-		083B7A3EBB130E21DB918BAC /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
-		1ACF0F42FDEF6A7DFE2A0965 /* StoryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryCardView.swift; sourceTree = "<group>"; };
+		0B001C5D6ECBF3506266A554 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		1CB154A67F98F6041C294C25 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		2C655EFF89BCC81397E4C297 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		338A86CD68D877CD68EB7E81 /* SiteCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteCard.swift; sourceTree = "<group>"; };
 		355957BB10ADC7073819E108 /* UnlockEgypt.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = UnlockEgypt.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3A743CC6095177F1C16AF27D /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
 		43ABEF41434D1BD825DFD111 /* ContentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentService.swift; sourceTree = "<group>"; };
-		9AC24DBD6EAF7D147295A873 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		B046D43C5138CF7BB4F75847 /* NearbyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyView.swift; sourceTree = "<group>"; };
+		5CD62194AA07DBAE3AE20F3E /* PointsBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointsBadge.swift; sourceTree = "<group>"; };
+		75D296DB521A3C10FA856E98 /* NearbyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyView.swift; sourceTree = "<group>"; };
+		7B3F625C609C2FE50D61B090 /* UnlockEgyptApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockEgyptApp.swift; sourceTree = "<group>"; };
+		7D2F4689E322BABE6BF8862B /* SiteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteDetailView.swift; sourceTree = "<group>"; };
+		7DE4D0FA0F6795BA3B9FE440 /* StoryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryCardView.swift; sourceTree = "<group>"; };
+		9A0A7385325D2DE9AB174B16 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		BBA7EE2ED6A1396953281822 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		CE8D6D578E4017673E26E884 /* Site.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Site.swift; sourceTree = "<group>"; };
-		E2DEFBA780197451E21D52EA /* UnlockEgyptApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockEgyptApp.swift; sourceTree = "<group>"; };
+		D41E33B384E631BB686E723E /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
+		D92EC383452AC8C0BFE02B2D /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		F68FECBC70D34FDEA24A5DC4 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		063EF0F3BBCBA493C6D67E7C /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				5CD62194AA07DBAE3AE20F3E /* PointsBadge.swift */,
+				338A86CD68D877CD68EB7E81 /* SiteCard.swift */,
+				9A0A7385325D2DE9AB174B16 /* Theme.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		1D5DB9372328EF9741D6F80A /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F68FECBC70D34FDEA24A5DC4 /* HomeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		23AFE8C672F5177723F73A94 = {
 			isa = PBXGroup;
 			children = (
@@ -57,11 +81,12 @@
 			isa = PBXGroup;
 			children = (
 				1CB154A67F98F6041C294C25 /* Info.plist */,
-				E2DEFBA780197451E21D52EA /* UnlockEgyptApp.swift */,
-				832F60E8C48DED2E746D00B9 /* Data */,
+				F227470BF57C7D11BCA9C0CE /* App */,
 				4243DD9B664F485622094228 /* Extensions */,
 				85EFDAD5FCA1D9BD7733748B /* Models */,
+				BB5FA573FB033F62CD093324 /* Preview */,
 				8E7A29CB86E95856740D8E32 /* Services */,
+				1D5DB9372328EF9741D6F80A /* ViewModels */,
 				B7CBC3E5CA1D39F998C075B8 /* Views */,
 			);
 			path = Sources;
@@ -75,12 +100,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		832F60E8C48DED2E746D00B9 /* Data */ = {
+		50DC1B12AEF20F788E49A3ED /* Explore */ = {
 			isa = PBXGroup;
 			children = (
-				083B7A3EBB130E21DB918BAC /* SampleData.swift */,
+				7D2F4689E322BABE6BF8862B /* SiteDetailView.swift */,
+				7DE4D0FA0F6795BA3B9FE440 /* StoryCardView.swift */,
 			);
-			path = Data;
+			path = Explore;
 			sourceTree = "<group>";
 		};
 		85EFDAD5FCA1D9BD7733748B /* Models */ = {
@@ -99,17 +125,56 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		AD9160601851816A4775749C /* Nearby */ = {
+			isa = PBXGroup;
+			children = (
+				75D296DB521A3C10FA856E98 /* NearbyView.swift */,
+			);
+			path = Nearby;
+			sourceTree = "<group>";
+		};
+		B0BC970795E02688FDAD3C53 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				0B001C5D6ECBF3506266A554 /* HomeView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
 		B7CBC3E5CA1D39F998C075B8 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				9AC24DBD6EAF7D147295A873 /* HomeView.swift */,
-				2C655EFF89BCC81397E4C297 /* HomeViewModel.swift */,
-				B046D43C5138CF7BB4F75847 /* NearbyView.swift */,
-				04A4240FBF2FEF5A443113C9 /* SiteDetailView.swift */,
-				1ACF0F42FDEF6A7DFE2A0965 /* StoryCardView.swift */,
-				3A743CC6095177F1C16AF27D /* TimelineView.swift */,
+				063EF0F3BBCBA493C6D67E7C /* Components */,
+				50DC1B12AEF20F788E49A3ED /* Explore */,
+				B0BC970795E02688FDAD3C53 /* Home */,
+				AD9160601851816A4775749C /* Nearby */,
+				E81346902241D9F54A3C5459 /* Timeline */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		BB5FA573FB033F62CD093324 /* Preview */ = {
+			isa = PBXGroup;
+			children = (
+				D41E33B384E631BB686E723E /* PreviewData.swift */,
+			);
+			path = Preview;
+			sourceTree = "<group>";
+		};
+		E81346902241D9F54A3C5459 /* Timeline */ = {
+			isa = PBXGroup;
+			children = (
+				D92EC383452AC8C0BFE02B2D /* TimelineView.swift */,
+			);
+			path = Timeline;
+			sourceTree = "<group>";
+		};
+		F227470BF57C7D11BCA9C0CE /* App */ = {
+			isa = PBXGroup;
+			children = (
+				7B3F625C609C2FE50D61B090 /* UnlockEgyptApp.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -173,15 +238,18 @@
 			files = (
 				2DFFC3DF8ED5B99EFC1A24A0 /* Color+Hex.swift in Sources */,
 				DCE51CABB88067B5F1AD431C /* ContentService.swift in Sources */,
-				A2CFCFF8D7E0BF7E7E5EEAB8 /* HomeView.swift in Sources */,
-				F7EB1A610BE04D0995B8D011 /* HomeViewModel.swift in Sources */,
-				49BEB05A9921AAC2294B98C9 /* NearbyView.swift in Sources */,
-				6CDF98DAD3D39F4CC78DFB25 /* SampleData.swift in Sources */,
+				95F1C24C2C703CDC8E07BD05 /* HomeView.swift in Sources */,
+				78237D92F1B5A6B8E381544D /* HomeViewModel.swift in Sources */,
+				2C774FA2C563EFEF8E4550C3 /* NearbyView.swift in Sources */,
+				ACDD7DD77D291F0D372503BD /* PointsBadge.swift in Sources */,
+				8D7D3AB6C922772715D8247C /* PreviewData.swift in Sources */,
 				74DFD778EC40700FCC1D0F0E /* Site.swift in Sources */,
-				47E02FD623C5202B92D3D605 /* SiteDetailView.swift in Sources */,
-				5DCFCFDA730117C7F75303FC /* StoryCardView.swift in Sources */,
-				D6C5C300F6A78983BB82FA1B /* TimelineView.swift in Sources */,
-				3211969CA2187367D725D2EB /* UnlockEgyptApp.swift in Sources */,
+				241F1A8BD6F19B3CE81D1AC3 /* SiteCard.swift in Sources */,
+				8FFE9AFAE22A4FBFC2111FD7 /* SiteDetailView.swift in Sources */,
+				4B2FC2B8A66A39EAD33FA023 /* StoryCardView.swift in Sources */,
+				4B5E3AD917F01F94370CDF0B /* Theme.swift in Sources */,
+				A4A317600FA7503F1B46BE2F /* TimelineView.swift in Sources */,
+				E32E9029F773F83D95112137 /* UnlockEgyptApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

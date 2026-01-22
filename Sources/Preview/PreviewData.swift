@@ -1,7 +1,7 @@
 import Foundation
 
-/// Sample data for the app
-struct SampleData {
+/// Preview data for SwiftUI previews
+struct PreviewData {
 
     // MARK: - Sites
     static let sites: [Site] = [

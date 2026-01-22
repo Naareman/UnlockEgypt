@@ -7,13 +7,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Dark gradient background
-                LinearGradient(
-                    colors: [Color(hex: "1a1a2e"), Color(hex: "16213e")],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
+                GradientBackground()
 
                 VStack(spacing: 0) {
                     // Custom header
@@ -56,7 +50,7 @@ struct HomeView: View {
                         .foregroundColor(.white)
                     + Text(" EGYPT")
                         .font(.system(size: 32, weight: .black))
-                        .foregroundColor(Color(hex: "d4af37")) // Gold
+                        .foregroundColor(Theme.Colors.gold)
 
                     Text("Discover 5,000 years of history")
                         .font(.subheadline)
@@ -65,21 +59,7 @@ struct HomeView: View {
 
                 Spacer()
 
-                // Profile/Points button
-                VStack(spacing: 4) {
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "d4af37").opacity(0.2))
-                            .frame(width: 50, height: 50)
-                        Image(systemName: "trophy.fill")
-                            .font(.title2)
-                            .foregroundColor(Color(hex: "d4af37"))
-                    }
-                    Text("\(viewModel.totalPoints) pts")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundColor(Color(hex: "d4af37"))
-                }
+                PointsBadge(points: viewModel.totalPoints)
             }
         }
         .padding(.vertical, 8)
@@ -106,8 +86,8 @@ struct HomeView: View {
                     .padding(.vertical, 12)
                     .background(
                         selectedTab == tab ?
-                        Color(hex: "d4af37") :
-                        Color.white.opacity(0.1)
+                        Theme.Colors.gold :
+                        Theme.Colors.cardBackground
                     )
                     .foregroundColor(selectedTab == tab ? .black : .white.opacity(0.7))
                     .cornerRadius(12)
@@ -288,7 +268,7 @@ struct FilterSheet<T: Hashable>: View {
                         Spacer()
                         if selected == nil {
                             Image(systemName: "checkmark")
-                                .foregroundColor(Color(hex: "d4af37"))
+                                .foregroundColor(Theme.Colors.gold)
                         }
                     }
                 }
@@ -303,7 +283,7 @@ struct FilterSheet<T: Hashable>: View {
                             Spacer()
                             if selected == option.1 {
                                 Image(systemName: "checkmark")
-                                    .foregroundColor(Color(hex: "d4af37"))
+                                    .foregroundColor(Theme.Colors.gold)
                             }
                         }
                     }
@@ -341,85 +321,10 @@ struct FilterChip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isActive ? Color(hex: "d4af37") : Color.white.opacity(0.1))
+            .background(isActive ? Theme.Colors.gold : Theme.Colors.cardBackground)
             .foregroundColor(isActive ? .black : .white)
             .cornerRadius(20)
         }
-    }
-}
-
-// MARK: - Site Card (Dark Theme)
-struct SiteCard: View {
-    let site: Site
-
-    var body: some View {
-        HStack(spacing: 14) {
-            // Enhanced image placeholder with Egyptian styling
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(LinearGradient(
-                        colors: [Color(hex: "d4af37").opacity(0.35), Color(hex: "8b7355").opacity(0.5)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                    .frame(width: 80, height: 80)
-
-                // Decorative border pattern
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [Color(hex: "d4af37").opacity(0.5), Color(hex: "d4af37").opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 2
-                    )
-                    .frame(width: 80, height: 80)
-
-                Image(systemName: site.placeType.icon)
-                    .font(.system(size: 30, weight: .light))
-                    .foregroundColor(Color(hex: "d4af37"))
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(site.name)
-                    .font(.headline)
-                    .foregroundColor(.white)
-
-                HStack(spacing: 4) {
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.caption2)
-                    Text(site.city.rawValue)
-                        .font(.caption)
-                }
-                .foregroundColor(Color(hex: "d4af37"))
-
-                HStack(spacing: 12) {
-                    Label(site.era.shortName, systemImage: "calendar")
-                    if let subLocations = site.subLocations {
-                        Label("\(subLocations.count) places", systemImage: "rectangle.stack")
-                    }
-                }
-                .font(.caption2)
-                .foregroundColor(.white.opacity(0.5))
-            }
-
-            Spacer()
-
-            // Arrow indicator
-            VStack {
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(Color(hex: "d4af37").opacity(0.6))
-            }
-        }
-        .padding()
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color(hex: "d4af37").opacity(0.2), lineWidth: 1)
-        )
     }
 }
 
