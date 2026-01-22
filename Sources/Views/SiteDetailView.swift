@@ -1,11 +1,8 @@
 import SwiftUI
-import AVFoundation
 
 struct SiteDetailView: View {
     let site: Site
-    @State private var selectedTab: DetailTab = .story
-    @State private var isPlayingAudio = false
-    @StateObject private var audioPlayer = AudioPlayerManager()
+    @State private var selectedTab: SiteTab = .explore
 
     var body: some View {
         ScrollView {
@@ -19,14 +16,12 @@ struct SiteDetailView: View {
                     siteHeader
 
                     // Tab selector
-                    detailTabSelector
+                    tabSelector
 
                     // Tab content
                     switch selectedTab {
-                    case .story:
-                        storyContent
-                    case .quiz:
-                        quizContent
+                    case .explore:
+                        exploreContent
                     case .info:
                         infoContent
                     }
@@ -41,74 +36,60 @@ struct SiteDetailView: View {
     // MARK: - Hero Section
     private var heroSection: some View {
         ZStack(alignment: .bottomLeading) {
-            // Placeholder gradient (replace with actual image)
+            // Placeholder gradient
             LinearGradient(
                 colors: [.orange, .brown.opacity(0.8)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .frame(height: 280)
+            .frame(height: 250)
 
-            // Gradient overlay for text readability
+            // Gradient overlay
             LinearGradient(
                 colors: [.clear, .black.opacity(0.7)],
                 startPoint: .top,
                 endPoint: .bottom
             )
 
-            // Era badge
-            VStack(alignment: .leading) {
+            // Info overlay
+            VStack(alignment: .leading, spacing: 8) {
                 Spacer()
-                Text(site.era.rawValue)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(8)
+
+                // Badges
+                HStack(spacing: 8) {
+                    TagBadge(text: site.era.shortName, icon: "calendar")
+                    TagBadge(text: site.placeType.rawValue, icon: site.placeType.icon)
+                    TagBadge(text: site.city.rawValue, icon: "mappin")
+                }
+
+                Text(site.name)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+
+                Text(site.arabicName)
+                    .font(.title3)
+                    .foregroundColor(.white.opacity(0.8))
             }
             .padding()
         }
-        .frame(height: 280)
+        .frame(height: 250)
     }
 
     // MARK: - Site Header
     private var siteHeader: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(site.name)
-                .font(.title)
-                .fontWeight(.bold)
-
-            Text(site.arabicName)
-                .font(.title3)
-                .foregroundColor(.secondary)
-
             Text(site.shortDescription)
                 .font(.body)
                 .foregroundColor(.secondary)
-                .padding(.top, 4)
-
-            // Audio button if available
-            if let firstStory = site.stories.first, firstStory.audioFileName != nil {
-                Button(action: { toggleAudio() }) {
-                    HStack {
-                        Image(systemName: isPlayingAudio ? "pause.circle.fill" : "play.circle.fill")
-                            .font(.title2)
-                        Text(isPlayingAudio ? "Pause Narration" : "Listen to Story")
-                            .fontWeight(.medium)
-                    }
-                    .foregroundColor(.accentColor)
-                }
-                .padding(.top, 8)
-            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Tab Selector
-    private var detailTabSelector: some View {
+    private var tabSelector: some View {
         HStack(spacing: 0) {
-            ForEach(DetailTab.allCases, id: \.self) { tab in
+            ForEach(SiteTab.allCases, id: \.self) { tab in
                 Button(action: {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         selectedTab = tab
@@ -132,26 +113,28 @@ struct SiteDetailView: View {
         }
     }
 
-    // MARK: - Story Content
-    private var storyContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            ForEach(site.stories) { story in
-                StoryCard(story: story)
-            }
-        }
-    }
+    // MARK: - Explore Content (Sub-locations)
+    private var exploreContent: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let subLocations = site.subLocations, !subLocations.isEmpty {
+                Text("Things to See")
+                    .font(.headline)
 
-    // MARK: - Quiz Content
-    private var quizContent: some View {
-        Group {
-            if let quiz = site.quiz {
-                QuizView(quiz: quiz, siteId: site.id)
+                LazyVStack(spacing: 12) {
+                    ForEach(subLocations) { subLocation in
+                        NavigationLink(destination: StoryCardsView(subLocation: subLocation)) {
+                            SubLocationCard(subLocation: subLocation)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
             } else {
+                // Fallback for sites without sub-locations
                 VStack(spacing: 12) {
-                    Image(systemName: "questionmark.circle")
+                    Image(systemName: "photo.on.rectangle.angled")
                         .font(.largeTitle)
                         .foregroundColor(.secondary)
-                    Text("Quiz coming soon!")
+                    Text("Content coming soon")
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -196,108 +179,97 @@ struct SiteDetailView: View {
             }
         }
     }
-
-    private func toggleAudio() {
-        isPlayingAudio.toggle()
-        // Audio implementation will go here
-    }
 }
 
-// MARK: - Detail Tab
-enum DetailTab: CaseIterable {
-    case story, quiz, info
+// MARK: - Site Tab
+enum SiteTab: CaseIterable {
+    case explore, info
 
     var title: String {
         switch self {
-        case .story: return "Story"
-        case .quiz: return "Quiz"
+        case .explore: return "Explore"
         case .info: return "Visit Info"
         }
     }
 
     var icon: String {
         switch self {
-        case .story: return "book"
-        case .quiz: return "questionmark.circle"
+        case .explore: return "eye"
         case .info: return "info.circle"
         }
     }
 }
 
-// MARK: - Story Card
-struct StoryCard: View {
-    let story: Story
-    @State private var isExpanded = false
+// MARK: - Tag Badge
+struct TagBadge: View {
+    let text: String
+    let icon: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(story.title)
-                        .font(.headline)
-                    HStack(spacing: 8) {
-                        Label(story.perspective.rawValue, systemImage: story.perspective.icon)
-                        Text("·")
-                        Text("\(story.estimatedReadTime) min read")
-                    }
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption2)
+            Text(text)
+                .font(.caption2)
+                .fontWeight(.medium)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
+        .foregroundColor(.white)
+    }
+}
+
+// MARK: - Sub-Location Card
+struct SubLocationCard: View {
+    let subLocation: SubLocation
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Image placeholder
+            RoundedRectangle(cornerRadius: 10)
+                .fill(LinearGradient(
+                    colors: [.orange.opacity(0.5), .brown.opacity(0.6)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .frame(width: 80, height: 80)
+                .overlay(
+                    Image(systemName: "photo")
+                        .font(.title2)
+                        .foregroundColor(.white.opacity(0.7))
+                )
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(subLocation.name)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+
+                Text(subLocation.shortDescription)
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .lineLimit(2)
+
+                HStack(spacing: 4) {
+                    Image(systemName: "rectangle.stack")
+                        .font(.caption2)
+                    Text("\(subLocation.storyCards.count) cards")
+                        .font(.caption2)
                 }
-                Spacer()
-                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                    .foregroundColor(.secondary)
+                .foregroundColor(.accentColor)
             }
 
-            if isExpanded {
-                Divider()
+            Spacer()
 
-                // Chapters
-                ForEach(story.chapters) { chapter in
-                    ChapterView(chapter: chapter)
-                }
-            }
+            Image(systemName: "chevron.right")
+                .foregroundColor(.secondary)
+                .font(.caption)
         }
         .padding()
         .background(Color(uiColor: .systemBackground))
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 5)
-        .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                isExpanded.toggle()
-            }
-        }
-    }
-}
-
-// MARK: - Chapter View
-struct ChapterView: View {
-    let chapter: Chapter
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(chapter.title)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-
-            Text(chapter.content)
-                .font(.body)
-                .lineSpacing(4)
-
-            if let didYouKnow = chapter.didYouKnow {
-                HStack(alignment: .top, spacing: 8) {
-                    Image(systemName: "lightbulb.fill")
-                        .foregroundColor(.yellow)
-                    Text("Did you know? \(didYouKnow)")
-                        .font(.caption)
-                        .italic()
-                }
-                .padding()
-                .background(Color.yellow.opacity(0.1))
-                .cornerRadius(8)
-            }
-        }
-        .padding(.vertical, 8)
+        .shadow(color: .black.opacity(0.05), radius: 3)
     }
 }
 
@@ -361,26 +333,6 @@ struct PhraseRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(uiColor: .systemGray6))
         .cornerRadius(8)
-    }
-}
-
-// MARK: - Audio Player Manager
-class AudioPlayerManager: ObservableObject {
-    private var audioPlayer: AVAudioPlayer?
-    @Published var isPlaying = false
-
-    func play(fileName: String) {
-        // Implementation for playing audio files
-    }
-
-    func pause() {
-        audioPlayer?.pause()
-        isPlaying = false
-    }
-
-    func stop() {
-        audioPlayer?.stop()
-        isPlaying = false
     }
 }
 
