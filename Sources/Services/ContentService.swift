@@ -13,23 +13,25 @@ class ContentService: ObservableObject {
     // MARK: - Configuration
 
     /// GitHub raw URL for the content JSON
-    /// Format: https://raw.githubusercontent.com/{username}/{repo}/{branch}/content/unlock_egypt_content.json
     private let remoteURL = "https://raw.githubusercontent.com/Naareman/UnlockEgypt/main/content/unlock_egypt_content.json"
 
     /// Local cache file name
     private let cacheFileName = "unlock_egypt_content_cache.json"
 
+    /// Bundled JSON file name (included in app bundle)
+    private let bundledFileName = "unlock_egypt_content"
+
     // MARK: - Singleton
     static let shared = ContentService()
 
     private init() {
-        // Load cached content immediately
-        loadCachedContent()
+        // Load content: cache first, then bundled fallback
+        loadInitialContent()
     }
 
     // MARK: - Public Methods
 
-    /// Fetch fresh content from remote, falling back to cache
+    /// Fetch fresh content from remote, falling back to cache/bundled
     func fetchContent() async {
         isLoading = true
         error = nil
@@ -47,15 +49,9 @@ class ContentService: ObservableObject {
         } catch {
             print("ContentService: Remote fetch failed: \(error.localizedDescription)")
 
-            // Fall back to cached content if available
+            // Keep using current content (cache or bundled)
             if sites.isEmpty {
-                loadCachedContent()
-            }
-
-            // Fall back to sample data if still empty
-            if sites.isEmpty {
-                print("ContentService: Using sample data as fallback")
-                sites = SampleData.sites
+                loadInitialContent()
             }
 
             self.error = error.localizedDescription
@@ -87,13 +83,22 @@ class ContentService: ObservableObject {
         return try decoder.decode(ContentResponse.self, from: data)
     }
 
-    private func loadCachedContent() {
+    /// Load content from cache, falling back to bundled JSON
+    private func loadInitialContent() {
+        // Try cache first
+        if loadCachedContent() {
+            return
+        }
+
+        // Fall back to bundled JSON
+        loadBundledContent()
+    }
+
+    /// Load from cache, returns true if successful
+    private func loadCachedContent() -> Bool {
         guard let cacheURL = cacheFileURL,
               FileManager.default.fileExists(atPath: cacheURL.path) else {
-            // No cache, use sample data
-            sites = SampleData.sites
-            print("ContentService: No cache found, using sample data")
-            return
+            return false
         }
 
         do {
@@ -103,9 +108,29 @@ class ContentService: ObservableObject {
             self.sites = content.sites
             self.lastUpdated = ISO8601DateFormatter().date(from: content.lastUpdated)
             print("ContentService: Loaded \(sites.count) sites from cache")
+            return true
         } catch {
             print("ContentService: Cache load failed: \(error.localizedDescription)")
-            sites = SampleData.sites
+            return false
+        }
+    }
+
+    /// Load from bundled JSON file in app bundle
+    private func loadBundledContent() {
+        guard let bundledURL = Bundle.main.url(forResource: bundledFileName, withExtension: "json") else {
+            print("ContentService: Bundled JSON not found")
+            return
+        }
+
+        do {
+            let data = try Data(contentsOf: bundledURL)
+            let decoder = JSONDecoder()
+            let content = try decoder.decode(ContentResponse.self, from: data)
+            self.sites = content.sites
+            self.lastUpdated = ISO8601DateFormatter().date(from: content.lastUpdated)
+            print("ContentService: Loaded \(sites.count) sites from bundled JSON")
+        } catch {
+            print("ContentService: Bundled JSON load failed: \(error.localizedDescription)")
         }
     }
 

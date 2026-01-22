@@ -98,10 +98,11 @@ echo -e "${YELLOW}Step 3: Pushing to GitHub...${NC}"
 cd "$SCRIPT_DIR"
 
 # Check if there are changes
-if git diff --quiet content/unlock_egypt_content.json 2>/dev/null; then
+if git diff --quiet content/unlock_egypt_content.json Resources/unlock_egypt_content.json 2>/dev/null; then
     echo -e "${YELLOW}No content changes detected.${NC}"
 else
     git add content/unlock_egypt_content.json
+    git add Resources/unlock_egypt_content.json
     git add ContentManagement/data/*.csv
 
     TIMESTAMP=$(date +"%Y-%m-%d %H:%M")

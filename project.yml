@@ -31,6 +31,7 @@ targets:
         GENERATE_INFOPLIST_FILE: NO
     resources:
       - path: Resources/Assets.xcassets
+      - path: Resources/unlock_egypt_content.json
       - path: Resources/Images
         optional: true
       - path: Resources/Audio

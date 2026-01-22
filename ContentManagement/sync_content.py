@@ -286,21 +286,29 @@ def main():
     print("\n2. Converting to app JSON format...")
     app_json = convert_to_app_json(sheets_data)
 
-    # Ensure output directory exists
-    output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'content')
-    os.makedirs(output_dir, exist_ok=True)
+    # Ensure output directories exist
+    project_dir = os.path.dirname(os.path.dirname(__file__))
+    content_dir = os.path.join(project_dir, 'content')
+    resources_dir = os.path.join(project_dir, 'Resources')
+    os.makedirs(content_dir, exist_ok=True)
 
-    output_path = os.path.join(output_dir, 'unlock_egypt_content.json')
+    json_filename = 'unlock_egypt_content.json'
+    content_path = os.path.join(content_dir, json_filename)
+    resources_path = os.path.join(resources_dir, json_filename)
 
-    print(f"\n3. Saving to {output_path}...")
-    with open(output_path, 'w', encoding='utf-8') as f:
+    print(f"\n3. Saving JSON files...")
+
+    # Save to content folder (for GitHub)
+    with open(content_path, 'w', encoding='utf-8') as f:
         json.dump(app_json, f, indent=2, ensure_ascii=False)
+    print(f"   ✓ {content_path}")
+
+    # Also copy to Resources folder (bundled with app)
+    with open(resources_path, 'w', encoding='utf-8') as f:
+        json.dump(app_json, f, indent=2, ensure_ascii=False)
+    print(f"   ✓ {resources_path}")
 
     print(f"\n✓ Done! Generated JSON with {len(app_json['sites'])} sites.")
-    print(f"\nNext steps:")
-    print(f"1. Review the JSON file: {output_path}")
-    print(f"2. Commit and push to GitHub")
-    print(f"3. The app will fetch from the GitHub raw URL")
 
     return app_json
 
