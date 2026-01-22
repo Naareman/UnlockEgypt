@@ -12,7 +12,7 @@ struct HistoryTimelineView: View {
                     Text("JOURNEY THROUGH TIME")
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundColor(Color(hex: "d4af37"))
+                        .foregroundColor(Theme.Colors.gold)
                         .tracking(2)
 
                     Text("5,000 years of history")
@@ -105,7 +105,7 @@ struct TimelineEraPill: View {
     private var eraColor: Color {
         switch era {
         case .preDynastic: return Color(hex: "9b59b6")
-        case .oldKingdom: return Color(hex: "d4af37")
+        case .oldKingdom: return Theme.Colors.gold
         case .middleKingdom: return Color(hex: "f39c12")
         case .newKingdom: return Color(hex: "e74c3c")
         case .latePeriod: return Color(hex: "3498db")
@@ -128,9 +128,9 @@ struct TimelineEraRow: View {
             // Timeline indicator
             VStack(spacing: 0) {
                 Circle()
-                    .fill(sites.isEmpty ? Color.white.opacity(0.2) : Color(hex: "d4af37"))
+                    .fill(sites.isEmpty ? Color.white.opacity(0.2) : Theme.Colors.gold)
                     .frame(width: 14, height: 14)
-                    .shadow(color: sites.isEmpty ? .clear : Color(hex: "d4af37").opacity(0.5), radius: 4)
+                    .shadow(color: sites.isEmpty ? .clear : Theme.Colors.gold.opacity(0.5), radius: 4)
 
                 if !isLast {
                     Rectangle()
@@ -149,7 +149,7 @@ struct TimelineEraRow: View {
                         .foregroundColor(.white)
                     Text(era.yearRange)
                         .font(.caption)
-                        .foregroundColor(Color(hex: "d4af37"))
+                        .foregroundColor(Theme.Colors.gold)
                 }
 
                 if !sites.isEmpty {
@@ -185,7 +185,7 @@ struct TimelineSiteCard: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(LinearGradient(
-                        colors: [Color(hex: "d4af37").opacity(0.3), Color(hex: "8b7355").opacity(0.4)],
+                        colors: [Theme.Colors.gold.opacity(0.3), Color(hex: "8b7355").opacity(0.4)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))
@@ -193,7 +193,7 @@ struct TimelineSiteCard: View {
 
                 Image(systemName: site.placeType.icon)
                     .font(.title3)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -222,7 +222,7 @@ struct TimelineSiteCard: View {
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(hex: "d4af37").opacity(0.15), lineWidth: 1)
+                .stroke(Theme.Colors.gold.opacity(0.15), lineWidth: 1)
         )
     }
 }
@@ -230,13 +230,7 @@ struct TimelineSiteCard: View {
 #Preview {
     NavigationStack {
         ZStack {
-            LinearGradient(
-                colors: [Color(hex: "1a1a2e"), Color(hex: "16213e")],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
+            GradientBackground()
             HistoryTimelineView(sites: PreviewData.sites)
         }
     }

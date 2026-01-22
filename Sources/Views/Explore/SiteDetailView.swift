@@ -7,7 +7,7 @@ struct SiteDetailView: View {
     var body: some View {
         ZStack {
             // Dark background
-            Color(hex: "1a1a2e")
+            Theme.Colors.darkBackground
                 .ignoresSafeArea()
 
             ScrollView {
@@ -42,7 +42,7 @@ struct SiteDetailView: View {
             // Multi-layer gradient background for depth
             ZStack {
                 LinearGradient(
-                    colors: [Color(hex: "d4af37").opacity(0.5), Color(hex: "8b7355").opacity(0.3), Color(hex: "1a1a2e")],
+                    colors: [Theme.Colors.gold.opacity(0.5), Theme.Colors.sand.opacity(0.3), Theme.Colors.darkBackground],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -58,7 +58,7 @@ struct SiteDetailView: View {
                             path.addLine(to: CGPoint(x: i + 30, y: height * 0.3))
                         }
                     }
-                    .stroke(Color(hex: "d4af37").opacity(0.1), lineWidth: 1)
+                    .stroke(Theme.Colors.gold.opacity(0.1), lineWidth: 1)
                 }
             }
             .frame(height: 280)
@@ -68,13 +68,13 @@ struct SiteDetailView: View {
                 ZStack {
                     // Glow effect
                     Circle()
-                        .fill(Color(hex: "d4af37").opacity(0.15))
+                        .fill(Theme.Colors.gold.opacity(0.15))
                         .frame(width: 150, height: 150)
                         .blur(radius: 20)
 
                     Image(systemName: site.placeType.icon)
                         .font(.system(size: 70, weight: .light))
-                        .foregroundColor(Color(hex: "d4af37").opacity(0.4))
+                        .foregroundColor(Theme.Colors.gold.opacity(0.4))
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -98,12 +98,12 @@ struct SiteDetailView: View {
 
                 Text(site.arabicName)
                     .font(.title3)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
             }
             .padding()
             .background(
                 LinearGradient(
-                    colors: [.clear, Color(hex: "1a1a2e").opacity(0.8)],
+                    colors: [.clear, Theme.Colors.darkBackground.opacity(0.8)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -135,10 +135,10 @@ struct SiteDetailView: View {
                             Text(tab.title)
                         }
                         .fontWeight(selectedTab == tab ? .semibold : .regular)
-                        .foregroundColor(selectedTab == tab ? Color(hex: "d4af37") : .white.opacity(0.5))
+                        .foregroundColor(selectedTab == tab ? Theme.Colors.gold : .white.opacity(0.5))
 
                         Rectangle()
-                            .fill(selectedTab == tab ? Color(hex: "d4af37") : Color.clear)
+                            .fill(selectedTab == tab ? Theme.Colors.gold : Color.clear)
                             .frame(height: 2)
                     }
                 }
@@ -154,7 +154,7 @@ struct SiteDetailView: View {
                 Text("DISCOVER")
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
                     .tracking(2)
 
                 Text("\(subLocations.count) places to explore")
@@ -173,7 +173,7 @@ struct SiteDetailView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "sparkles")
                         .font(.largeTitle)
-                        .foregroundColor(Color(hex: "d4af37"))
+                        .foregroundColor(Theme.Colors.gold)
                     Text("Stories coming soon...")
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -198,7 +198,7 @@ struct SiteDetailView: View {
                     ForEach(site.visitInfo.tips, id: \.self) { tip in
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(Color(hex: "d4af37"))
+                                .foregroundColor(Theme.Colors.gold)
                                 .font(.caption)
                             Text(tip)
                                 .font(.subheadline)
@@ -275,8 +275,8 @@ struct SubLocationCard: View {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(LinearGradient(
                         colors: [
-                            Color(hex: "d4af37").opacity(isCompleted ? 0.5 : 0.3),
-                            Color(hex: "8b7355").opacity(isCompleted ? 0.6 : 0.4)
+                            Theme.Colors.gold.opacity(isCompleted ? 0.5 : 0.3),
+                            Theme.Colors.sand.opacity(isCompleted ? 0.6 : 0.4)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -286,7 +286,7 @@ struct SubLocationCard: View {
                 // Egyptian-themed icon based on name
                 Image(systemName: subLocationIcon)
                     .font(.system(size: 30))
-                    .foregroundColor(Color(hex: "d4af37").opacity(0.7))
+                    .foregroundColor(Theme.Colors.gold.opacity(0.7))
 
                 // Completed badge
                 if isCompleted {
@@ -296,7 +296,7 @@ struct SubLocationCard: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.caption)
                                 .foregroundColor(.green)
-                                .background(Circle().fill(Color(hex: "1a1a2e")).padding(-2))
+                                .background(Circle().fill(Theme.Colors.darkBackground).padding(-2))
                         }
                         Spacer()
                     }
@@ -329,21 +329,21 @@ struct SubLocationCard: View {
                     Text("\(subLocation.storyCards.count) story cards")
                         .font(.caption2)
                 }
-                .foregroundColor(Color(hex: "d4af37"))
+                .foregroundColor(Theme.Colors.gold)
             }
 
             Spacer()
 
             Image(systemName: isCompleted ? "checkmark.circle.fill" : "play.circle.fill")
                 .font(.title)
-                .foregroundColor(isCompleted ? .green : Color(hex: "d4af37"))
+                .foregroundColor(isCompleted ? .green : Theme.Colors.gold)
         }
         .padding()
         .background(Color.white.opacity(isCompleted ? 0.08 : 0.05))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(isCompleted ? Color.green.opacity(0.3) : Color(hex: "d4af37").opacity(0.2), lineWidth: 1)
+                .stroke(isCompleted ? Color.green.opacity(0.3) : Theme.Colors.gold.opacity(0.2), lineWidth: 1)
         )
     }
 
@@ -370,11 +370,11 @@ struct InfoCard<Content: View>: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: icon)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
                 Text(title)
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
                     .tracking(1)
             }
             content
@@ -385,7 +385,7 @@ struct InfoCard<Content: View>: View {
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(hex: "d4af37").opacity(0.1), lineWidth: 1)
+                .stroke(Theme.Colors.gold.opacity(0.1), lineWidth: 1)
         )
     }
 }
@@ -420,7 +420,7 @@ struct PhraseRow: View {
                 .foregroundColor(.white)
             Text(phrase.arabic)
                 .font(.title3)
-                .foregroundColor(Color(hex: "d4af37"))
+                .foregroundColor(Theme.Colors.gold)
             Text(phrase.pronunciation)
                 .font(.caption)
                 .foregroundColor(.white.opacity(0.5))

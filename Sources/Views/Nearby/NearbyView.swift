@@ -13,11 +13,11 @@ struct NearbyView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
                         Image(systemName: "location.fill")
-                            .foregroundColor(Color(hex: "d4af37"))
+                            .foregroundColor(Theme.Colors.gold)
                         Text("SITES NEAR YOU")
                             .font(.caption)
                             .fontWeight(.bold)
-                            .foregroundColor(Color(hex: "d4af37"))
+                            .foregroundColor(Theme.Colors.gold)
                             .tracking(2)
                     }
 
@@ -70,10 +70,9 @@ struct NearbyView: View {
                     }
                 } else if locationManager.authorizationStatus == .authorizedWhenInUse ||
                           locationManager.authorizationStatus == .authorizedAlways {
-                    // Loading or no sites
                     VStack(spacing: 16) {
                         ProgressView()
-                            .tint(Color(hex: "d4af37"))
+                            .tint(Theme.Colors.gold)
                         Text("Finding sites near you...")
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.6))
@@ -94,7 +93,6 @@ struct NearbyView: View {
         }
     }
 
-    // MARK: - Location Status View
     @ViewBuilder
     private var locationStatusView: some View {
         switch locationManager.authorizationStatus {
@@ -130,7 +128,6 @@ struct NearbyView: View {
         }
     }
 
-    // MARK: - Helper Methods
     private func updateSortedSites(from userLocation: CLLocation) {
         sortedSites = sites.map { site in
             let siteLocation = CLLocation(
@@ -167,26 +164,21 @@ struct SiteWithDistance: Identifiable {
     }
 }
 
-// MARK: - Nearby Site Row (Dark Theme)
+// MARK: - Nearby Site Row
 struct NearbySiteRow: View {
     let site: Site
     let distance: String
 
     var body: some View {
         HStack(spacing: 14) {
-            // Image placeholder with gradient
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(LinearGradient(
-                        colors: [Color(hex: "d4af37").opacity(0.3), Color(hex: "8b7355").opacity(0.5)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                    .fill(Theme.goldGradient)
                     .frame(width: 60, height: 60)
 
                 Image(systemName: site.placeType.icon)
                     .font(.title2)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
             }
 
             VStack(alignment: .leading, spacing: 6) {
@@ -196,7 +188,7 @@ struct NearbySiteRow: View {
 
                 Text(site.city.rawValue)
                     .font(.caption)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
             }
 
             Spacer()
@@ -209,7 +201,7 @@ struct NearbySiteRow: View {
                         .font(.subheadline)
                         .fontWeight(.semibold)
                 }
-                .foregroundColor(Color(hex: "d4af37"))
+                .foregroundColor(Theme.Colors.gold)
 
                 Image(systemName: "chevron.right")
                     .font(.caption)
@@ -217,16 +209,16 @@ struct NearbySiteRow: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.05))
+        .background(Theme.Colors.cardBackgroundSubtle)
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color(hex: "d4af37").opacity(0.2), lineWidth: 1)
+                .stroke(Theme.Colors.gold.opacity(0.2), lineWidth: 1)
         )
     }
 }
 
-// MARK: - Location Prompt Card (Dark Theme)
+// MARK: - Location Prompt Card
 struct LocationPromptCard: View {
     let title: String
     let message: String
@@ -237,11 +229,11 @@ struct LocationPromptCard: View {
         VStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: "d4af37").opacity(0.2))
+                    .fill(Theme.Colors.gold.opacity(0.2))
                     .frame(width: 70, height: 70)
                 Image(systemName: "location.circle.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
             }
 
             Text(title)
@@ -259,100 +251,25 @@ struct LocationPromptCard: View {
                     .foregroundColor(.black)
                     .padding(.horizontal, 32)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "d4af37"))
+                    .background(Theme.Colors.gold)
                     .cornerRadius(25)
             }
         }
         .padding(24)
         .frame(maxWidth: .infinity)
-        .background(Color.white.opacity(0.05))
+        .background(Theme.Colors.cardBackgroundSubtle)
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color(hex: "d4af37").opacity(0.2), lineWidth: 1)
+                .stroke(Theme.Colors.gold.opacity(0.2), lineWidth: 1)
         )
-    }
-}
-
-// MARK: - Location Manager
-class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    private let manager = CLLocationManager()
-    private let geocoder = CLGeocoder()
-
-    @Published var location: CLLocation?
-    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
-    @Published var locationName: String = ""
-
-    override init() {
-        super.init()
-        manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyBest
-        authorizationStatus = manager.authorizationStatus
-    }
-
-    func requestPermission() {
-        manager.requestWhenInUseAuthorization()
-    }
-
-    func startUpdating() {
-        manager.startUpdatingLocation()
-    }
-
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = manager.authorizationStatus
-
-        if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
-            manager.startUpdatingLocation()
-        }
-    }
-
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let newLocation = locations.last else { return }
-
-        // Only update if location changed significantly (100m)
-        if let oldLocation = location {
-            if newLocation.distance(from: oldLocation) < 100 {
-                return
-            }
-        }
-
-        location = newLocation
-        reverseGeocode(newLocation)
-    }
-
-    private func reverseGeocode(_ location: CLLocation) {
-        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
-            guard let self = self, let placemark = placemarks?.first else { return }
-
-            DispatchQueue.main.async {
-                var parts: [String] = []
-
-                if let neighborhood = placemark.subLocality {
-                    parts.append(neighborhood)
-                }
-                if let city = placemark.locality {
-                    parts.append(city)
-                }
-                if let country = placemark.country {
-                    parts.append(country)
-                }
-
-                self.locationName = parts.joined(separator: ", ")
-            }
-        }
     }
 }
 
 #Preview {
     NavigationStack {
         ZStack {
-            LinearGradient(
-                colors: [Color(hex: "1a1a2e"), Color(hex: "16213e")],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
+            GradientBackground()
             NearbyView(sites: PreviewData.sites)
         }
     }

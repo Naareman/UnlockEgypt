@@ -15,7 +15,7 @@ struct StoryCardsView: View {
         ZStack {
             // Dark gradient background
             LinearGradient(
-                colors: [Color(hex: "1a1a2e"), Color(hex: "0f0f1a")],
+                colors: [Theme.Colors.darkBackground, Theme.Colors.darkBackgroundDeep],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -96,10 +96,10 @@ struct StoryCardsView: View {
             // Points earned this session
             HStack(spacing: 4) {
                 Image(systemName: "star.fill")
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
                 Text("+\(sessionPoints)")
                     .fontWeight(.bold)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
             }
             .font(.caption)
         }
@@ -116,7 +116,7 @@ struct StoryCardsView: View {
 
                 // Progress
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(Color(hex: "d4af37"))
+                    .fill(Theme.Colors.gold)
                     .frame(width: geo.size.width * CGFloat(currentIndex + 1) / CGFloat(subLocation.storyCards.count), height: 4)
                     .animation(.easeInOut, value: currentIndex)
             }
@@ -159,7 +159,7 @@ struct StoryCardsView: View {
                 .foregroundColor(.black)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
-                .background(Color(hex: "d4af37"))
+                .background(Theme.Colors.gold)
                 .cornerRadius(25)
             }
         }
@@ -173,14 +173,14 @@ struct StoryCardsView: View {
             // Success icon
             ZStack {
                 Circle()
-                    .fill(Color(hex: "d4af37").opacity(0.2))
+                    .fill(Theme.Colors.gold.opacity(0.2))
                     .frame(width: 120, height: 120)
                 Circle()
-                    .fill(Color(hex: "d4af37").opacity(0.3))
+                    .fill(Theme.Colors.gold.opacity(0.3))
                     .frame(width: 100, height: 100)
                 Image(systemName: "checkmark.seal.fill")
                     .font(.system(size: 50))
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
             }
 
             VStack(spacing: 8) {
@@ -202,7 +202,7 @@ struct StoryCardsView: View {
                     Spacer()
                     Text("+\(sessionPoints) pts")
                         .fontWeight(.bold)
-                        .foregroundColor(Color(hex: "d4af37"))
+                        .foregroundColor(Theme.Colors.gold)
                 }
 
                 Divider()
@@ -232,7 +232,7 @@ struct StoryCardsView: View {
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color(hex: "d4af37"))
+                    .background(Theme.Colors.gold)
                     .cornerRadius(25)
             }
             .padding(.horizontal, 32)
@@ -276,7 +276,7 @@ struct SingleCardView: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(LinearGradient(
-                            colors: [Color(hex: "d4af37").opacity(0.2), Color(hex: "8b7355").opacity(0.3)],
+                            colors: [Theme.Colors.gold.opacity(0.2), Theme.Colors.sand.opacity(0.3)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
@@ -286,11 +286,11 @@ struct SingleCardView: View {
                     VStack(spacing: 12) {
                         Image(systemName: cardIcon)
                             .font(.system(size: 50))
-                            .foregroundColor(Color(hex: "d4af37").opacity(0.6))
+                            .foregroundColor(Theme.Colors.gold.opacity(0.6))
                         Text(cardTypeLabel)
                             .font(.caption)
                             .fontWeight(.medium)
-                            .foregroundColor(Color(hex: "d4af37").opacity(0.8))
+                            .foregroundColor(Theme.Colors.gold.opacity(0.8))
                     }
                 }
                 .padding(.horizontal)
@@ -342,7 +342,7 @@ struct SingleCardView: View {
             Text("Let's Begin")
                 .font(.caption)
                 .fontWeight(.bold)
-                .foregroundColor(Color(hex: "d4af37"))
+                .foregroundColor(Theme.Colors.gold)
                 .tracking(2)
 
             if let content = card.content {
@@ -376,11 +376,11 @@ struct SingleCardView: View {
             HStack {
                 Image(systemName: "lightbulb.fill")
                     .font(.title)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
                 Text("DID YOU KNOW?")
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(Color(hex: "d4af37"))
+                    .foregroundColor(Theme.Colors.gold)
                     .tracking(2)
             }
 
@@ -394,11 +394,11 @@ struct SingleCardView: View {
             }
         }
         .padding(24)
-        .background(Color(hex: "d4af37").opacity(0.1))
+        .background(Theme.Colors.gold.opacity(0.1))
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color(hex: "d4af37").opacity(0.3), lineWidth: 1)
+                .stroke(Theme.Colors.gold.opacity(0.3), lineWidth: 1)
         )
         .padding(.horizontal, 24)
     }
@@ -409,11 +409,11 @@ struct SingleCardView: View {
             HStack {
                 Image(systemName: "questionmark.circle.fill")
                     .font(.title2)
-                    .foregroundColor(Color(hex: "4da6ff"))
+                    .foregroundColor(Theme.Colors.quizBlue)
                 Text("QUICK QUIZ")
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(Color(hex: "4da6ff"))
+                    .foregroundColor(Theme.Colors.quizBlue)
                     .tracking(2)
             }
 
@@ -466,11 +466,11 @@ struct SingleCardView: View {
             }
         }
         .padding(24)
-        .background(Color(hex: "4da6ff").opacity(0.1))
+        .background(Theme.Colors.quizBlue.opacity(0.1))
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color(hex: "4da6ff").opacity(0.3), lineWidth: 1)
+                .stroke(Theme.Colors.quizBlue.opacity(0.3), lineWidth: 1)
         )
         .padding(.horizontal, 24)
     }
@@ -480,7 +480,7 @@ struct SingleCardView: View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 50))
-                .foregroundColor(Color(hex: "d4af37"))
+                .foregroundColor(Theme.Colors.gold)
 
             Text("Story Complete!")
                 .font(.title2)
@@ -553,7 +553,7 @@ struct QuizOptionButton: View {
                 return .red
             }
         }
-        return isSelected ? Color(hex: "4da6ff") : .clear
+        return isSelected ? Theme.Colors.quizBlue : .clear
     }
 }
 

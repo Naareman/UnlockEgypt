@@ -19,6 +19,7 @@
 		95F1C24C2C703CDC8E07BD05 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B001C5D6ECBF3506266A554 /* HomeView.swift */; };
 		A4A317600FA7503F1B46BE2F /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92EC383452AC8C0BFE02B2D /* TimelineView.swift */; };
 		ACDD7DD77D291F0D372503BD /* PointsBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CD62194AA07DBAE3AE20F3E /* PointsBadge.swift */; };
+		B4D931C67E692E5706145A23 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F6AFDA70E11220377921D6 /* LocationManager.swift */; };
 		DCE51CABB88067B5F1AD431C /* ContentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ABEF41434D1BD825DFD111 /* ContentService.swift */; };
 		E32E9029F773F83D95112137 /* UnlockEgyptApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3F625C609C2FE50D61B090 /* UnlockEgyptApp.swift */; };
 /* End PBXBuildFile section */
@@ -39,6 +40,7 @@
 		CE8D6D578E4017673E26E884 /* Site.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Site.swift; sourceTree = "<group>"; };
 		D41E33B384E631BB686E723E /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		D92EC383452AC8C0BFE02B2D /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		E8F6AFDA70E11220377921D6 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		F68FECBC70D34FDEA24A5DC4 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -121,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				43ABEF41434D1BD825DFD111 /* ContentService.swift */,
+				E8F6AFDA70E11220377921D6 /* LocationManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -240,6 +243,7 @@
 				DCE51CABB88067B5F1AD431C /* ContentService.swift in Sources */,
 				95F1C24C2C703CDC8E07BD05 /* HomeView.swift in Sources */,
 				78237D92F1B5A6B8E381544D /* HomeViewModel.swift in Sources */,
+				B4D931C67E692E5706145A23 /* LocationManager.swift in Sources */,
 				2C774FA2C563EFEF8E4550C3 /* NearbyView.swift in Sources */,
 				ACDD7DD77D291F0D372503BD /* PointsBadge.swift in Sources */,
 				8D7D3AB6C922772715D8247C /* PreviewData.swift in Sources */,
