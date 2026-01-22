@@ -1,0 +1,587 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-01-22T23:36:52.903250",
+  "sites": [
+    {
+      "id": "giza",
+      "name": "Pyramids of Giza",
+      "arabicName": "أهرامات الجيزة",
+      "era": "Old Kingdom",
+      "tourismType": "Pharaonic",
+      "placeType": "Pyramid",
+      "city": "Giza",
+      "shortDescription": "The last surviving wonder of the ancient world.",
+      "coordinates": {
+        "latitude": 29.9792,
+        "longitude": 31.1342
+      },
+      "imageNames": [],
+      "subLocations": [
+        {
+          "id": "great_pyramid",
+          "name": "Great Pyramid of Khufu",
+          "arabicName": "هرم خوفو الأكبر",
+          "shortDescription": "The largest and oldest of the three pyramids",
+          "imageName": null,
+          "storyCards": [
+            {
+              "id": "khufu_1",
+              "type": "intro",
+              "imageName": null,
+              "content": "Standing 481 feet tall, the Great Pyramid was the tallest structure on Earth for over 3,800 years.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "khufu_2",
+              "type": "story",
+              "imageName": null,
+              "content": "Built around 2560 BCE for Pharaoh Khufu. It took roughly 20 years and 100,000 workers to complete.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "khufu_3",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "The pyramid contains about 2.3 million stone blocks, each weighing 2.5 tons on average!",
+              "quizQuestion": null
+            },
+            {
+              "id": "khufu_4",
+              "type": "quiz",
+              "imageName": null,
+              "content": null,
+              "funFact": null,
+              "quizQuestion": {
+                "id": "q_khufu_4",
+                "question": "Who was the Great Pyramid built for?",
+                "options": [
+                  "Pharaoh Khufu",
+                  "Pharaoh Tutankhamun",
+                  "Cleopatra",
+                  "Ramesses II"
+                ],
+                "correctAnswerIndex": 0,
+                "explanation": "The Great Pyramid was built as a tomb for Pharaoh Khufu (also known as Cheops) of the Fourth Dynasty.",
+                "funFact": null
+              }
+            },
+            {
+              "id": "khufu_5",
+              "type": "story",
+              "imageName": null,
+              "content": "Inside are three chambers: the King's Chamber with a granite sarcophagus, the Queen's Chamber, and an unfinished underground chamber.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "khufu_6",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "The four sides of the pyramid are aligned almost perfectly with the four cardinal directions!",
+              "quizQuestion": null
+            }
+          ]
+        },
+        {
+          "id": "sphinx",
+          "name": "The Great Sphinx",
+          "arabicName": "أبو الهول",
+          "shortDescription": "The mysterious guardian with a lion's body and human head",
+          "imageName": null,
+          "storyCards": [
+            {
+              "id": "sphinx_1",
+              "type": "intro",
+              "imageName": null,
+              "content": "The Great Sphinx is the oldest and largest monolith statue in the world, carved from a single limestone bedrock.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "sphinx_2",
+              "type": "story",
+              "imageName": null,
+              "content": "Standing 66 feet high and 240 feet long, the Sphinx has the body of a lion and the face believed to be of Pharaoh Khafre.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "sphinx_3",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "The Sphinx's nose is missing! Contrary to legend, it wasn't shot off by Napoleon's soldiers.",
+              "quizQuestion": null
+            },
+            {
+              "id": "sphinx_4",
+              "type": "quiz",
+              "imageName": null,
+              "content": null,
+              "funFact": null,
+              "quizQuestion": {
+                "id": "q_sphinx_4",
+                "question": "What does 'Abu al-Hol' (Arabic name) mean?",
+                "options": [
+                  "Father of Terror",
+                  "Guardian of the Dead",
+                  "Sun God",
+                  "Stone Lion"
+                ],
+                "correctAnswerIndex": 0,
+                "explanation": "The Arabic name 'Abu al-Hol' translates to 'Father of Terror' or 'Father of Dread'.",
+                "funFact": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "khafre_pyramid",
+          "name": "Pyramid of Khafre",
+          "arabicName": "هرم خفرع",
+          "shortDescription": "The second-largest pyramid built for Khufu's son",
+          "imageName": null,
+          "storyCards": [
+            {
+              "id": "khafre_1",
+              "type": "intro",
+              "imageName": null,
+              "content": "Though slightly smaller than the Great Pyramid, Khafre's pyramid appears taller because it's built on higher ground.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "khafre_2",
+              "type": "story",
+              "imageName": null,
+              "content": "It's the only pyramid that still has some of its original white limestone casing at the top, giving us a glimpse of how all pyramids once gleamed.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "khafre_3",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "The pyramids were originally covered in polished white limestone that would have shone brilliantly in the sun!",
+              "quizQuestion": null
+            }
+          ]
+        },
+        {
+          "id": "solar_boat",
+          "name": "Solar Boat Museum",
+          "arabicName": "متحف مركب الشمس",
+          "shortDescription": "Houses a reconstructed ancient boat buried near the Great Pyramid",
+          "imageName": null,
+          "storyCards": [
+            {
+              "id": "boat_1",
+              "type": "intro",
+              "imageName": null,
+              "content": "In 1954, archaeologists discovered a 4,600-year-old boat buried in a pit beside the Great Pyramid.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "boat_2",
+              "type": "story",
+              "imageName": null,
+              "content": "The boat was found in 1,224 pieces. It took 14 years to carefully reassemble this ancient vessel.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "boat_3",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "At 143 feet long, it's one of the oldest and largest ancient vessels ever found!",
+              "quizQuestion": null
+            },
+            {
+              "id": "boat_4",
+              "type": "quiz",
+              "imageName": null,
+              "content": null,
+              "funFact": null,
+              "quizQuestion": {
+                "id": "q_boat_4",
+                "question": "What was the solar boat's purpose?",
+                "options": [
+                  "Carry the pharaoh's soul to the afterlife",
+                  "Fishing on the Nile",
+                  "Military transport",
+                  "Trade with other kingdoms"
+                ],
+                "correctAnswerIndex": 0,
+                "explanation": "The solar boat was meant to carry the pharaoh's soul across the heavens with the sun god Ra.",
+                "funFact": null
+              }
+            }
+          ]
+        }
+      ],
+      "visitInfo": {
+        "estimatedDuration": "3-4 hours",
+        "bestTimeToVisit": "Early morning (8-10 AM) or late afternoon",
+        "tips": [
+          "Bring plenty of water and sun protection",
+          "Hire an official guide at the entrance",
+          "The interior of the Great Pyramid is hot and cramped",
+          "Visit the Solar Boat Museum"
+        ],
+        "arabicPhrases": [
+          {
+            "english": "Pyramid",
+            "arabic": "هرم",
+            "pronunciation": "haram"
+          },
+          {
+            "english": "How much?",
+            "arabic": "بكام؟",
+            "pronunciation": "bekam?"
+          },
+          {
+            "english": "Thank you",
+            "arabic": "شكراً",
+            "pronunciation": "shukran"
+          }
+        ]
+      },
+      "isUnlocked": true
+    },
+    {
+      "id": "luxor",
+      "name": "Luxor Temple",
+      "arabicName": "معبد الأقصر",
+      "era": "New Kingdom",
+      "tourismType": "Pharaonic",
+      "placeType": "Temple",
+      "city": "Luxor",
+      "shortDescription": "A stunning temple in the heart of modern Luxor beautiful at night.",
+      "coordinates": {
+        "latitude": 25.6996,
+        "longitude": 32.639
+      },
+      "imageNames": [],
+      "subLocations": [
+        {
+          "id": "luxor_entrance",
+          "name": "The Grand Entrance",
+          "arabicName": "المدخل الكبير",
+          "shortDescription": "Massive pylons and the remaining obelisk",
+          "imageName": null,
+          "storyCards": [
+            {
+              "id": "luxor_e1",
+              "type": "intro",
+              "imageName": null,
+              "content": "Two massive seated statues of Ramesses II guard the entrance, each standing 50 feet tall.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "luxor_e2",
+              "type": "story",
+              "imageName": null,
+              "content": "Originally, two obelisks stood here. One remains in Luxor; the other has been in Paris since 1836.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "luxor_e3",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "The missing obelisk now stands in Place de la Concorde in Paris - a gift from Egypt to France!",
+              "quizQuestion": null
+            }
+          ]
+        }
+      ],
+      "visitInfo": {
+        "estimatedDuration": "2-3 hours",
+        "bestTimeToVisit": "Evening visit recommended - beautifully lit at night",
+        "tips": [
+          "Visit at sunset to see the temple transform",
+          "The temple is in central Luxor - easy walk from hotels",
+          "Look for the Abu Haggag Mosque built on top"
+        ],
+        "arabicPhrases": [
+          {
+            "english": "Temple",
+            "arabic": "معبد",
+            "pronunciation": "ma'bad"
+          },
+          {
+            "english": "Beautiful",
+            "arabic": "جميل",
+            "pronunciation": "gameel"
+          }
+        ]
+      },
+      "isUnlocked": true
+    },
+    {
+      "id": "valley_kings",
+      "name": "Valley of the Kings",
+      "arabicName": "وادي الملوك",
+      "era": "New Kingdom",
+      "tourismType": "Pharaonic",
+      "placeType": "Tomb",
+      "city": "Luxor",
+      "shortDescription": "The hidden burial ground of Egypt's greatest pharaohs.",
+      "coordinates": {
+        "latitude": 25.7402,
+        "longitude": 32.6014
+      },
+      "imageNames": [],
+      "subLocations": [
+        {
+          "id": "tut_tomb",
+          "name": "Tomb of Tutankhamun",
+          "arabicName": "مقبرة توت عنخ آمون",
+          "shortDescription": "The famous tomb of the boy king",
+          "imageName": null,
+          "storyCards": [
+            {
+              "id": "tut_1",
+              "type": "intro",
+              "imageName": null,
+              "content": "In 1922, Howard Carter made the discovery of a lifetime - the nearly intact tomb of a young pharaoh.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "tut_2",
+              "type": "story",
+              "imageName": null,
+              "content": "\"Can you see anything?\" Lord Carnarvon asked. \"Yes, wonderful things,\" Carter whispered, peering through a small hole.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "tut_3",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "It took Carter 10 years to catalog all 5,398 objects found in the tomb!",
+              "quizQuestion": null
+            },
+            {
+              "id": "tut_4",
+              "type": "quiz",
+              "imageName": null,
+              "content": null,
+              "funFact": null,
+              "quizQuestion": {
+                "id": "q_tut_4",
+                "question": "Why was Tutankhamun's tomb so significant?",
+                "options": [
+                  "It was nearly intact",
+                  "It was the largest",
+                  "It was the oldest",
+                  "It had the most mummies"
+                ],
+                "correctAnswerIndex": 0,
+                "explanation": "Unlike most royal tombs which were robbed in antiquity, Tut's tomb was found nearly intact with all its treasures.",
+                "funFact": null
+              }
+            }
+          ]
+        }
+      ],
+      "visitInfo": {
+        "estimatedDuration": "3-4 hours",
+        "bestTimeToVisit": "Early morning (6-8 AM) before the heat",
+        "tips": [
+          "Your ticket includes 3 tombs - choose wisely",
+          "Tutankhamun's tomb requires a separate ticket",
+          "No photography inside the tombs"
+        ],
+        "arabicPhrases": [
+          {
+            "english": "Tomb",
+            "arabic": "مقبرة",
+            "pronunciation": "maqbara"
+          },
+          {
+            "english": "King",
+            "arabic": "ملك",
+            "pronunciation": "malik"
+          }
+        ]
+      },
+      "isUnlocked": true
+    },
+    {
+      "id": "karnak",
+      "name": "Karnak Temple Complex",
+      "arabicName": "معابد الكرنك",
+      "era": "New Kingdom",
+      "tourismType": "Pharaonic",
+      "placeType": "Temple",
+      "city": "Luxor",
+      "shortDescription": "The largest ancient religious complex ever built.",
+      "coordinates": {
+        "latitude": 25.7188,
+        "longitude": 32.6573
+      },
+      "imageNames": [],
+      "subLocations": [
+        {
+          "id": "hypostyle_hall",
+          "name": "Great Hypostyle Hall",
+          "arabicName": "قاعة الأعمدة الكبرى",
+          "shortDescription": "134 massive columns in a forest of stone",
+          "imageName": null,
+          "storyCards": [
+            {
+              "id": "hypo_1",
+              "type": "intro",
+              "imageName": null,
+              "content": "You stand among giants. 134 massive columns surround you, the largest standing 69 feet tall.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "hypo_2",
+              "type": "story",
+              "imageName": null,
+              "content": "Imagine this space 3,000 years ago: columns painted in brilliant colors, incense smoke drifting through light.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "hypo_3",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "The entire Notre-Dame cathedral could fit inside the Hypostyle Hall!",
+              "quizQuestion": null
+            }
+          ]
+        }
+      ],
+      "visitInfo": {
+        "estimatedDuration": "3-4 hours",
+        "bestTimeToVisit": "Early morning or evening Sound & Light show",
+        "tips": [
+          "The complex is vast - wear comfortable shoes",
+          "Don't miss the Sacred Lake",
+          "The Hypostyle Hall is best in morning light"
+        ],
+        "arabicPhrases": [
+          {
+            "english": "Column",
+            "arabic": "عمود",
+            "pronunciation": "amood"
+          },
+          {
+            "english": "Huge",
+            "arabic": "كبير",
+            "pronunciation": "kebeer"
+          }
+        ]
+      },
+      "isUnlocked": true
+    },
+    {
+      "id": "abu_simbel",
+      "name": "Abu Simbel",
+      "arabicName": "أبو سمبل",
+      "era": "New Kingdom",
+      "tourismType": "Pharaonic",
+      "placeType": "Temple",
+      "city": "Aswan",
+      "shortDescription": "Ramesses II's monumental temple famously relocated.",
+      "coordinates": {
+        "latitude": 22.3372,
+        "longitude": 31.6258
+      },
+      "imageNames": [],
+      "subLocations": [
+        {
+          "id": "great_temple",
+          "name": "Great Temple of Ramesses II",
+          "arabicName": "معبد رمسيس الثاني الكبير",
+          "shortDescription": "Four colossal statues guard the entrance",
+          "imageName": null,
+          "storyCards": [
+            {
+              "id": "abu_1",
+              "type": "intro",
+              "imageName": null,
+              "content": "Four massive statues of Ramesses II gaze eternally across the Nubian desert, each 65 feet tall.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "abu_2",
+              "type": "story",
+              "imageName": null,
+              "content": "Twice a year, on Feb 22 and Oct 22, the rising sun penetrates 185 feet into the mountain to illuminate the inner statues.",
+              "funFact": null,
+              "quizQuestion": null
+            },
+            {
+              "id": "abu_3",
+              "type": "fact",
+              "imageName": null,
+              "content": null,
+              "funFact": "The entire temple was moved in the 1960s to save it from flooding! Cut into blocks and reassembled on higher ground.",
+              "quizQuestion": null
+            },
+            {
+              "id": "abu_4",
+              "type": "quiz",
+              "imageName": null,
+              "content": null,
+              "funFact": null,
+              "quizQuestion": {
+                "id": "q_abu_4",
+                "question": "Why was Abu Simbel moved?",
+                "options": [
+                  "To save it from Lake Nasser flooding",
+                  "It was sinking",
+                  "For tourism access",
+                  "Political reasons"
+                ],
+                "correctAnswerIndex": 0,
+                "explanation": "The Aswan High Dam would have submerged the temple. UNESCO led an international effort to relocate it.",
+                "funFact": null
+              }
+            }
+          ]
+        }
+      ],
+      "visitInfo": {
+        "estimatedDuration": "2-3 hours",
+        "bestTimeToVisit": "Feb 22 or Oct 22 for the sun festival",
+        "tips": [
+          "Most visitors fly from Aswan",
+          "The smaller temple honors Nefertari",
+          "Visit the UNESCO relocation exhibition"
+        ],
+        "arabicPhrases": [
+          {
+            "english": "Sun",
+            "arabic": "شمس",
+            "pronunciation": "shams"
+          },
+          {
+            "english": "Amazing",
+            "arabic": "مذهل",
+            "pronunciation": "muzhil"
+          }
+        ]
+      },
+      "isUnlocked": true
+    }
+  ]
+}

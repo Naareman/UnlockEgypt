@@ -16,6 +16,7 @@
 		74DFD778EC40700FCC1D0F0E /* Site.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8D6D578E4017673E26E884 /* Site.swift */; };
 		A2CFCFF8D7E0BF7E7E5EEAB8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC24DBD6EAF7D147295A873 /* HomeView.swift */; };
 		D6C5C300F6A78983BB82FA1B /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A743CC6095177F1C16AF27D /* TimelineView.swift */; };
+		DCE51CABB88067B5F1AD431C /* ContentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43ABEF41434D1BD825DFD111 /* ContentService.swift */; };
 		E26AE3EA73951B42F2119B12 /* Quiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024BC0A32759E622B6C3C1E7 /* Quiz.swift */; };
 		F7EB1A610BE04D0995B8D011 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C655EFF89BCC81397E4C297 /* HomeViewModel.swift */; };
 /* End PBXBuildFile section */
@@ -29,6 +30,7 @@
 		2C655EFF89BCC81397E4C297 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		355957BB10ADC7073819E108 /* UnlockEgypt.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = UnlockEgypt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A743CC6095177F1C16AF27D /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		43ABEF41434D1BD825DFD111 /* ContentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentService.swift; sourceTree = "<group>"; };
 		9AC24DBD6EAF7D147295A873 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		B046D43C5138CF7BB4F75847 /* NearbyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyView.swift; sourceTree = "<group>"; };
 		BBA7EE2ED6A1396953281822 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 		8E7A29CB86E95856740D8E32 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				43ABEF41434D1BD825DFD111 /* ContentService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -172,6 +175,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DFFC3DF8ED5B99EFC1A24A0 /* Color+Hex.swift in Sources */,
+				DCE51CABB88067B5F1AD431C /* ContentService.swift in Sources */,
 				A2CFCFF8D7E0BF7E7E5EEAB8 /* HomeView.swift in Sources */,
 				F7EB1A610BE04D0995B8D011 /* HomeViewModel.swift in Sources */,
 				49BEB05A9921AAC2294B98C9 /* NearbyView.swift in Sources */,

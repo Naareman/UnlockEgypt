@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 @MainActor
 class HomeViewModel: ObservableObject {
@@ -7,6 +8,10 @@ class HomeViewModel: ObservableObject {
     @Published var discoveredPlaces: Set<String> = []
     @Published var completedQuizzes: Set<String> = []
     @Published var completedSubLocations: Set<String> = []
+    @Published var isLoading: Bool = false
+
+    private let contentService = ContentService.shared
+    private var cancellables = Set<AnyCancellable>()
 
     private let pointsKey = "totalPoints"
     private let discoveredKey = "discoveredPlaces"
@@ -16,10 +21,33 @@ class HomeViewModel: ObservableObject {
     init() {
         loadData()
         loadProgress()
+        setupContentSubscription()
+    }
+
+    private func setupContentSubscription() {
+        // Subscribe to content updates
+        contentService.$sites
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] sites in
+                if !sites.isEmpty {
+                    self?.sites = sites
+                }
+            }
+            .store(in: &cancellables)
+
+        contentService.$isLoading
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$isLoading)
     }
 
     private func loadData() {
-        sites = SampleData.sites
+        // Load from ContentService (which uses cached or sample data initially)
+        sites = contentService.sites
+    }
+
+    /// Refresh content from remote
+    func refreshContent() async {
+        await contentService.refresh()
     }
 
     private func loadProgress() {
