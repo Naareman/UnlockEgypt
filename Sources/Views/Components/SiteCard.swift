@@ -79,9 +79,9 @@ struct SiteCard: View {
                 .foregroundColor(.white.opacity(0.5))
                 .lineLimit(1)
 
-                // Badge indicators
+                // Badge indicators (only show when fully earned)
                 HStack(spacing: 6) {
-                    if hasAnyKnowledgeKeys {
+                    if hasAllKnowledgeKeys {
                         SiteCardBadge(type: .knowledge)
                     }
                     if hasDiscoveryKey {
@@ -133,8 +133,8 @@ struct SiteCardBadge: View {
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
-        .background(type == .knowledge ? Theme.Colors.gold : .green)
-        .foregroundColor(type == .knowledge ? .black : .white)
+        .background(Theme.Colors.gold)
+        .foregroundColor(.black)
         .cornerRadius(8)
     }
 }

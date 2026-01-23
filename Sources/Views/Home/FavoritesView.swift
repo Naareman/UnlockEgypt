@@ -134,9 +134,9 @@ struct FavoriteSiteCard: View {
                 .foregroundColor(.white.opacity(0.5))
                 .lineLimit(1)
 
-                // Badge indicators
+                // Badge indicators (only show when fully earned)
                 HStack(spacing: 6) {
-                    if hasAnyKnowledgeKeys {
+                    if hasAllKnowledgeKeys {
                         BadgeIndicator(type: .knowledge, isEarned: true)
                     }
                     if hasDiscoveryKey {

@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreLocation
 
 struct SiteDetailView: View {
     let site: Site
@@ -415,7 +416,7 @@ struct DiscoveryKeySection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("DISCOVERY KEY")
+            Text("PROVE YOU WERE HERE")
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundColor(Theme.Colors.gold)
@@ -427,31 +428,31 @@ struct DiscoveryKeySection: View {
                     // Discovery Key icon
                     ZStack {
                         Circle()
-                            .fill(hasDiscoveryKey ? Color.green.opacity(0.2) : Theme.Colors.gold.opacity(0.2))
+                            .fill(Theme.Colors.gold.opacity(hasDiscoveryKey ? 0.3 : 0.2))
                             .frame(width: 70, height: 70)
 
                         Image(systemName: "mappin.circle.fill")
                             .font(.system(size: 36))
-                            .foregroundColor(hasDiscoveryKey ? .green : Theme.Colors.gold)
+                            .foregroundColor(Theme.Colors.gold)
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
                         if hasDiscoveryKey && !canUpgradeWithLocation {
-                            Text("Visit Verified!")
+                            Text("Explorer's Mark Earned!")
                                 .font(.headline)
-                                .foregroundColor(.green)
-                            Text("You've been to \(site.name)")
+                                .foregroundColor(Theme.Colors.gold)
+                            Text("You proved your journey to \(site.name)")
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.6))
                         } else if canUpgradeWithLocation {
-                            Text("Visited")
+                            Text("Journey Recorded")
                                 .font(.headline)
                                 .foregroundColor(Theme.Colors.gold)
-                            Text("Verify location for +20 bonus!")
+                            Text("Visit again to verify and earn +20 bonus!")
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.6))
                         } else {
-                            Text("Earn Your Discovery Key")
+                            Text("Visit in Person")
                                 .font(.headline)
                                 .foregroundColor(.white)
                         }
@@ -466,9 +467,9 @@ struct DiscoveryKeySection: View {
                         Button(action: verifyWithLocation) {
                             HStack {
                                 Image(systemName: "location.fill")
-                                Text("Verify My Location")
+                                Text("I'm Here Now")
                                 Spacer()
-                                Text(canUpgradeWithLocation ? "+20 bonus" : "+50")
+                                Text(canUpgradeWithLocation ? "+20 bonus" : "+50 pts")
                                     .font(.caption)
                                     .foregroundColor(.black.opacity(0.6))
                             }
@@ -483,10 +484,10 @@ struct DiscoveryKeySection: View {
                         if !hasDiscoveryKey {
                             Button(action: selfReport) {
                                 HStack {
-                                    Image(systemName: "hand.raised.fill")
-                                    Text("Mark as Visited")
+                                    Image(systemName: "clock.arrow.circlepath")
+                                    Text("I've Been Here Before")
                                     Spacer()
-                                    Text("+30")
+                                    Text("+30 pts")
                                         .font(.caption)
                                         .foregroundColor(Theme.Colors.gold.opacity(0.6))
                                 }
@@ -506,7 +507,7 @@ struct DiscoveryKeySection: View {
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(hasDiscoveryKey ? Color.green.opacity(0.3) : Theme.Colors.gold.opacity(0.2), lineWidth: 1)
+                    .stroke(Theme.Colors.gold.opacity(hasDiscoveryKey ? 0.4 : 0.2), lineWidth: 1)
             )
         }
         .alert(alertTitle, isPresented: $showingAlert) {
@@ -519,8 +520,8 @@ struct DiscoveryKeySection: View {
     private func verifyWithLocation() {
         // Check if permission is denied
         if locationManager.isDenied {
-            alertTitle = "Location Access Denied"
-            alertMessage = "Please enable location access in Settings to verify your visit, or use 'Mark as Visited' instead."
+            alertTitle = "Location Access Needed"
+            alertMessage = "Enable location access in Settings to verify your visit, or tap 'I've Been Here Before' to record your journey."
             showingAlert = true
             return
         }
@@ -530,7 +531,7 @@ struct DiscoveryKeySection: View {
             locationManager.requestPermission()
             // Show message that they need to grant permission
             alertTitle = "Location Permission Needed"
-            alertMessage = "Please allow location access when prompted, then try again."
+            alertMessage = "Allow location access when prompted to prove your journey, then try again."
             showingAlert = true
             return
         }
@@ -538,7 +539,7 @@ struct DiscoveryKeySection: View {
         // Use callback-based location request
         locationManager.requestLocationWithCallback { [self] (userLocation: CLLocation?) in
             let result = viewModel.verifyAndAwardExplorerBadge(for: site, userLocation: userLocation)
-            alertTitle = result.0 ? "Discovery Key Unlocked!" : "Oops!"
+            alertTitle = result.0 ? "Explorer's Mark Earned!" : "Not Quite There"
             alertMessage = result.1
             showingAlert = true
         }
@@ -546,7 +547,7 @@ struct DiscoveryKeySection: View {
 
     private func selfReport() {
         let result = viewModel.selfReportVisit(for: site.id)
-        alertTitle = result.0 ? "Discovery Key Unlocked!" : "Hmm..."
+        alertTitle = result.0 ? "Journey Recorded!" : "Already Recorded"
         alertMessage = result.1
         showingAlert = true
     }

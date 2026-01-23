@@ -22,14 +22,14 @@ enum BadgeType {
     var color: Color {
         switch self {
         case .scholar: return Theme.Colors.gold
-        case .explorer: return .green
+        case .explorer: return Theme.Colors.gold
         }
     }
 
     var description: String {
         switch self {
-        case .scholar: return "Unlocked all secrets"
-        case .explorer: return "Visited this site"
+        case .scholar: return "Mastered the knowledge"
+        case .explorer: return "Proved your journey"
         }
     }
 }
@@ -152,11 +152,11 @@ struct BadgeProgressView: View {
                 BadgeView(type: .explorer, isEarned: hasExplorer)
                 Spacer()
                 if hasExplorer {
-                    Text("Verified")
+                    Text("Journey Proven")
                         .font(.caption)
-                        .foregroundColor(.green)
+                        .foregroundColor(Theme.Colors.gold)
                 } else {
-                    Text("Not visited")
+                    Text("Not yet visited")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.5))
                 }

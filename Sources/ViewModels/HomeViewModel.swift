@@ -33,9 +33,7 @@ class HomeViewModel: ObservableObject {
     // MARK: - Favorites
     @Published var favoriteSites: Set<String> = []
 
-    // MARK: - Dependencies (Protocol-based for testability)
-    private let contentService: any ContentServiceProtocol
-    private let storage: LocalStorageProtocol
+    // MARK: - Dependencies
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Storage Keys
@@ -58,26 +56,15 @@ class HomeViewModel: ObservableObject {
 
     // MARK: - Initialization
 
-    /// Initialize with default dependencies (production use)
-    convenience init() {
-        self.init(
-            contentService: ContentService.shared,
-            storage: UserDefaultsStorage()
-        )
-    }
-
-    /// Initialize with injected dependencies (for testing)
-    init(contentService: any ContentServiceProtocol, storage: LocalStorageProtocol) {
-        self.contentService = contentService
-        self.storage = storage
+    init() {
         loadData()
         loadProgress()
         setupContentSubscription()
     }
 
     private func setupContentSubscription() {
-        // Subscribe to content updates using protocol's publisher
-        contentService.sitesPublisher
+        // Subscribe to content updates
+        ContentService.shared.$sites
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sites in
                 if !sites.isEmpty {
@@ -89,17 +76,15 @@ class HomeViewModel: ObservableObject {
 
     private func loadData() {
         // Load from ContentService (which uses cached or sample data initially)
-        sites = contentService.sites
+        sites = ContentService.shared.sites
     }
 
     /// Refresh content from remote
     func refreshContent() async {
-        await contentService.refresh()
+        await ContentService.shared.refresh()
     }
 
     private func loadProgress() {
-        // TODO: Refactor to use self.storage protocol for full testability
-        // Currently using UserDefaults.standard for primitive type operations
         totalPoints = UserDefaults.standard.integer(forKey: pointsKey)
 
         // Load discovered places with dates
@@ -292,7 +277,7 @@ class HomeViewModel: ObservableObject {
                     invalidateAchievementCache()
                     saveProgress()
                     checkAndAwardAchievements()
-                    return (true, "Location verified! +20 bonus points!", 20)
+                    return (true, "Your journey is now verified! +20 bonus points!", 20)
                 } else {
                     // Fresh location verification: 50 points
                     explorerBadges.insert(siteId)
@@ -301,15 +286,15 @@ class HomeViewModel: ObservableObject {
                     invalidateAchievementCache()
                     saveProgress()
                     checkAndAwardAchievements()
-                    return (true, "Amazing! +50 points for visiting \(site.name)!", 50)
+                    return (true, "You proved your journey to \(site.name)! +50 points earned!", 50)
                 }
             } else {
                 let distanceKm = distance / 1000
-                return (false, String(format: "You're %.1f km away. Get closer to %@ to verify!", distanceKm, site.name), 0)
+                return (false, String(format: "You're %.1f km away from %@. Get closer to prove your journey!", distanceKm, site.name), 0)
             }
         } else {
             // No location available
-            return (false, "Can't get your location. Try again or tap 'Mark as Visited'!", 0)
+            return (false, "Can't get your location. Try again or tap 'I've Been Here Before'.", 0)
         }
     }
 
@@ -321,7 +306,7 @@ class HomeViewModel: ObservableObject {
         if explorerBadges.contains(siteId) {
             if selfReportedSites.contains(siteId) {
                 // Already self-reported, suggest location verification
-                return (false, "Already marked! Verify your location for +20 bonus!", 0)
+                return (false, "Journey already recorded! Visit again to verify and earn +20 bonus!", 0)
             } else {
                 // Already location-verified
                 if let lastVisit = verifiedVisits[siteId] {
@@ -342,7 +327,7 @@ class HomeViewModel: ObservableObject {
         invalidateAchievementCache()
         saveProgress()
         checkAndAwardAchievements()
-        return (true, "You earned +30 points!", 30)
+        return (true, "Journey recorded! +30 points. Visit again to verify for +20 bonus!", 30)
     }
 
     /// Check if user has Explorer badge for a site
