@@ -268,7 +268,7 @@ struct SettingsView: View {
                 }
 
                 HStack {
-                    Text("Scholar Badges")
+                    Text("Knowledge Keys")
                         .foregroundColor(.white.opacity(0.7))
                     Spacer()
                     Text("\(viewModel.scholarBadges.count)")
@@ -276,7 +276,7 @@ struct SettingsView: View {
                 }
 
                 HStack {
-                    Text("Explorer Badges")
+                    Text("Discovery Keys")
                         .foregroundColor(.white.opacity(0.7))
                     Spacer()
                     Text("\(viewModel.explorerBadges.count)")

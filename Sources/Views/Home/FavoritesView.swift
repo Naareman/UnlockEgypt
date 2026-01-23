@@ -180,14 +180,14 @@ struct BadgeIndicator: View {
 
     var body: some View {
         HStack(spacing: 3) {
-            Image(systemName: type == .knowledge ? "key.fill" : "key.horizontal.fill")
+            Image(systemName: type == .knowledge ? "key.fill" : "mappin.circle.fill")
                 .font(.system(size: 10))
             Text(type == .knowledge ? "Knowledge" : "Discovery")
                 .font(.system(size: 9, weight: .medium))
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
-        .background(isEarned ? (type == .knowledge ? Theme.Colors.gold : .cyan) : Color.gray)
+        .background(isEarned ? (type == .knowledge ? Theme.Colors.gold : .green) : Color.gray)
         .foregroundColor(type == .knowledge ? .black : .white)
         .cornerRadius(8)
         .opacity(isEarned ? 1 : 0.3)

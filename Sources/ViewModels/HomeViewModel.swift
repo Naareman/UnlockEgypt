@@ -255,7 +255,7 @@ class HomeViewModel: ObservableObject {
             let daysSinceVisit = now.timeIntervalSince(lastVisit) / (60 * 60 * 24)
             if daysSinceVisit < revisitDays {
                 let daysRemaining = Int(revisitDays - daysSinceVisit)
-                return (false, "You've already visited! 📍 Come back in \(daysRemaining) days for bonus points.", 0)
+                return (false, "You've already visited! Come back in \(daysRemaining) days for bonus points.", 0)
             }
         }
 
@@ -273,7 +273,7 @@ class HomeViewModel: ObservableObject {
                     addPoints(20)
                     saveProgress()
                     checkAndAwardAchievements()
-                    return (true, "Location verified! +20 bonus points! 🎯", 20)
+                    return (true, "Location verified! +20 bonus points!", 20)
                 } else {
                     // Fresh location verification: 50 points
                     explorerBadges.insert(siteId)
@@ -281,15 +281,15 @@ class HomeViewModel: ObservableObject {
                     addPoints(50)
                     saveProgress()
                     checkAndAwardAchievements()
-                    return (true, "Amazing! +50 points for visiting \(site.name)! 🏆", 50)
+                    return (true, "Amazing! +50 points for visiting \(site.name)!", 50)
                 }
             } else {
                 let distanceKm = distance / 1000
-                return (false, String(format: "You're %.1f km away 📍 Get closer to %@ to verify!", distanceKm, site.name), 0)
+                return (false, String(format: "You're %.1f km away. Get closer to %@ to verify!", distanceKm, site.name), 0)
             }
         } else {
             // No location available
-            return (false, "Can't get your location 📍 Try again or tap 'Mark as Visited'!", 0)
+            return (false, "Can't get your location. Try again or tap 'Mark as Visited'!", 0)
         }
     }
 
@@ -301,14 +301,14 @@ class HomeViewModel: ObservableObject {
         if explorerBadges.contains(siteId) {
             if selfReportedSites.contains(siteId) {
                 // Already self-reported, suggest location verification
-                return (false, "Already marked! ✓ Verify your location for +20 bonus!", 0)
+                return (false, "Already marked! Verify your location for +20 bonus!", 0)
             } else {
                 // Already location-verified
                 if let lastVisit = verifiedVisits[siteId] {
                     let daysSinceVisit = now.timeIntervalSince(lastVisit) / (60 * 60 * 24)
                     if daysSinceVisit < revisitDays {
                         let daysRemaining = Int(revisitDays - daysSinceVisit)
-                        return (false, "Already visited! 🗓️ Come back in \(daysRemaining) days.", 0)
+                        return (false, "Already visited! Come back in \(daysRemaining) days.", 0)
                     }
                 }
             }
@@ -321,7 +321,7 @@ class HomeViewModel: ObservableObject {
         addPoints(30)
         saveProgress()
         checkAndAwardAchievements()
-        return (true, "You earned +30 points! 🎉", 30)
+        return (true, "You earned +30 points!", 30)
     }
 
     /// Check if user has Explorer badge for a site

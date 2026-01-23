@@ -522,7 +522,7 @@ struct DiscoveryKeySection: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             let result = viewModel.verifyAndAwardExplorerBadge(for: site, userLocation: locationManager.location)
-            alertTitle = result.0 ? "Discovery Key Unlocked! 🔑" : "Oops!"
+            alertTitle = result.0 ? "Discovery Key Unlocked!" : "Oops!"
             alertMessage = result.1
             showingAlert = true
         }
@@ -530,7 +530,7 @@ struct DiscoveryKeySection: View {
 
     private func selfReport() {
         let result = viewModel.selfReportVisit(for: site.id)
-        alertTitle = result.0 ? "Discovery Key Unlocked! 🔑" : "Hmm..."
+        alertTitle = result.0 ? "Discovery Key Unlocked!" : "Hmm..."
         alertMessage = result.1
         showingAlert = true
     }
