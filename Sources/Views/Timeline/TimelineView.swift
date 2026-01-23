@@ -175,7 +175,7 @@ struct TimelineSiteCard: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(LinearGradient(
-                        colors: [Theme.Colors.gold.opacity(0.3), Color(hex: "8b7355").opacity(0.4)],
+                        colors: [Theme.Colors.gold.opacity(0.3), Theme.Colors.sand.opacity(0.4)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))

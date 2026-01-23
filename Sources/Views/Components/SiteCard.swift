@@ -9,11 +9,7 @@ struct SiteCard: View {
             // Enhanced image placeholder with Egyptian styling
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(LinearGradient(
-                        colors: [Theme.Colors.gold.opacity(0.35), Theme.Colors.sand.opacity(0.5)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                    .fill(Theme.goldGradient)
                     .frame(width: 80, height: 80)
 
                 // Decorative border pattern

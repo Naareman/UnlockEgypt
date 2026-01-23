@@ -91,16 +91,6 @@ enum TourismType: String, Codable, CaseIterable {
     case coptic = "Coptic"
     case islamic = "Islamic"
     case modern = "Modern"
-
-    var icon: String {
-        switch self {
-        case .pharaonic: return "pyramid"
-        case .grecoRoman: return "building.columns"
-        case .coptic: return "cross"
-        case .islamic: return "moon.stars"
-        case .modern: return "building.2"
-        }
-    }
 }
 
 // MARK: - Place Type
@@ -144,17 +134,6 @@ enum City: String, Codable, CaseIterable {
     case dahab = "Dahab"
     case hurghada = "Hurghada"
     case sharmElSheikh = "Sharm El Sheikh"
-
-    var region: String {
-        switch self {
-        case .cairo, .giza: return "Greater Cairo"
-        case .luxor, .aswan: return "Upper Egypt"
-        case .alexandria: return "Mediterranean Coast"
-        case .sinai, .dahab, .sharmElSheikh: return "Sinai Peninsula"
-        case .fayoum: return "Western Desert"
-        case .hurghada: return "Red Sea"
-        }
-    }
 }
 
 // MARK: - Era Enum

@@ -120,12 +120,4 @@ class HomeViewModel: ObservableObject {
         saveProgress()
     }
 
-    // MARK: - Filter Helpers
-    func sitesCount(for era: Era) -> Int {
-        sites.filter { $0.era == era }.count
-    }
-
-    func sites(for era: Era) -> [Site] {
-        sites.filter { $0.era == era }
-    }
 }

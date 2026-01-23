@@ -165,7 +165,6 @@ struct ContentResponse: Codable {
 enum ContentError: LocalizedError {
     case invalidURL
     case serverError
-    case decodingError
 
     var errorDescription: String? {
         switch self {
@@ -173,8 +172,6 @@ enum ContentError: LocalizedError {
             return "Invalid content URL"
         case .serverError:
             return "Server error"
-        case .decodingError:
-            return "Failed to parse content"
         }
     }
 }
