@@ -126,10 +126,11 @@ class LocationManager: NSObject, ObservableObject {
 // MARK: - CLLocationManagerDelegate
 extension LocationManager: CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        Task { @MainActor in
-            authorizationStatus = manager.authorizationStatus
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            self.authorizationStatus = manager.authorizationStatus
 
-            if authorizationStatus == .authorizedWhenInUse || authorizationStatus == .authorizedAlways {
+            if self.authorizationStatus == .authorizedWhenInUse || self.authorizationStatus == .authorizedAlways {
                 manager.requestLocation()
             }
         }
@@ -138,56 +139,58 @@ extension LocationManager: CLLocationManagerDelegate {
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let newLocation = locations.last else { return }
 
-        Task { @MainActor in
-            isRequestingLocation = false
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            self.isRequestingLocation = false
 
             // Validate accuracy
-            guard newLocation.horizontalAccuracy <= minimumAccuracy else {
+            guard newLocation.horizontalAccuracy <= self.minimumAccuracy else {
                 // If we have a callback waiting and accuracy is poor, still report it
-                if let callback = locationCallback {
-                    locationCallback = nil
+                if let callback = self.locationCallback {
+                    self.locationCallback = nil
                     callback(newLocation)
                 }
                 return
             }
 
             // Only update stored location if changed significantly (100m) or if callback is waiting
-            let shouldUpdate = locationCallback != nil || location == nil ||
-                (location != nil && newLocation.distance(from: location!) >= 100)
+            let shouldUpdate = self.locationCallback != nil || self.location == nil ||
+                (self.location != nil && newLocation.distance(from: self.location!) >= 100)
 
             if shouldUpdate {
-                location = newLocation
-                reverseGeocode(newLocation)
+                self.location = newLocation
+                self.reverseGeocode(newLocation)
             }
 
             // Call any pending callback
-            if let callback = locationCallback {
-                locationCallback = nil
+            if let callback = self.locationCallback {
+                self.locationCallback = nil
                 callback(newLocation)
             }
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        Task { @MainActor in
-            isRequestingLocation = false
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            self.isRequestingLocation = false
 
             if let clError = error as? CLError {
                 switch clError.code {
                 case .denied:
-                    locationError = "Location access denied"
+                    self.locationError = "Location access denied"
                 case .locationUnknown:
-                    locationError = "Unable to determine location"
+                    self.locationError = "Unable to determine location"
                 default:
-                    locationError = "Location error: \(clError.localizedDescription)"
+                    self.locationError = "Location error: \(clError.localizedDescription)"
                 }
             } else {
-                locationError = error.localizedDescription
+                self.locationError = error.localizedDescription
             }
 
             // Call any pending callback with nil
-            if let callback = locationCallback {
-                locationCallback = nil
+            if let callback = self.locationCallback {
+                self.locationCallback = nil
                 callback(nil)
             }
         }

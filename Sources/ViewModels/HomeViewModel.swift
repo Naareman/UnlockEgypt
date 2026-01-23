@@ -33,9 +33,12 @@ class HomeViewModel: ObservableObject {
     // MARK: - Favorites
     @Published var favoriteSites: Set<String> = []
 
-    private let contentService = ContentService.shared
+    // MARK: - Dependencies (Protocol-based for testability)
+    private let contentService: any ContentServiceProtocol
+    private let storage: LocalStorageProtocol
     private var cancellables = Set<AnyCancellable>()
 
+    // MARK: - Storage Keys
     private let pointsKey = "totalPoints"
     private let discoveredKey = "discoveredPlaces"
     private let quizzesKey = "completedQuizzes"
@@ -47,32 +50,39 @@ class HomeViewModel: ObservableObject {
     private let achievementsKey = "achievementProgress"
     private let favoritesKey = "favoriteSites"
 
+    // MARK: - Configuration
     /// Days before a revisit earns points again
     private let revisitDays: Double = 30
     /// Radius in meters for location verification
     private let verificationRadius: Double = 200
 
-    init() {
+    // MARK: - Initialization
+
+    /// Initialize with default dependencies (production use)
+    convenience init() {
+        self.init(
+            contentService: ContentService.shared,
+            storage: UserDefaultsStorage()
+        )
+    }
+
+    /// Initialize with injected dependencies (for testing)
+    init(contentService: any ContentServiceProtocol, storage: LocalStorageProtocol) {
+        self.contentService = contentService
+        self.storage = storage
         loadData()
         loadProgress()
         setupContentSubscription()
     }
 
     private func setupContentSubscription() {
-        // Subscribe to content updates
-        contentService.$sites
+        // Subscribe to content updates using protocol's publisher
+        contentService.sitesPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sites in
                 if !sites.isEmpty {
                     self?.sites = sites
                 }
-            }
-            .store(in: &cancellables)
-
-        contentService.$isLoading
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isLoading in
-                self?.isLoading = isLoading
             }
             .store(in: &cancellables)
     }
