@@ -28,6 +28,21 @@ struct AchievementsView: View {
             .navigationTitle("Your Achievements")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        ShareService.shareProfileCard(
+                            rank: viewModel.currentRank,
+                            points: viewModel.totalPoints,
+                            knowledgeKeys: viewModel.scholarBadges.count,
+                            discoveryKeys: viewModel.explorerBadges.count,
+                            achievements: viewModel.unlockedAchievementsCount,
+                            totalAchievements: Achievements.all.count
+                        )
+                    }) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundColor(Theme.Colors.gold)
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") { dismiss() }
                         .foregroundColor(Theme.Colors.gold)

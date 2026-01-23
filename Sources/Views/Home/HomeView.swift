@@ -4,6 +4,7 @@ struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @State private var selectedTab: HomeTab = .allSites
     @State private var showingSettings = false
+    @State private var showingAchievements = false
 
     var body: some View {
         NavigationStack {
@@ -16,10 +17,13 @@ struct HomeView: View {
                         .padding(.horizontal)
                         .padding(.top, 8)
 
-                    // Encouragement banner
-                    EncouragementBanner(viewModel: viewModel)
-                        .padding(.horizontal)
-                        .padding(.top, 8)
+                    // Encouragement banner (tappable)
+                    Button(action: { showingAchievements = true }) {
+                        EncouragementBanner(viewModel: viewModel)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.horizontal)
+                    .padding(.top, 8)
 
                     // Tab selector
                     tabSelector
@@ -59,6 +63,10 @@ struct HomeView: View {
                     onDismiss: { viewModel.dismissAchievementNotification() }
                 )
             }
+        }
+        .sheet(isPresented: $showingAchievements) {
+            AchievementsView()
+                .environmentObject(viewModel)
         }
     }
 

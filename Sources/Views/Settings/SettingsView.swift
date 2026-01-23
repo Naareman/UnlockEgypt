@@ -21,22 +21,17 @@ struct SettingsView: View {
                         // Rank & Achievements Section
                         rankSection
 
+                        // Progress Section (moved up)
+                        progressSection
+
                         // Offline Mode Section
                         offlineModeSection
 
                         // Content Section
                         contentSection
 
-                        // Progress Section
-                        progressSection
-
                         // About Section
                         aboutSection
-
-                        // Debug Section (only in debug builds)
-                        #if DEBUG
-                        debugSection
-                        #endif
                     }
                     .padding()
                 }
@@ -252,6 +247,17 @@ struct SettingsView: View {
                     }
                 }
 
+                // Show fetch result feedback
+                if let result = contentService.lastFetchResult {
+                    HStack {
+                        Image(systemName: contentService.error != nil ? "exclamationmark.circle" : "checkmark.circle")
+                            .foregroundColor(contentService.error != nil ? .orange : .green)
+                        Text(result)
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                }
+
                 Divider().background(Color.white.opacity(0.1))
 
                 Button(action: refreshContent) {
@@ -381,52 +387,52 @@ struct SettingsView: View {
                     SettingsLink(
                         title: "Rate the App",
                         icon: "star",
-                        action: { /* TODO: Open App Store */ }
+                        action: { openAppStore() }
                     )
 
                     SettingsLink(
                         title: "Privacy Policy",
                         icon: "hand.raised",
-                        action: { /* TODO: Open privacy policy */ }
+                        action: { openPrivacyPolicy() }
                     )
 
                     SettingsLink(
                         title: "Send Feedback",
                         icon: "envelope",
-                        action: { /* TODO: Open email */ }
+                        action: { sendFeedback() }
                     )
                 }
             }
         }
     }
 
-    // MARK: - Debug Section
-    #if DEBUG
-    private var debugSection: some View {
-        SettingsSection(title: "DEBUG", icon: "hammer") {
-            VStack(spacing: 12) {
-                Button("Print Site Data") {
-                    for site in viewModel.sites {
-                        print("Site: \(site.name)")
-                        print("  SubLocations: \(site.subLocations?.count ?? 0)")
-                        site.subLocations?.forEach { sub in
-                            print("    - \(sub.name): \(sub.storyCards.count) cards")
-                        }
-                    }
-                }
-                .font(.subheadline)
-                .foregroundColor(Theme.Colors.gold)
-
-                Button("Clear All Data") {
-                    viewModel.resetProgress()
-                    imageCache.clearCache()
-                }
-                .font(.subheadline)
-                .foregroundColor(.red)
-            }
+    // MARK: - About Actions
+    private func openAppStore() {
+        // Replace with your actual App Store ID when published
+        if let url = URL(string: "https://apps.apple.com/app/id0000000000") {
+            UIApplication.shared.open(url)
         }
     }
-    #endif
+
+    private func openPrivacyPolicy() {
+        // Replace with your actual privacy policy URL
+        if let url = URL(string: "https://unlockegypt.app/privacy") {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    private func sendFeedback() {
+        let email = "feedback@unlockegypt.app"
+        let subject = "Unlock Egypt Feedback - v\(appVersion)"
+        let body = "Device: \(UIDevice.current.model)\niOS: \(UIDevice.current.systemVersion)\n\nFeedback:\n"
+
+        let encoded = "mailto:\(email)?subject=\(subject)&body=\(body)"
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+
+        if let url = URL(string: encoded) {
+            UIApplication.shared.open(url)
+        }
+    }
 
     // MARK: - Actions
 

@@ -9,6 +9,7 @@ class ContentService: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var error: String?
     @Published var lastUpdated: Date?
+    @Published var lastFetchResult: String?
 
     // MARK: - Configuration
 
@@ -37,15 +38,26 @@ class ContentService: ObservableObject {
     func fetchContent() async {
         isLoading = true
         error = nil
+        lastFetchResult = nil
 
         do {
             // Try to fetch from remote
             let remoteContent = try await fetchRemoteContent()
+
+            let newSiteCount = remoteContent.sites.count
+            let oldSiteCount = sites.count
+
             self.sites = remoteContent.sites
             self.lastUpdated = ISO8601DateFormatter().date(from: remoteContent.lastUpdated)
 
             // Cache the fresh content
             saveToCache(remoteContent)
+
+            if newSiteCount > oldSiteCount {
+                lastFetchResult = "Updated! \(newSiteCount - oldSiteCount) new sites added."
+            } else {
+                lastFetchResult = "Content is up to date."
+            }
 
             print("ContentService: Loaded \(sites.count) sites from remote")
         } catch {
@@ -57,6 +69,7 @@ class ContentService: ObservableObject {
             }
 
             self.error = error.localizedDescription
+            lastFetchResult = "Could not connect. Using cached content."
         }
 
         isLoading = false
