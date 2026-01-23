@@ -206,14 +206,8 @@ struct ProfileCardSheet: View {
     }
 
     private func shareCard() {
-        ShareService.shareProfileCard(
-            rank: viewModel.currentRank,
-            points: viewModel.totalPoints,
-            knowledgeKeys: viewModel.scholarBadges.count,
-            discoveryKeys: viewModel.explorerBadges.count,
-            achievements: viewModel.unlockedAchievementsCount,
-            totalAchievements: Achievements.all.count
-        )
+        // Share as image for better visual appeal
+        ShareService.shareProfileCardImage(view: profileCard)
     }
 }
 

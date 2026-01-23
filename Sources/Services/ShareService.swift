@@ -68,7 +68,7 @@ struct ShareService {
 
         \(subLocation.shortDescription)
 
-        Discover Egypt's mysteries with Unlock Egypt!
+        Discover Egypt's Mysteries with Unlock Egypt!
 
         #UnlockEgypt #AncientSecrets
         """

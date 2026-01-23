@@ -177,7 +177,7 @@ struct SiteDetailView: View {
                     .foregroundColor(Theme.Colors.gold)
                     .tracking(2)
 
-                Text("\(subLocations.count) \(subLocations.count == 1 ? "mystery awaits" : "mysteries await")")
+                Text("\(subLocations.count) \(subLocations.count == 1 ? "Mystery Awaits" : "Mysteries Await")")
                     .font(.headline)
                     .foregroundColor(.white)
 
@@ -466,7 +466,7 @@ struct PhraseRow: View {
     }
 }
 
-// MARK: - Discovery Key Card
+// MARK: - Discovery Key Card (Redesigned with UX team)
 struct ExplorerBadgeCard: View {
     let site: Site
     @EnvironmentObject var viewModel: HomeViewModel
@@ -481,76 +481,114 @@ struct ExplorerBadgeCard: View {
     }
 
     var body: some View {
-        HStack(spacing: 14) {
-            // Icon matching SubLocationCard style
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(LinearGradient(
-                        colors: [
-                            hasDiscoveryKey ? Color.cyan.opacity(0.4) : Theme.Colors.gold.opacity(0.3),
-                            hasDiscoveryKey ? Color.cyan.opacity(0.5) : Theme.Colors.sand.opacity(0.4)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                    .frame(width: 80, height: 80)
+        VStack(spacing: 16) {
+            // Header row
+            HStack(spacing: 14) {
+                // Icon
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(LinearGradient(
+                            colors: [
+                                hasDiscoveryKey ? Color.cyan.opacity(0.4) : Theme.Colors.gold.opacity(0.3),
+                                hasDiscoveryKey ? Color.cyan.opacity(0.5) : Theme.Colors.sand.opacity(0.4)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 60, height: 60)
 
-                Image(systemName: "key.horizontal.fill")
-                    .font(.system(size: 30))
-                    .foregroundColor(hasDiscoveryKey ? .cyan : Theme.Colors.gold.opacity(0.7))
+                    Image(systemName: "key.horizontal.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(hasDiscoveryKey ? .cyan : Theme.Colors.gold.opacity(0.7))
 
-                // Completion checkmark
-                if hasDiscoveryKey {
-                    VStack {
-                        HStack {
+                    if hasDiscoveryKey {
+                        VStack {
+                            HStack {
+                                Spacer()
+                                CompletionCheckmark(isComplete: true)
+                            }
                             Spacer()
-                            CompletionCheckmark(isComplete: true)
                         }
-                        Spacer()
+                        .padding(2)
                     }
-                    .padding(4)
                 }
-            }
-            .frame(width: 80, height: 80)
+                .frame(width: 60, height: 60)
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Discovery Key")
-                    .font(.headline)
-                    .foregroundColor(.white)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Discovery Key")
+                        .font(.headline)
+                        .foregroundColor(.white)
+
+                    if hasDiscoveryKey {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                            Text("Unlocked!")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
+                    } else {
+                        Text("Verify your visit to \(site.name)")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                            .lineLimit(1)
+                    }
+                }
+
+                Spacer()
 
                 if hasDiscoveryKey {
-                    Text("Site unlocked! You've been here.")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
-                        .lineLimit(2)
-                } else {
-                    Text("Visit this site to unlock (+50 pts)")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
-                        .lineLimit(2)
+                    Text("+50")
+                        .font(.headline)
+                        .foregroundColor(Theme.Colors.gold)
+                }
+            }
+
+            // Action buttons (only show if not unlocked)
+            if !hasDiscoveryKey {
+                HStack(spacing: 12) {
+                    // Verify with location button
+                    Button(action: verifyWithLocation) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "location.fill")
+                                .font(.subheadline)
+                            Text("Verify Location")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Theme.Colors.gold)
+                        .cornerRadius(10)
+                    }
+
+                    // Self-report button
+                    Button(action: selfReport) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "hand.raised.fill")
+                                .font(.subheadline)
+                            Text("I'm Here")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                        }
+                        .foregroundColor(Theme.Colors.gold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Theme.Colors.gold.opacity(0.15))
+                        .cornerRadius(10)
+                    }
                 }
 
-                // Badge display
+                // Info text
                 HStack(spacing: 4) {
-                    BadgeView(type: .explorer, isEarned: hasDiscoveryKey, size: .small)
+                    Image(systemName: "info.circle")
+                        .font(.caption2)
+                    Text("Location verification: +50 pts • Self-report: +30 pts")
+                        .font(.caption2)
                 }
-            }
-
-            Spacer()
-
-            // Status/Action
-            VStack {
-                if hasDiscoveryKey {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title)
-                        .foregroundColor(.green)
-                } else {
-                    Button(action: verifyVisit) {
-                        Image(systemName: "location.circle.fill")
-                            .font(.title)
-                            .foregroundColor(Theme.Colors.gold)
-                    }
-                }
+                .foregroundColor(.white.opacity(0.4))
             }
         }
         .padding()
@@ -563,33 +601,31 @@ struct ExplorerBadgeCard: View {
                     lineWidth: 1
                 )
         )
-        .onAppear {
-            locationManager.requestPermission()
-        }
         .alert(alertTitle, isPresented: $showingAlert) {
-            if pointsEarned == 0 && !hasDiscoveryKey {
-                Button("Self-Report (+30 pts)") {
-                    let result = viewModel.selfReportVisit(for: site.id)
-                    if result.0 {
-                        alertTitle = "Site Unlocked!"
-                        alertMessage = result.1
-                        pointsEarned = result.2
-                        showingAlert = true
-                    }
-                }
-                Button("Cancel", role: .cancel) {}
-            } else {
-                Button("OK", role: .cancel) {}
-            }
+            Button("OK", role: .cancel) {}
         } message: {
             Text(alertMessage)
         }
     }
 
-    private func verifyVisit() {
-        let result = viewModel.verifyAndAwardExplorerBadge(for: site, userLocation: locationManager.location)
+    private func verifyWithLocation() {
+        // Request permission only when user taps the button
+        locationManager.requestPermission()
+        locationManager.requestLocation()
 
-        alertTitle = result.0 ? "Discovery Key Unlocked!" : "Verification"
+        // Small delay to allow location to update
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let result = viewModel.verifyAndAwardExplorerBadge(for: site, userLocation: locationManager.location)
+            alertTitle = result.0 ? "Discovery Key Unlocked!" : "Verification"
+            alertMessage = result.1
+            pointsEarned = result.2
+            showingAlert = true
+        }
+    }
+
+    private func selfReport() {
+        let result = viewModel.selfReportVisit(for: site.id)
+        alertTitle = result.0 ? "Discovery Key Unlocked!" : "Already Visited"
         alertMessage = result.1
         pointsEarned = result.2
         showingAlert = true

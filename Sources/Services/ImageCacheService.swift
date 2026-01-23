@@ -13,6 +13,7 @@ class ImageCacheService: ObservableObject {
     @Published var downloadedImages: Int = 0
     @Published var lastCacheUpdate: Date?
     @Published var cacheSize: Int64 = 0
+    @Published var lastDownloadResult: String?
 
     private let cacheDirectory: URL
     private let metadataFile: URL
@@ -145,6 +146,11 @@ class ImageCacheService: ObservableObject {
         allURLs = Array(Set(allURLs))
 
         guard !allURLs.isEmpty else {
+            await MainActor.run {
+                // Content is text-based, no images to cache
+                lastDownloadResult = "Content cached! This app uses text-based content for offline reading."
+                lastCacheUpdate = Date()
+            }
             return
         }
 
@@ -153,6 +159,7 @@ class ImageCacheService: ObservableObject {
             downloadedImages = 0
             downloadProgress = 0
             isDownloading = true
+            lastDownloadResult = nil
         }
 
         // Download each image
@@ -169,8 +176,8 @@ class ImageCacheService: ObservableObject {
             isDownloading = false
             saveMetadata(urls: allURLs)
             calculateCacheSize()
+            lastDownloadResult = "Downloaded \(downloadedImages) images for offline use"
         }
-
     }
 
     // MARK: - Clear Cache

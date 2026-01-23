@@ -29,16 +29,7 @@ struct AchievementsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        ShareService.shareProfileCard(
-                            rank: viewModel.currentRank,
-                            points: viewModel.totalPoints,
-                            knowledgeKeys: viewModel.scholarBadges.count,
-                            discoveryKeys: viewModel.explorerBadges.count,
-                            achievements: viewModel.unlockedAchievementsCount,
-                            totalAchievements: Achievements.all.count
-                        )
-                    }) {
+                    Button(action: shareJourney) {
                         Image(systemName: "square.and.arrow.up")
                             .foregroundColor(Theme.Colors.gold)
                     }
@@ -162,6 +153,21 @@ struct AchievementsView: View {
         .padding(.vertical, 16)
         .background(Color.white.opacity(0.05))
         .cornerRadius(12)
+    }
+
+    // MARK: - Share Journey
+    private func shareJourney() {
+        let profileCard = ProfileCardView(
+            rank: viewModel.currentRank,
+            points: viewModel.totalPoints,
+            knowledgeKeys: viewModel.scholarBadges.count,
+            discoveryKeys: viewModel.explorerBadges.count,
+            achievements: viewModel.unlockedAchievementsCount,
+            totalAchievements: Achievements.all.count,
+            sitesUnlocked: viewModel.fullyUnlockedSitesCount,
+            totalSites: viewModel.sites.count
+        )
+        ShareService.shareProfileCardImage(view: profileCard)
     }
 
     // MARK: - Achievement Section

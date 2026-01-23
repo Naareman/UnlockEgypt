@@ -141,13 +141,23 @@ struct SettingsView: View {
     private var offlineModeSection: some View {
         SettingsSection(title: "OFFLINE MODE", icon: "wifi.slash") {
             VStack(spacing: 16) {
+                // Explanation text (UX improvement)
+                HStack(spacing: 8) {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundColor(Theme.Colors.gold.opacity(0.7))
+                    Text("Save content for reading without internet connection")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.6))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
                 // Cache status
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Downloaded Content")
                             .font(.subheadline)
                             .foregroundColor(.white)
-                        Text(imageCache.cacheSize > 0 ? "Ready for offline use" : "Not downloaded")
+                        Text(imageCache.lastCacheUpdate != nil ? "Ready for offline use" : "Not downloaded")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.5))
                     }
@@ -155,10 +165,12 @@ struct SettingsView: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: 4) {
-                        Text(imageCache.formattedCacheSize)
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(Theme.Colors.gold)
+                        if imageCache.cacheSize > 0 {
+                            Text(imageCache.formattedCacheSize)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(Theme.Colors.gold)
+                        }
 
                         if let lastUpdate = imageCache.lastCacheUpdate {
                             Text(lastUpdate, style: .relative)
@@ -180,12 +192,23 @@ struct SettingsView: View {
                     }
                 }
 
+                // Download result feedback
+                if let result = imageCache.lastDownloadResult {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text(result)
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                }
+
                 // Action buttons
                 HStack(spacing: 12) {
                     Button(action: downloadForOffline) {
                         HStack {
                             Image(systemName: "arrow.down.circle.fill")
-                            Text(imageCache.cacheSize > 0 ? "Update" : "Download")
+                            Text(imageCache.lastCacheUpdate != nil ? "Update" : "Download")
                         }
                         .font(.subheadline)
                         .fontWeight(.medium)
@@ -197,7 +220,7 @@ struct SettingsView: View {
                     }
                     .disabled(imageCache.isDownloading)
 
-                    if imageCache.cacheSize > 0 {
+                    if imageCache.lastCacheUpdate != nil {
                         Button(action: { showingClearCacheAlert = true }) {
                             HStack {
                                 Image(systemName: "trash")
@@ -249,32 +272,35 @@ struct SettingsView: View {
 
                 Divider().background(Color.white.opacity(0.1))
 
+                // Update button with integrated status (UX improvement)
                 Button(action: refreshContent) {
                     HStack {
                         if contentService.isLoading {
                             ProgressView()
-                                .tint(Theme.Colors.gold)
+                                .tint(.black)
                                 .scaleEffect(0.8)
+                            Text("Checking...")
+                        } else if let result = contentService.lastFetchResult {
+                            Image(systemName: contentService.error != nil ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
+                            Text(result)
                         } else {
                             Image(systemName: "arrow.clockwise")
+                            Text("Check for Updates")
                         }
-                        Text("Check for Updates")
                     }
                     .font(.subheadline)
-                    .foregroundColor(Theme.Colors.gold)
+                    .fontWeight(.medium)
+                    .foregroundColor(contentService.lastFetchResult != nil && contentService.error == nil ? .black : (contentService.error != nil ? .orange : .black))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        contentService.lastFetchResult != nil && contentService.error == nil
+                            ? Color.green.opacity(0.8)
+                            : (contentService.error != nil ? Color.orange.opacity(0.2) : Theme.Colors.gold)
+                    )
+                    .cornerRadius(10)
                 }
                 .disabled(contentService.isLoading)
-
-                // Show fetch result feedback (below the button)
-                if let result = contentService.lastFetchResult {
-                    HStack {
-                        Image(systemName: contentService.error != nil ? "exclamationmark.circle" : "checkmark.circle")
-                            .foregroundColor(contentService.error != nil ? .orange : .green)
-                        Text(result)
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                }
             }
             .font(.subheadline)
         }
@@ -370,9 +396,14 @@ struct SettingsView: View {
 
                 // Credits
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Created with love for Egypt")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
+                    HStack(spacing: 4) {
+                        Text("Created with love from Egypt to the world")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                        Image(systemName: "heart.fill")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
 
                     Text("Content sources: Ministry of Tourism and Antiquities, UNESCO World Heritage")
                         .font(.caption2)
