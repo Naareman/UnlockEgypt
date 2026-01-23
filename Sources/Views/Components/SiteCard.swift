@@ -5,18 +5,30 @@ struct SiteCard: View {
     let site: Site
     @EnvironmentObject var viewModel: HomeViewModel
 
-    private var isFullyUnlocked: Bool {
+    /// Has completed all Knowledge Keys (stories) for this site
+    private var hasAllKnowledgeKeys: Bool {
         guard let subLocations = site.subLocations, !subLocations.isEmpty else { return false }
-        let hasAllKnowledge = subLocations.allSatisfy { viewModel.hasScholarBadge(for: $0.id) }
-        let hasDiscovery = viewModel.hasExplorerBadge(for: site.id)
-        return hasAllKnowledge && hasDiscovery
+        return subLocations.allSatisfy { viewModel.hasScholarBadge(for: $0.id) }
+    }
+
+    /// Has any Knowledge Keys for this site
+    private var hasAnyKnowledgeKeys: Bool {
+        guard let subLocations = site.subLocations else { return false }
+        return subLocations.contains { viewModel.hasScholarBadge(for: $0.id) }
+    }
+
+    /// Has Discovery Key (visited the site)
+    private var hasDiscoveryKey: Bool {
+        viewModel.hasExplorerBadge(for: site.id)
+    }
+
+    /// Site is fully completed (all Knowledge Keys + Discovery Key)
+    private var isFullyUnlocked: Bool {
+        hasAllKnowledgeKeys && hasDiscoveryKey
     }
 
     private var hasAnyProgress: Bool {
-        guard let subLocations = site.subLocations else { return false }
-        let hasKnowledge = subLocations.contains { viewModel.hasScholarBadge(for: $0.id) }
-        let hasDiscovery = viewModel.hasExplorerBadge(for: site.id)
-        return hasKnowledge || hasDiscovery
+        hasAnyKnowledgeKeys || hasDiscoveryKey
     }
 
     var body: some View {
@@ -42,21 +54,6 @@ struct SiteCard: View {
                 Image(systemName: site.placeType.icon)
                     .font(.system(size: 28, weight: .light))
                     .foregroundColor(Theme.Colors.gold)
-
-                // Completion indicator
-                if isFullyUnlocked {
-                    VStack {
-                        HStack {
-                            Spacer()
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 18))
-                                .foregroundColor(.green)
-                                .background(Circle().fill(Theme.Colors.darkBackground).padding(-2))
-                        }
-                        Spacer()
-                    }
-                    .padding(4)
-                }
             }
             .frame(width: 76, height: 76)
 
@@ -76,30 +73,25 @@ struct SiteCard: View {
                 }
                 .foregroundColor(Theme.Colors.gold)
 
-                // Meta info
-                HStack(spacing: 12) {
-                    Label(site.era.rawValue, systemImage: "calendar")
-                    if let subLocations = site.subLocations {
-                        Label("\(subLocations.count) secrets", systemImage: "key.fill")
-                    }
-                }
-                .font(.system(size: 11))
-                .foregroundColor(.white.opacity(0.5))
+                // Era info
+                Label(site.era.rawValue, systemImage: "calendar")
+                    .font(.system(size: 11))
+                    .foregroundColor(.white.opacity(0.5))
             }
 
             Spacer()
 
-            // Status indicator
-            VStack(spacing: 4) {
-                if isFullyUnlocked {
-                    Image(systemName: "crown.fill")
-                        .font(.system(size: 16))
-                        .foregroundColor(Theme.Colors.gold)
-                } else {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(Theme.Colors.gold.opacity(0.5))
-                }
+            // Two key icons (Knowledge + Discovery)
+            VStack(spacing: 6) {
+                // Knowledge Key icon (book/key)
+                Image(systemName: "key.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(hasAllKnowledgeKeys ? .green : (hasAnyKnowledgeKeys ? Theme.Colors.gold.opacity(0.6) : .white.opacity(0.2)))
+
+                // Discovery Key icon (location pin)
+                Image(systemName: "mappin.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(hasDiscoveryKey ? .green : .white.opacity(0.2))
             }
         }
         .padding(14)
