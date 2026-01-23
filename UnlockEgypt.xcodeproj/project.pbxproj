@@ -89,13 +89,6 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		2110B8B20697AB9786A5CBF9 /* Images */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Images;
-			sourceTree = "<group>";
-		};
 		23AFE8C672F5177723F73A94 = {
 			isa = PBXGroup;
 			children = (
@@ -178,8 +171,6 @@
 			children = (
 				45517B2066C639A27C9E0113 /* Assets.xcassets */,
 				6B166D4D2137DAC54E102984 /* unlock_egypt_content.json */,
-				CA0CBA7BC5C1AAAB807F7A0B /* Audio */,
-				2110B8B20697AB9786A5CBF9 /* Images */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -231,13 +222,6 @@
 				F8A19473D633CE4BD42E6768 /* SettingsView.swift */,
 			);
 			path = Settings;
-			sourceTree = "<group>";
-		};
-		CA0CBA7BC5C1AAAB807F7A0B /* Audio */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Audio;
 			sourceTree = "<group>";
 		};
 		CDCE92BADCEF04F91904E71C /* Onboarding */ = {

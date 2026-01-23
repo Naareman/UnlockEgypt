@@ -71,31 +71,16 @@ struct FavoriteSiteCard: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Site image
-            AsyncImage(url: URL(string: site.imageUrl)) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                case .failure:
-                    Rectangle()
-                        .fill(Theme.Colors.cardBackground)
-                        .overlay(
-                            Image(systemName: "photo")
-                                .foregroundColor(.white.opacity(0.3))
-                        )
-                case .empty:
-                    Rectangle()
-                        .fill(Theme.Colors.cardBackground)
-                        .overlay(ProgressView().tint(.white.opacity(0.5)))
-                @unknown default:
-                    Rectangle()
-                        .fill(Theme.Colors.cardBackground)
-                }
+            // Site image placeholder with icon
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Theme.goldGradient)
+                    .frame(width: 80, height: 80)
+
+                Image(systemName: site.placeType.icon)
+                    .font(.system(size: 30, weight: .light))
+                    .foregroundColor(Theme.Colors.gold)
             }
-            .frame(width: 80, height: 80)
-            .cornerRadius(12)
 
             // Site info
             VStack(alignment: .leading, spacing: 4) {
