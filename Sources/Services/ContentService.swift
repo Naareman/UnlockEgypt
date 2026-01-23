@@ -54,7 +54,7 @@ class ContentService: ObservableObject {
             if newSiteCount > oldSiteCount {
                 lastFetchResult = "Updated! \(newSiteCount - oldSiteCount) new sites added."
             } else {
-                lastFetchResult = "Content is up to date."
+                lastFetchResult = "All up to date! Checked just now."
             }
 
         } catch {

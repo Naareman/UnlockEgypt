@@ -120,6 +120,14 @@ class ImageCacheService: ObservableObject {
 
     // MARK: - Batch Download for Offline
 
+    /// Check if an image is already cached
+    private func isImageCached(_ urlString: String) -> Bool {
+        guard !urlString.isEmpty else { return true }
+        let fileName = urlString.hash.description
+        let localURL = cacheDirectory.appendingPathComponent(fileName)
+        return FileManager.default.fileExists(atPath: localURL.path)
+    }
+
     /// Download all images from sites for offline use
     func downloadAllImages(from sites: [Site]) async {
         var allURLs: [String] = []
@@ -148,22 +156,33 @@ class ImageCacheService: ObservableObject {
         guard !allURLs.isEmpty else {
             await MainActor.run {
                 // Content is text-based, no images to cache
-                lastDownloadResult = "Content cached! This app uses text-based content for offline reading."
+                lastDownloadResult = "Already up to date! Text content is ready for offline reading."
+                lastCacheUpdate = Date()
+            }
+            return
+        }
+
+        // Check how many images need to be downloaded
+        let uncachedURLs = allURLs.filter { !isImageCached($0) }
+
+        if uncachedURLs.isEmpty {
+            await MainActor.run {
+                lastDownloadResult = "Already up to date! All \(allURLs.count) images cached."
                 lastCacheUpdate = Date()
             }
             return
         }
 
         await MainActor.run {
-            totalImages = allURLs.count
+            totalImages = uncachedURLs.count
             downloadedImages = 0
             downloadProgress = 0
             isDownloading = true
             lastDownloadResult = nil
         }
 
-        // Download each image
-        for (index, urlString) in allURLs.enumerated() {
+        // Download only uncached images
+        for (index, urlString) in uncachedURLs.enumerated() {
             _ = await getImage(from: urlString)
 
             await MainActor.run {
@@ -176,7 +195,7 @@ class ImageCacheService: ObservableObject {
             isDownloading = false
             saveMetadata(urls: allURLs)
             calculateCacheSize()
-            lastDownloadResult = "Downloaded \(downloadedImages) images for offline use"
+            lastDownloadResult = "Downloaded \(downloadedImages) new images for offline use"
         }
     }
 

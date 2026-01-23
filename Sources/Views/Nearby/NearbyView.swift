@@ -154,12 +154,18 @@ struct SiteWithDistance: Identifiable {
     let distance: CLLocationDistance
 
     var formattedDistance: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+
         if distance < 1000 {
             return "\(Int(distance)) m"
         } else if distance < 100_000 {
             return String(format: "%.1f km", distance / 1000)
         } else {
-            return String(format: "%.0f km", distance / 1000)
+            let km = Int(distance / 1000)
+            let formatted = formatter.string(from: NSNumber(value: km)) ?? "\(km)"
+            return "\(formatted) km"
         }
     }
 }

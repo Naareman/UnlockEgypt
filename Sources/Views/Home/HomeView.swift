@@ -87,19 +87,13 @@ struct HomeView: View {
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    (Text("UNLOCK")
-                        .foregroundColor(.white)
-                    + Text(" EGYPT")
-                        .foregroundColor(Theme.Colors.gold))
-                        .font(.system(size: 28, weight: .black))
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-
-                    Text("Discover 5,000 years of history")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.7))
-                }
+                (Text("UNLOCK")
+                    .foregroundColor(.white)
+                + Text(" EGYPT")
+                    .foregroundColor(Theme.Colors.gold))
+                    .font(.system(size: 28, weight: .black))
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
 
                 Spacer()
 
