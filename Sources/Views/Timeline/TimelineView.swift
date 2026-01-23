@@ -193,9 +193,9 @@ struct TimelineSiteCard: View {
                     .foregroundColor(.white)
 
                 HStack(spacing: 4) {
-                    Image(systemName: "rectangle.stack.fill")
+                    Image(systemName: "mappin")
                         .font(.system(size: 9))
-                    Text("\(site.subLocations?.count ?? 0) secrets to unlock")
+                    Text(site.city.rawValue)
                         .font(.caption2)
                 }
                 .foregroundColor(.white.opacity(0.5))

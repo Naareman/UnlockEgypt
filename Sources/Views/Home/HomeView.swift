@@ -213,7 +213,7 @@ struct AllSitesView: View {
 
                 // Sites count + loading indicator
                 HStack {
-                    Text("\(filteredSites.count) secrets to unlock")
+                    Text("\(filteredSites.count) \(filteredSites.count == 1 ? "site" : "sites")")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.6))
                     Spacer()
@@ -553,7 +553,7 @@ struct AchievementUnlockedOverlay: View {
                 }
 
                 VStack(spacing: 8) {
-                    Text("ACHIEVEMENT UNLOCKED!")
+                    Text("ACHIEVEMENT UNLOCKED! 🏆")
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundColor(Theme.Colors.gold)
@@ -563,11 +563,6 @@ struct AchievementUnlockedOverlay: View {
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
-
-                    Text(achievement.description)
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.7))
-                        .multilineTextAlignment(.center)
 
                     Text("+\(achievement.points) points")
                         .font(.headline)

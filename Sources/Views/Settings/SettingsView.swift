@@ -182,9 +182,15 @@ struct SettingsView: View {
                         ProgressView(value: imageCache.downloadProgress)
                             .tint(Theme.Colors.gold)
 
-                        Text("Downloading \(imageCache.downloadedImages)/\(imageCache.totalImages) images...")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
+                        if imageCache.totalImages == 0 {
+                            Text("Checking for updates...")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.6))
+                        } else {
+                            Text("Downloading \(imageCache.downloadedImages)/\(imageCache.totalImages) images...")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.6))
+                        }
                     }
                 }
 
@@ -204,7 +210,7 @@ struct SettingsView: View {
                     Button(action: downloadForOffline) {
                         HStack {
                             Image(systemName: "arrow.down.circle.fill")
-                            Text(imageCache.lastCacheUpdate != nil ? "Update" : "Download")
+                            Text(imageCache.lastCacheUpdate != nil ? "Update" : "Save for Offline")
                         }
                         .font(.subheadline)
                         .fontWeight(.medium)
@@ -234,13 +240,13 @@ struct SettingsView: View {
                 }
             }
         }
-        .alert("Clear Cache?", isPresented: $showingClearCacheAlert) {
+        .alert("Clear Offline Content?", isPresented: $showingClearCacheAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Clear", role: .destructive) {
                 imageCache.clearCache()
             }
         } message: {
-            Text("This will delete all downloaded content. You'll need an internet connection to view images.")
+            Text("This will delete all saved content. You'll need an internet connection to load content again.")
         }
     }
 
@@ -407,7 +413,7 @@ struct SettingsView: View {
 
     private func downloadForOffline() {
         guard !viewModel.sites.isEmpty else { return }
-        Task {
+        Task { @MainActor in
             await imageCache.downloadAllImages(from: viewModel.sites)
         }
     }

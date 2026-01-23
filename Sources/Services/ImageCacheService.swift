@@ -153,23 +153,26 @@ class ImageCacheService: ObservableObject {
         // Remove duplicates
         allURLs = Array(Set(allURLs))
 
-        guard !allURLs.isEmpty else {
-            await MainActor.run {
-                // No images in content - content is ready
-                lastDownloadResult = "Content ready for offline use!"
-                lastCacheUpdate = Date()
-            }
-            return
-        }
-
         // Check how many images need to be downloaded
         let uncachedURLs = allURLs.filter { !isImageCached($0) }
 
-        if uncachedURLs.isEmpty {
-            await MainActor.run {
-                lastDownloadResult = "Already up to date!"
-                lastCacheUpdate = Date()
+        // If no images to download (either no URLs or all cached), show checking animation
+        if allURLs.isEmpty || uncachedURLs.isEmpty {
+            // Show checking animation to give user feedback
+            isDownloading = true
+            downloadProgress = 0
+            totalImages = 0
+            lastDownloadResult = nil  // Hide previous message during check
+
+            // Animate progress to make it feel like checking
+            for i in 1...10 {
+                try? await Task.sleep(nanoseconds: 150_000_000) // 150ms per step = 1.5s total
+                downloadProgress = Double(i) / 10.0
             }
+
+            isDownloading = false
+            lastDownloadResult = "All content is up to date! ✓"
+            lastCacheUpdate = Date()
             return
         }
 

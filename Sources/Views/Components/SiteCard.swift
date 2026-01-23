@@ -5,7 +5,7 @@ struct SiteCard: View {
     let site: Site
     @EnvironmentObject var viewModel: HomeViewModel
 
-    /// Has completed all Knowledge Keys (stories) for this site
+    /// Has all Knowledge Keys for this site
     private var hasAllKnowledgeKeys: Bool {
         guard let subLocations = site.subLocations, !subLocations.isEmpty else { return false }
         return subLocations.allSatisfy { viewModel.hasScholarBadge(for: $0.id) }
@@ -22,98 +22,120 @@ struct SiteCard: View {
         viewModel.hasExplorerBadge(for: site.id)
     }
 
-    /// Site is fully completed (all Knowledge Keys + Discovery Key)
+    /// Fully unlocked (all Knowledge Keys + Discovery Key)
     private var isFullyUnlocked: Bool {
         hasAllKnowledgeKeys && hasDiscoveryKey
     }
 
-    private var hasAnyProgress: Bool {
-        hasAnyKnowledgeKeys || hasDiscoveryKey
+    private var isFavorite: Bool {
+        viewModel.isFavorite(siteId: site.id)
     }
 
     var body: some View {
-        HStack(spacing: 14) {
-            // Site icon with Egyptian styling
-            ZStack {
-                RoundedRectangle(cornerRadius: Theme.Radius.md)
-                    .fill(Theme.goldGradient)
-                    .frame(width: 76, height: 76)
+        HStack(spacing: 12) {
+            // Site icon with completion badge overlay
+            ZStack(alignment: .topTrailing) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Theme.goldGradient)
+                        .frame(width: 80, height: 80)
 
-                // Decorative border
-                RoundedRectangle(cornerRadius: Theme.Radius.md)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [Theme.Colors.gold.opacity(0.6), Theme.Colors.gold.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.5
-                    )
-                    .frame(width: 76, height: 76)
+                    Image(systemName: site.placeType.icon)
+                        .font(.system(size: 30, weight: .light))
+                        .foregroundColor(Theme.Colors.gold)
+                }
 
-                Image(systemName: site.placeType.icon)
-                    .font(.system(size: 28, weight: .light))
-                    .foregroundColor(Theme.Colors.gold)
+                // Completion badge
+                if isFullyUnlocked {
+                    ZStack {
+                        Circle()
+                            .fill(Theme.Colors.gold)
+                            .frame(width: 22, height: 22)
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.black)
+                    }
+                    .offset(x: 4, y: -4)
+                }
             }
-            .frame(width: 76, height: 76)
 
-            VStack(alignment: .leading, spacing: 6) {
-                // Site name
+            // Site info
+            VStack(alignment: .leading, spacing: 4) {
                 Text(site.name)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.headline)
                     .foregroundColor(.white)
                     .lineLimit(1)
 
-                // Location
-                HStack(spacing: 4) {
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.system(size: 11))
-                    Text(site.city.rawValue)
-                        .font(.system(size: 13, weight: .medium))
-                }
-                .foregroundColor(Theme.Colors.gold)
+                Text(site.arabicName)
+                    .font(.subheadline)
+                    .foregroundColor(Theme.Colors.gold)
+                    .lineLimit(1)
 
-                // Era info
-                Label(site.era.rawValue, systemImage: "calendar")
-                    .font(.system(size: 11))
-                    .foregroundColor(.white.opacity(0.5))
+                HStack(spacing: 8) {
+                    Label(site.city.rawValue, systemImage: "mappin")
+                    Label(site.era.displayName, systemImage: "clock")
+                }
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.5))
+                .lineLimit(1)
+
+                // Badge indicators
+                HStack(spacing: 6) {
+                    if hasAnyKnowledgeKeys {
+                        SiteCardBadge(type: .knowledge)
+                    }
+                    if hasDiscoveryKey {
+                        SiteCardBadge(type: .discovery)
+                    }
+                }
             }
 
             Spacer()
 
-            // Status icons: Crown when fully complete, otherwise two separate key icons
-            if isFullyUnlocked {
-                // Fully complete - show crown
-                Image(systemName: "crown.fill")
-                    .font(.system(size: 20))
-                    .foregroundColor(Theme.Colors.gold)
-            } else {
-                // In progress - show two key icons
-                VStack(spacing: 6) {
-                    Image(systemName: "key.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(hasAllKnowledgeKeys ? .green : (hasAnyKnowledgeKeys ? Theme.Colors.gold.opacity(0.6) : .white.opacity(0.2)))
-
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.system(size: 14))
-                        .foregroundColor(hasDiscoveryKey ? .green : .white.opacity(0.2))
+            // Favorite button
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    viewModel.toggleFavorite(siteId: site.id)
                 }
+            }) {
+                Image(systemName: isFavorite ? "heart.fill" : "heart")
+                    .font(.title3)
+                    .foregroundColor(isFavorite ? .red : .white.opacity(0.4))
             }
+            .buttonStyle(PlainButtonStyle())
         }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: Theme.Radius.lg)
-                .fill(hasAnyProgress ? Theme.Colors.cardBackgroundElevated : Theme.Colors.cardBackground)
-        )
+        .padding(12)
+        .background(Theme.Colors.cardBackground)
+        .cornerRadius(16)
         .overlay(
-            RoundedRectangle(cornerRadius: Theme.Radius.lg)
-                .stroke(
-                    isFullyUnlocked ? Color.green.opacity(0.3) :
-                    (hasAnyProgress ? Theme.Colors.gold.opacity(0.25) : Theme.Colors.gold.opacity(0.15)),
-                    lineWidth: 1
-                )
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
-        .contentShape(Rectangle()) // Ensure entire card is tappable
+        .contentShape(Rectangle())
+    }
+}
+
+// MARK: - Site Card Badge
+struct SiteCardBadge: View {
+    enum BadgeType {
+        case knowledge
+        case discovery
+    }
+
+    let type: BadgeType
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: type == .knowledge ? "key.fill" : "mappin.circle.fill")
+                .font(.system(size: 10))
+            Text(type == .knowledge ? "Knowledge" : "Discovery")
+                .font(.system(size: 9, weight: .medium))
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(type == .knowledge ? Theme.Colors.gold : .green)
+        .foregroundColor(type == .knowledge ? .black : .white)
+        .cornerRadius(8)
     }
 }
 

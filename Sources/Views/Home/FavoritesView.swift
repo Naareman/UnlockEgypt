@@ -11,7 +11,7 @@ struct FavoritesView: View {
                 } else {
                     // Header
                     HStack {
-                        Text("\(viewModel.favoriteSitesList.count) saved secrets")
+                        Text("\(viewModel.favoriteSitesList.count) saved \(viewModel.favoriteSitesList.count == 1 ? "site" : "sites")")
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.6))
                         Spacer()
@@ -69,17 +69,49 @@ struct FavoriteSiteCard: View {
     let site: Site
     @ObservedObject var viewModel: HomeViewModel
 
+    private var hasAllKnowledgeKeys: Bool {
+        guard let subLocations = site.subLocations, !subLocations.isEmpty else { return false }
+        return subLocations.allSatisfy { viewModel.hasScholarBadge(for: $0.id) }
+    }
+
+    private var hasAnyKnowledgeKeys: Bool {
+        site.subLocations?.contains(where: { viewModel.hasScholarBadge(for: $0.id) }) == true
+    }
+
+    private var hasDiscoveryKey: Bool {
+        viewModel.hasExplorerBadge(for: site.id)
+    }
+
+    private var isFullyUnlocked: Bool {
+        hasAllKnowledgeKeys && hasDiscoveryKey
+    }
+
     var body: some View {
         HStack(spacing: 12) {
-            // Site image placeholder with icon
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Theme.goldGradient)
-                    .frame(width: 80, height: 80)
+            // Site icon with completion badge overlay
+            ZStack(alignment: .topTrailing) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Theme.goldGradient)
+                        .frame(width: 80, height: 80)
 
-                Image(systemName: site.placeType.icon)
-                    .font(.system(size: 30, weight: .light))
-                    .foregroundColor(Theme.Colors.gold)
+                    Image(systemName: site.placeType.icon)
+                        .font(.system(size: 30, weight: .light))
+                        .foregroundColor(Theme.Colors.gold)
+                }
+
+                // Completion badge
+                if isFullyUnlocked {
+                    ZStack {
+                        Circle()
+                            .fill(Theme.Colors.gold)
+                            .frame(width: 22, height: 22)
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.black)
+                    }
+                    .offset(x: 4, y: -4)
+                }
             }
 
             // Site info
@@ -102,12 +134,12 @@ struct FavoriteSiteCard: View {
                 .foregroundColor(.white.opacity(0.5))
                 .lineLimit(1)
 
-                // Badges - check if any sublocation has a knowledge badge
+                // Badge indicators
                 HStack(spacing: 6) {
-                    if site.subLocations?.contains(where: { viewModel.hasScholarBadge(for: $0.id) }) == true {
+                    if hasAnyKnowledgeKeys {
                         BadgeIndicator(type: .knowledge, isEarned: true)
                     }
-                    if viewModel.hasExplorerBadge(for: site.id) {
+                    if hasDiscoveryKey {
                         BadgeIndicator(type: .discovery, isEarned: true)
                     }
                 }

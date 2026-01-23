@@ -204,14 +204,10 @@ struct StoryCardsView: View {
             }
 
             VStack(spacing: 8) {
-                Text("Secret Unlocked!")
-                    .font(.title)
+                Text(subLocation.name)
+                    .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-
-                Text("You've unlocked the secrets of \(subLocation.name)")
-                    .font(.headline)
-                    .foregroundColor(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
             }
 
@@ -223,7 +219,7 @@ struct StoryCardsView: View {
                     Text("Knowledge Key")
                         .foregroundColor(.white.opacity(0.6))
                     Spacer()
-                    Text("+1 pt")
+                    Text("+1")
                         .fontWeight(.bold)
                         .foregroundColor(Theme.Colors.gold)
                 }
@@ -232,10 +228,10 @@ struct StoryCardsView: View {
                     HStack {
                         Image(systemName: "star.fill")
                             .foregroundColor(Theme.Colors.gold)
-                        Text("Quiz mastery")
+                        Text("Quiz Bonus")
                             .foregroundColor(.white.opacity(0.6))
                         Spacer()
-                        Text("+\(sessionPoints - 1) pts")
+                        Text("+\(sessionPoints - 1)")
                             .fontWeight(.bold)
                             .foregroundColor(Theme.Colors.gold)
                     }
@@ -245,10 +241,10 @@ struct StoryCardsView: View {
                     .background(Color.white.opacity(0.2))
 
                 HStack {
-                    Text("Total Ankh Points")
+                    Text("Total Points")
                         .foregroundColor(.white.opacity(0.6))
                     Spacer()
-                    Text("\(viewModel.totalPoints) pts")
+                    Text("\(viewModel.totalPoints)")
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
@@ -258,21 +254,11 @@ struct StoryCardsView: View {
             .cornerRadius(16)
             .padding(.horizontal, 32)
 
-            // Hint about Discovery Key
-            HStack(spacing: 8) {
-                Image(systemName: "key.horizontal.fill")
-                    .foregroundColor(.cyan.opacity(0.7))
-                Text("Visit this site to unlock the Discovery Key!")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.5))
-            }
-            .padding(.top, 8)
-
             Spacer()
 
             // Done button
             Button(action: { dismiss() }) {
-                Text("Seal Discovery")
+                Text("Done")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.black)

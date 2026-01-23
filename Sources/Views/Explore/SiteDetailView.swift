@@ -53,14 +53,18 @@ struct SiteDetailView: View {
 
                         tabSelector
 
-                        switch selectedTab {
-                        case .explore:
-                            exploreContent
-                        case .discover:
-                            discoverContent
-                        case .info:
-                            infoContent
+                        Group {
+                            switch selectedTab {
+                            case .explore:
+                                exploreContent
+                            case .discover:
+                                discoverContent
+                            case .info:
+                                infoContent
+                            }
                         }
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        .animation(.easeInOut(duration: 0.25), value: selectedTab)
                     }
                     .padding()
                 }
@@ -405,6 +409,10 @@ struct DiscoveryKeySection: View {
         viewModel.hasExplorerBadge(for: site.id)
     }
 
+    private var canUpgradeWithLocation: Bool {
+        viewModel.selfReportedSites.contains(site.id)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("DISCOVERY KEY")
@@ -428,35 +436,39 @@ struct DiscoveryKeySection: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        if hasDiscoveryKey {
+                        if hasDiscoveryKey && !canUpgradeWithLocation {
                             Text("Visit Verified!")
                                 .font(.headline)
                                 .foregroundColor(.green)
                             Text("You've been to \(site.name)")
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.6))
-                        } else {
-                            Text("Prove You're Here")
+                        } else if canUpgradeWithLocation {
+                            Text("Visited")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                            Text("Verify your location to earn the Discovery Key")
+                                .foregroundColor(Theme.Colors.gold)
+                            Text("Verify location for +20 bonus!")
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.6))
+                        } else {
+                            Text("Earn Your Discovery Key")
+                                .font(.headline)
+                                .foregroundColor(.white)
                         }
                     }
 
                     Spacer()
                 }
 
-                // Action buttons (if not unlocked)
-                if !hasDiscoveryKey {
+                // Action buttons
+                if !hasDiscoveryKey || canUpgradeWithLocation {
                     VStack(spacing: 12) {
                         Button(action: verifyWithLocation) {
                             HStack {
                                 Image(systemName: "location.fill")
                                 Text("Verify My Location")
                                 Spacer()
-                                Text("+50 pts")
+                                Text(canUpgradeWithLocation ? "+20 bonus" : "+50")
                                     .font(.caption)
                                     .foregroundColor(.black.opacity(0.6))
                             }
@@ -468,21 +480,23 @@ struct DiscoveryKeySection: View {
                             .cornerRadius(12)
                         }
 
-                        Button(action: selfReport) {
-                            HStack {
-                                Image(systemName: "hand.raised.fill")
-                                Text("I'm Here (Self-Report)")
-                                Spacer()
-                                Text("+30 pts")
-                                    .font(.caption)
-                                    .foregroundColor(Theme.Colors.gold.opacity(0.6))
+                        if !hasDiscoveryKey {
+                            Button(action: selfReport) {
+                                HStack {
+                                    Image(systemName: "hand.raised.fill")
+                                    Text("Mark as Visited")
+                                    Spacer()
+                                    Text("+30")
+                                        .font(.caption)
+                                        .foregroundColor(Theme.Colors.gold.opacity(0.6))
+                                }
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(Theme.Colors.gold)
+                                .padding()
+                                .background(Theme.Colors.gold.opacity(0.15))
+                                .cornerRadius(12)
                             }
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(Theme.Colors.gold)
-                            .padding()
-                            .background(Theme.Colors.gold.opacity(0.15))
-                            .cornerRadius(12)
                         }
                     }
                 }
@@ -508,7 +522,7 @@ struct DiscoveryKeySection: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             let result = viewModel.verifyAndAwardExplorerBadge(for: site, userLocation: locationManager.location)
-            alertTitle = result.0 ? "Discovery Key Unlocked!" : "Verification"
+            alertTitle = result.0 ? "Discovery Key Unlocked! 🔑" : "Oops!"
             alertMessage = result.1
             showingAlert = true
         }
@@ -516,7 +530,7 @@ struct DiscoveryKeySection: View {
 
     private func selfReport() {
         let result = viewModel.selfReportVisit(for: site.id)
-        alertTitle = result.0 ? "Discovery Key Unlocked!" : "Already Visited"
+        alertTitle = result.0 ? "Discovery Key Unlocked! 🔑" : "Hmm..."
         alertMessage = result.1
         showingAlert = true
     }
