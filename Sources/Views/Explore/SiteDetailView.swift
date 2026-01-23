@@ -366,10 +366,10 @@ struct MysteryCard: View {
 
             Spacer()
 
-            // Knowledge Key icon (turns green when earned)
+            // Knowledge Key icon (turns gold when earned)
             Image(systemName: "key.fill")
                 .font(.title2)
-                .foregroundColor(hasKnowledgeKey ? .green : Theme.Colors.gold.opacity(0.4))
+                .foregroundColor(hasKnowledgeKey ? Theme.Colors.gold : Theme.Colors.gold.opacity(0.4))
         }
         .padding()
         .background(Color.white.opacity(hasKnowledgeKey ? 0.08 : 0.05))
@@ -377,7 +377,7 @@ struct MysteryCard: View {
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(
-                    hasKnowledgeKey ? Color.green.opacity(0.3) : Theme.Colors.gold.opacity(0.2),
+                    hasKnowledgeKey ? Theme.Colors.gold.opacity(0.3) : Theme.Colors.gold.opacity(0.2),
                     lineWidth: 1
                 )
         )
