@@ -98,7 +98,8 @@ class HomeViewModel: ObservableObject {
     }
 
     private func loadProgress() {
-        // Load from UserDefaults
+        // TODO: Refactor to use self.storage protocol for full testability
+        // Currently using UserDefaults.standard for primitive type operations
         totalPoints = UserDefaults.standard.integer(forKey: pointsKey)
 
         // Load discovered places with dates

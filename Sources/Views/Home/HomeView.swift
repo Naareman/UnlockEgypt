@@ -553,11 +553,14 @@ struct AchievementUnlockedOverlay: View {
                 }
 
                 VStack(spacing: 8) {
-                    Text("ACHIEVEMENT UNLOCKED! 🏆")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(Theme.Colors.gold)
-                        .tracking(2)
+                    HStack(spacing: 6) {
+                        Text("ACHIEVEMENT UNLOCKED!")
+                        Image(systemName: "trophy.fill")
+                    }
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(Theme.Colors.gold)
+                    .tracking(2)
 
                     Text(achievement.name)
                         .font(.title2)

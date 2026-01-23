@@ -100,7 +100,7 @@ struct SiteCard: View {
             }) {
                 Image(systemName: isFavorite ? "heart.fill" : "heart")
                     .font(.title3)
-                    .foregroundColor(isFavorite ? .red : .white.opacity(0.4))
+                    .foregroundColor(isFavorite ? .red : .white.opacity(0.5))
             }
             .buttonStyle(PlainButtonStyle())
         }

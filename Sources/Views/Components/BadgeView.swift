@@ -76,7 +76,7 @@ struct BadgeView: View {
             isEarned ? type.color.opacity(0.2) : Color.white.opacity(0.1)
         )
         .foregroundColor(
-            isEarned ? type.color : .white.opacity(0.4)
+            isEarned ? type.color : .white.opacity(0.5)
         )
         .cornerRadius(size == .small ? 6 : 8)
         .overlay(
