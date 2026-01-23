@@ -3,7 +3,6 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var viewModel: HomeViewModel
-    @ObservedObject private var contentService = ContentService.shared
     @ObservedObject private var imageCache = ImageCacheService.shared
     @State private var showingResetAlert = false
     @State private var showingClearCacheAlert = false
@@ -26,9 +25,6 @@ struct SettingsView: View {
 
                         // Offline Mode Section
                         offlineModeSection
-
-                        // Content Section
-                        contentSection
 
                         // About Section
                         aboutSection
@@ -248,64 +244,6 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Content Section
-    private var contentSection: some View {
-        SettingsSection(title: "CONTENT", icon: "doc.text") {
-            VStack(spacing: 12) {
-                HStack {
-                    Text("Sites")
-                        .foregroundColor(.white.opacity(0.7))
-                    Spacer()
-                    Text("\(viewModel.sites.count)")
-                        .foregroundColor(.white)
-                }
-
-                if let lastUpdated = contentService.lastUpdated {
-                    HStack {
-                        Text("Last Updated")
-                            .foregroundColor(.white.opacity(0.7))
-                        Spacer()
-                        Text(lastUpdated, style: .date)
-                            .foregroundColor(.white)
-                    }
-                }
-
-                Divider().background(Color.white.opacity(0.1))
-
-                // Update button with integrated status (UX improvement)
-                Button(action: refreshContent) {
-                    HStack {
-                        if contentService.isLoading {
-                            ProgressView()
-                                .tint(.black)
-                                .scaleEffect(0.8)
-                            Text("Checking...")
-                        } else if let result = contentService.lastFetchResult {
-                            Image(systemName: contentService.error != nil ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
-                            Text(result)
-                        } else {
-                            Image(systemName: "arrow.clockwise")
-                            Text("Check for Updates")
-                        }
-                    }
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(contentService.lastFetchResult != nil && contentService.error == nil ? .black : (contentService.error != nil ? .orange : .black))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        contentService.lastFetchResult != nil && contentService.error == nil
-                            ? Color.green.opacity(0.8)
-                            : (contentService.error != nil ? Color.orange.opacity(0.2) : Theme.Colors.gold)
-                    )
-                    .cornerRadius(10)
-                }
-                .disabled(contentService.isLoading)
-            }
-            .font(.subheadline)
-        }
-    }
-
     // MARK: - Progress Section
     private var progressSection: some View {
         SettingsSection(title: "YOUR PROGRESS", icon: "trophy") {
@@ -471,12 +409,6 @@ struct SettingsView: View {
         guard !viewModel.sites.isEmpty else { return }
         Task {
             await imageCache.downloadAllImages(from: viewModel.sites)
-        }
-    }
-
-    private func refreshContent() {
-        Task {
-            await viewModel.refreshContent()
         }
     }
 

@@ -83,9 +83,6 @@ struct NearbyView: View {
             }
             .padding(.vertical)
         }
-        .onAppear {
-            locationManager.requestPermission()
-        }
         .onChange(of: locationManager.location) { _, newLocation in
             if let location = newLocation {
                 updateSortedSites(from: location)

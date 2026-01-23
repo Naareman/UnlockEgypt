@@ -267,18 +267,8 @@ struct AchievementRow: View {
 
             // Status
             if isUnlocked {
-                HStack(spacing: 8) {
-                    Button(action: {
-                        ShareService.shareAchievement(achievement)
-                    }) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.caption)
-                            .foregroundColor(Theme.Colors.gold)
-                    }
-
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                }
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
             } else {
                 Text("\(progress.current)/\(progress.required)")
                     .font(.caption)

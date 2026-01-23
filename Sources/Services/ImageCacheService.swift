@@ -155,8 +155,8 @@ class ImageCacheService: ObservableObject {
 
         guard !allURLs.isEmpty else {
             await MainActor.run {
-                // Content is text-based, no images to cache
-                lastDownloadResult = "Already up to date! Text content is ready for offline reading."
+                // No images in content - content is ready
+                lastDownloadResult = "Content ready for offline use!"
                 lastCacheUpdate = Date()
             }
             return
@@ -167,7 +167,7 @@ class ImageCacheService: ObservableObject {
 
         if uncachedURLs.isEmpty {
             await MainActor.run {
-                lastDownloadResult = "Already up to date! All \(allURLs.count) images cached."
+                lastDownloadResult = "Already up to date!"
                 lastCacheUpdate = Date()
             }
             return
@@ -207,6 +207,7 @@ class ImageCacheService: ObservableObject {
         try? FileManager.default.removeItem(at: metadataFile)
 
         lastCacheUpdate = nil
+        lastDownloadResult = nil
         cacheSize = 0
     }
 

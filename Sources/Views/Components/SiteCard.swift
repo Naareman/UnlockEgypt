@@ -81,17 +81,23 @@ struct SiteCard: View {
 
             Spacer()
 
-            // Two key icons (Knowledge + Discovery)
-            VStack(spacing: 6) {
-                // Knowledge Key icon (book/key)
-                Image(systemName: "key.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(hasAllKnowledgeKeys ? .green : (hasAnyKnowledgeKeys ? Theme.Colors.gold.opacity(0.6) : .white.opacity(0.2)))
+            // Status icons: Crown when fully complete, otherwise two separate key icons
+            if isFullyUnlocked {
+                // Fully complete - show crown
+                Image(systemName: "crown.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(Theme.Colors.gold)
+            } else {
+                // In progress - show two key icons
+                VStack(spacing: 6) {
+                    Image(systemName: "key.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(hasAllKnowledgeKeys ? .green : (hasAnyKnowledgeKeys ? Theme.Colors.gold.opacity(0.6) : .white.opacity(0.2)))
 
-                // Discovery Key icon (location pin)
-                Image(systemName: "mappin.circle.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(hasDiscoveryKey ? .green : .white.opacity(0.2))
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(hasDiscoveryKey ? .green : .white.opacity(0.2))
+                }
             }
         }
         .padding(14)
