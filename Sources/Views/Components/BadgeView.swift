@@ -8,7 +8,7 @@ enum BadgeType {
     var icon: String {
         switch self {
         case .scholar: return "key.fill"
-        case .explorer: return "key.horizontal.fill"
+        case .explorer: return "mappin.circle.fill"
         }
     }
 
@@ -22,7 +22,7 @@ enum BadgeType {
     var color: Color {
         switch self {
         case .scholar: return Theme.Colors.gold
-        case .explorer: return .cyan
+        case .explorer: return .green
         }
     }
 
@@ -108,12 +108,12 @@ struct CompletionCheckmark: View {
         if isComplete {
             ZStack {
                 Circle()
-                    .fill(Color.green)
+                    .fill(Theme.Colors.gold)
                     .frame(width: 20, height: 20)
                 Image(systemName: "checkmark")
                     .font(.caption2)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
             }
         }
     }
@@ -154,7 +154,7 @@ struct BadgeProgressView: View {
                 if hasExplorer {
                     Text("Verified")
                         .font(.caption)
-                        .foregroundColor(.blue)
+                        .foregroundColor(.green)
                 } else {
                     Text("Not visited")
                         .font(.caption)
