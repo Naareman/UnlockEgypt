@@ -16,10 +16,16 @@ enum Theme {
         static let cardBackground = Color.white.opacity(0.1)
         /// Subtle card background
         static let cardBackgroundSubtle = Color.white.opacity(0.05)
+        /// Elevated card background
+        static let cardBackgroundElevated = Color.white.opacity(0.12)
         /// Sand/brown accent
         static let sand = Color(hex: "8b7355")
         /// Quiz blue
         static let quizBlue = Color(hex: "4da6ff")
+        /// Success green
+        static let success = Color(hex: "34c759")
+        /// Warning orange
+        static let warning = Color(hex: "ff9500")
 
         // MARK: - Era Colors (for Timeline)
         static let eraPreDynastic = Color(hex: "9b59b6")
@@ -71,6 +77,42 @@ enum Theme {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+    }
+
+    static var subtleGoldGradient: LinearGradient {
+        LinearGradient(
+            colors: [Colors.gold.opacity(0.15), Colors.gold.opacity(0.05)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    // MARK: - Spacing
+    enum Spacing {
+        static let xxs: CGFloat = 4
+        static let xs: CGFloat = 8
+        static let sm: CGFloat = 12
+        static let md: CGFloat = 16
+        static let lg: CGFloat = 24
+        static let xl: CGFloat = 32
+        static let xxl: CGFloat = 48
+    }
+
+    // MARK: - Corner Radius
+    enum Radius {
+        static let sm: CGFloat = 8
+        static let md: CGFloat = 12
+        static let lg: CGFloat = 16
+        static let xl: CGFloat = 20
+        static let pill: CGFloat = 100
+    }
+
+    // MARK: - Animation
+    enum Animation {
+        static let quick: SwiftUI.Animation = .easeOut(duration: 0.15)
+        static let normal: SwiftUI.Animation = .easeInOut(duration: 0.25)
+        static let smooth: SwiftUI.Animation = .spring(response: 0.35, dampingFraction: 0.7)
+        static let bouncy: SwiftUI.Animation = .spring(response: 0.4, dampingFraction: 0.6)
     }
 }
 

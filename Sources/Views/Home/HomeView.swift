@@ -413,47 +413,82 @@ struct EncouragementBanner: View {
     @ObservedObject var viewModel: HomeViewModel
 
     var body: some View {
-        HStack(spacing: 12) {
-            // Rank icon
+        HStack(spacing: 14) {
+            // Rank icon with glow
             ZStack {
+                // Outer glow
+                Circle()
+                    .fill(Theme.Colors.gold.opacity(0.1))
+                    .frame(width: 48, height: 48)
+
+                // Inner circle
                 Circle()
                     .fill(Theme.Colors.gold.opacity(0.2))
-                    .frame(width: 36, height: 36)
+                    .frame(width: 40, height: 40)
+
                 Image(systemName: viewModel.currentRank.icon)
-                    .font(.system(size: 16))
+                    .font(.system(size: 18, weight: .medium))
                     .foregroundColor(Theme.Colors.gold)
             }
 
-            // Message
-            VStack(alignment: .leading, spacing: 2) {
+            // Rank info
+            VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.currentRank.rawValue)
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundColor(Theme.Colors.gold)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(.white)
 
-                Text(viewModel.encouragementMessage)
-                    .font(.caption2)
-                    .foregroundColor(.white.opacity(0.7))
-                    .lineLimit(1)
+                // Progress to next rank
+                if viewModel.currentRank != .pharaoh {
+                    HStack(spacing: 6) {
+                        // Mini progress bar
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(Color.white.opacity(0.1))
+                                Capsule()
+                                    .fill(Theme.Colors.gold)
+                                    .frame(width: geo.size.width * viewModel.rankProgress)
+                            }
+                        }
+                        .frame(width: 60, height: 4)
+
+                        if let pointsNeeded = viewModel.pointsToNextRank {
+                            Text("\(pointsNeeded) pts to go")
+                                .font(.system(size: 11))
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                    }
+                } else {
+                    Text("Maximum rank achieved!")
+                        .font(.system(size: 11))
+                        .foregroundColor(Theme.Colors.gold)
+                }
             }
 
             Spacer()
 
-            // Progress indicator
-            if let next = viewModel.nextAchievementToUnlock {
-                CircularProgress(
-                    progress: Double(next.progress) / Double(next.required),
-                    size: 32
-                )
-            }
+            // Chevron indicator
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white.opacity(0.3))
         }
-        .padding(12)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Theme.Colors.gold.opacity(0.2), lineWidth: 1)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                .fill(Theme.Colors.cardBackgroundSubtle)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                .stroke(
+                    LinearGradient(
+                        colors: [Theme.Colors.gold.opacity(0.3), Theme.Colors.gold.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .pressEffect()
     }
 }
 
