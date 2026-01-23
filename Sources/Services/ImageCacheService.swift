@@ -18,7 +18,9 @@ class ImageCacheService: ObservableObject {
     private let metadataFile: URL
 
     private init() {
-        let cachesDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        // Safe unwrap with fallback to temporary directory
+        let cachesDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
         cacheDirectory = cachesDir.appendingPathComponent("ImageCache", isDirectory: true)
         metadataFile = cachesDir.appendingPathComponent("image_cache_metadata.json")
 
@@ -111,7 +113,6 @@ class ImageCacheService: ObservableObject {
 
             return image
         } catch {
-            print("ImageCacheService: Failed to download image from \(urlString): \(error)")
             return nil
         }
     }
@@ -144,7 +145,6 @@ class ImageCacheService: ObservableObject {
         allURLs = Array(Set(allURLs))
 
         guard !allURLs.isEmpty else {
-            print("ImageCacheService: No images to download")
             return
         }
 
@@ -171,7 +171,6 @@ class ImageCacheService: ObservableObject {
             calculateCacheSize()
         }
 
-        print("ImageCacheService: Downloaded \(allURLs.count) images for offline use")
     }
 
     // MARK: - Clear Cache
@@ -183,7 +182,6 @@ class ImageCacheService: ObservableObject {
 
         lastCacheUpdate = nil
         cacheSize = 0
-        print("ImageCacheService: Cache cleared")
     }
 
     // MARK: - Check for Updates

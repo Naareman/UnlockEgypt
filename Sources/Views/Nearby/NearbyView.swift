@@ -3,7 +3,7 @@ import CoreLocation
 
 struct NearbyView: View {
     let sites: [Site]
-    @StateObject private var locationManager = LocationManager()
+    @ObservedObject private var locationManager = LocationManager.shared
     @State private var sortedSites: [SiteWithDistance] = []
 
     var body: some View {

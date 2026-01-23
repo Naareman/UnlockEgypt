@@ -30,21 +30,34 @@ struct HomeView: View {
                         .padding(.horizontal)
                         .padding(.vertical, 12)
 
-                    // Content
-                    TabView(selection: $selectedTab) {
-                        AllSitesView(viewModel: viewModel)
-                            .tag(HomeTab.allSites)
+                    // Content - show loading state if no sites yet
+                    if viewModel.sites.isEmpty && viewModel.isLoading {
+                        Spacer()
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .scaleEffect(1.5)
+                                .tint(Theme.Colors.gold)
+                            Text("Loading ancient secrets...")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+                        Spacer()
+                    } else {
+                        TabView(selection: $selectedTab) {
+                            AllSitesView(viewModel: viewModel)
+                                .tag(HomeTab.allSites)
 
-                        FavoritesView(viewModel: viewModel)
-                            .tag(HomeTab.favorites)
+                            FavoritesView(viewModel: viewModel)
+                                .tag(HomeTab.favorites)
 
-                        NearbyView(sites: viewModel.sites)
-                            .tag(HomeTab.nearby)
+                            NearbyView(sites: viewModel.sites)
+                                .tag(HomeTab.nearby)
 
-                        HistoryTimelineView(sites: viewModel.sites)
-                            .tag(HomeTab.timeline)
+                            HistoryTimelineView(sites: viewModel.sites)
+                                .tag(HomeTab.timeline)
+                        }
+                        .tabViewStyle(.page(indexDisplayMode: .never))
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
                 }
             }
             .navigationBarHidden(true)

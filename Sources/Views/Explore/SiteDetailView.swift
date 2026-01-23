@@ -470,7 +470,7 @@ struct PhraseRow: View {
 struct ExplorerBadgeCard: View {
     let site: Site
     @EnvironmentObject var viewModel: HomeViewModel
-    @StateObject private var locationManager = LocationManager()
+    @ObservedObject private var locationManager = LocationManager.shared
     @State private var showingAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""

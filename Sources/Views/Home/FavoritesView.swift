@@ -102,9 +102,9 @@ struct FavoriteSiteCard: View {
                 .foregroundColor(.white.opacity(0.5))
                 .lineLimit(1)
 
-                // Badges
+                // Badges - check if any sublocation has a knowledge badge
                 HStack(spacing: 6) {
-                    if viewModel.hasScholarBadge(for: site.id) {
+                    if site.subLocations?.contains(where: { viewModel.hasScholarBadge(for: $0.id) }) == true {
                         BadgeIndicator(type: .knowledge, isEarned: true)
                     }
                     if viewModel.hasExplorerBadge(for: site.id) {

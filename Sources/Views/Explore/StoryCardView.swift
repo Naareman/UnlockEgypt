@@ -21,7 +21,18 @@ struct StoryCardsView: View {
             )
             .ignoresSafeArea()
 
-            if showCompletion {
+            // Guard against empty story cards
+            if subLocation.storyCards.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "book.closed")
+                        .font(.system(size: 50))
+                        .foregroundColor(Theme.Colors.gold.opacity(0.5))
+                    Text("No stories available yet")
+                        .foregroundColor(.white.opacity(0.6))
+                    Button("Go Back") { dismiss() }
+                        .foregroundColor(Theme.Colors.gold)
+                }
+            } else if showCompletion {
                 completionView
             } else {
                 VStack(spacing: 0) {
@@ -114,10 +125,11 @@ struct StoryCardsView: View {
                     .fill(Color.white.opacity(0.2))
                     .frame(height: 4)
 
-                // Progress
+                // Progress - guard against division by zero
+                let totalCards = max(subLocation.storyCards.count, 1)
                 RoundedRectangle(cornerRadius: 2)
                     .fill(Theme.Colors.gold)
-                    .frame(width: geo.size.width * CGFloat(currentIndex + 1) / CGFloat(subLocation.storyCards.count), height: 4)
+                    .frame(width: geo.size.width * CGFloat(currentIndex + 1) / CGFloat(totalCards), height: 4)
                     .animation(.easeInOut, value: currentIndex)
             }
         }
@@ -452,6 +464,10 @@ struct SingleCardView: View {
             }
 
             if let question = card.quizQuestion {
+                // Validate correctAnswerIndex is within bounds
+                let validCorrectIndex = question.correctAnswerIndex >= 0 && question.correctAnswerIndex < question.options.count
+                    ? question.correctAnswerIndex : 0
+
                 Text(question.question)
                     .font(.title3)
                     .fontWeight(.semibold)
@@ -462,7 +478,7 @@ struct SingleCardView: View {
                         QuizOptionButton(
                             text: question.options[index],
                             isSelected: selectedAnswer == index,
-                            isCorrect: showingAnswer ? index == question.correctAnswerIndex : nil,
+                            isCorrect: showingAnswer ? index == validCorrectIndex : nil,
                             showResult: showingAnswer
                         ) {
                             if !showingAnswer {
@@ -470,7 +486,7 @@ struct SingleCardView: View {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     showingAnswer = true
                                 }
-                                if index == question.correctAnswerIndex {
+                                if index == validCorrectIndex {
                                     onCorrectAnswer()
                                 }
                             }
@@ -481,9 +497,9 @@ struct SingleCardView: View {
                 if showingAnswer {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Image(systemName: selectedAnswer == question.correctAnswerIndex ? "checkmark.circle.fill" : "info.circle.fill")
-                                .foregroundColor(selectedAnswer == question.correctAnswerIndex ? .green : .orange)
-                            Text(selectedAnswer == question.correctAnswerIndex ? "Correct! +10 pts" : "Not quite!")
+                            Image(systemName: selectedAnswer == validCorrectIndex ? "checkmark.circle.fill" : "info.circle.fill")
+                                .foregroundColor(selectedAnswer == validCorrectIndex ? .green : .orange)
+                            Text(selectedAnswer == validCorrectIndex ? "Correct! +10 pts" : "Not quite!")
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
                         }

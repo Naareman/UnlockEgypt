@@ -45,11 +45,9 @@ class HomeViewModel: ObservableObject {
     private let verificationRadius: Double = 200
 
     init() {
-        print("HomeViewModel: Initializing...")
         loadData()
         loadProgress()
         setupContentSubscription()
-        print("HomeViewModel: Initialized with \(sites.count) sites")
     }
 
     private func setupContentSubscription() {
@@ -57,7 +55,6 @@ class HomeViewModel: ObservableObject {
         contentService.$sites
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sites in
-                print("HomeViewModel: Received \(sites.count) sites from ContentService")
                 if !sites.isEmpty {
                     self?.sites = sites
                 }
@@ -66,7 +63,10 @@ class HomeViewModel: ObservableObject {
 
         contentService.$isLoading
             .receive(on: DispatchQueue.main)
-            .assign(to: &$isLoading)
+            .sink { [weak self] isLoading in
+                self?.isLoading = isLoading
+            }
+            .store(in: &cancellables)
     }
 
     private func loadData() {
@@ -177,7 +177,6 @@ class HomeViewModel: ObservableObject {
                 discoveredPlaces[placeId] = now
                 addPoints(1)
                 saveProgress()
-                print("Revisit bonus! +1 point for revisiting \(placeId) after \(Int(daysSinceVisit)) days")
             }
             // Otherwise, no points (visited recently)
         } else {
@@ -185,7 +184,6 @@ class HomeViewModel: ObservableObject {
             discoveredPlaces[placeId] = now
             addPoints(1)
             saveProgress()
-            print("First visit! +1 point for discovering \(placeId)")
         }
     }
 
@@ -230,7 +228,6 @@ class HomeViewModel: ObservableObject {
         addPoints(1)
         saveProgress()
         checkAndAwardAchievements()
-        print("🗝️ Knowledge Key earned for \(subLocationId)! +1 point")
     }
 
     /// Check if user has Scholar badge for a sublocation
@@ -266,7 +263,6 @@ class HomeViewModel: ObservableObject {
                 addPoints(50)
                 saveProgress()
                 checkAndAwardAchievements()
-                print("🗝️ Discovery Key earned for \(siteId)! Location verified. +50 points")
                 return (true, "Site Unlocked! You're at \(site.name)!", 50)
             } else {
                 let distanceKm = distance / 1000
@@ -297,7 +293,6 @@ class HomeViewModel: ObservableObject {
         addPoints(30)
         saveProgress()
         checkAndAwardAchievements()
-        print("🗝️ Discovery Key earned for \(siteId)! Self-reported. +30 points")
         return (true, "Site Unlocked! Enable location next time for bonus points.", 30)
     }
 
@@ -452,7 +447,6 @@ class HomeViewModel: ObservableObject {
                 addPoints(achievement.points)
                 recentlyUnlockedAchievement = achievement
                 saveProgress()
-                print("🏆 Achievement unlocked: \(achievement.name)! +\(achievement.points) points")
             }
         }
     }
