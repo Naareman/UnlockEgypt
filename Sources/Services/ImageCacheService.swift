@@ -18,6 +18,12 @@ class ImageCacheService: ObservableObject {
     private let cacheDirectory: URL
     private let metadataFile: URL
 
+    /// Maximum cache size in bytes (100 MB)
+    private let maxCacheSize: Int64 = 100 * 1024 * 1024
+
+    /// Cache expiration time (30 days)
+    private let cacheExpirationDays: Double = 30
+
     private init() {
         // Safe unwrap with fallback to temporary directory
         let cachesDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
@@ -30,6 +36,93 @@ class ImageCacheService: ObservableObject {
 
         loadMetadata()
         calculateCacheSize()
+
+        // Clean expired cache on launch
+        Task {
+            await cleanExpiredCache()
+        }
+    }
+
+    // MARK: - Cache Size Management
+
+    /// Clean up cache if it exceeds maximum size
+    private func enforceCacheSizeLimit() async {
+        guard cacheSize > maxCacheSize else { return }
+
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .utility).async { [weak self] in
+                guard let self = self else {
+                    continuation.resume()
+                    return
+                }
+
+                // Get all cached files with their dates
+                var files: [(url: URL, date: Date, size: Int64)] = []
+
+                if let enumerator = FileManager.default.enumerator(
+                    at: self.cacheDirectory,
+                    includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey]
+                ) {
+                    for case let fileURL as URL in enumerator {
+                        if let values = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey]),
+                           let date = values.contentModificationDate,
+                           let size = values.fileSize {
+                            files.append((fileURL, date, Int64(size)))
+                        }
+                    }
+                }
+
+                // Sort by date (oldest first)
+                files.sort { $0.date < $1.date }
+
+                // Remove oldest files until under limit
+                var currentSize = self.cacheSize
+                let targetSize = self.maxCacheSize * 80 / 100 // Target 80% of max
+
+                for file in files {
+                    guard currentSize > targetSize else { break }
+                    try? FileManager.default.removeItem(at: file.url)
+                    currentSize -= file.size
+                }
+
+                DispatchQueue.main.async {
+                    self.calculateCacheSize()
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    /// Clean cache entries older than expiration time
+    private func cleanExpiredCache() async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .utility).async { [weak self] in
+                guard let self = self else {
+                    continuation.resume()
+                    return
+                }
+
+                let expirationDate = Date().addingTimeInterval(-self.cacheExpirationDays * 24 * 60 * 60)
+
+                if let enumerator = FileManager.default.enumerator(
+                    at: self.cacheDirectory,
+                    includingPropertiesForKeys: [.contentModificationDateKey]
+                ) {
+                    for case let fileURL as URL in enumerator {
+                        if let values = try? fileURL.resourceValues(forKeys: [.contentModificationDateKey]),
+                           let date = values.contentModificationDate,
+                           date < expirationDate {
+                            try? FileManager.default.removeItem(at: fileURL)
+                        }
+                    }
+                }
+
+                DispatchQueue.main.async {
+                    self.calculateCacheSize()
+                    continuation.resume()
+                }
+            }
+        }
     }
 
     // MARK: - Metadata Management
@@ -85,9 +178,23 @@ class ImageCacheService: ObservableObject {
 
     // MARK: - Image Loading
 
-    /// Get cached image or download it
-    func getImage(from urlString: String) async -> UIImage? {
-        guard !urlString.isEmpty, let url = URL(string: urlString) else { return nil }
+    /// Maximum retry attempts for failed downloads
+    private let maxRetries = 3
+
+    /// Delay between retries in seconds
+    private let retryDelay: UInt64 = 1_000_000_000 // 1 second
+
+    /// Get cached image or download it with retry logic
+    func getImage(from urlString: String, retryCount: Int = 0) async -> UIImage? {
+        guard !urlString.isEmpty else { return nil }
+
+        // Validate and force HTTPS
+        var secureURLString = urlString
+        if urlString.hasPrefix("http://") {
+            secureURLString = urlString.replacingOccurrences(of: "http://", with: "https://")
+        }
+
+        guard let url = URL(string: secureURLString) else { return nil }
 
         let fileName = urlString.hash.description
         let localURL = cacheDirectory.appendingPathComponent(fileName)
@@ -99,12 +206,29 @@ class ImageCacheService: ObservableObject {
             return image
         }
 
-        // Download if not cached
+        // Download if not cached with retry logic
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200,
-                  let image = UIImage(data: data) else {
+            // Configure request with timeout
+            var request = URLRequest(url: url)
+            request.timeoutInterval = 30
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return await retryIfNeeded(urlString: urlString, retryCount: retryCount, error: "Invalid response")
+            }
+
+            // Handle HTTP errors
+            guard (200...299).contains(httpResponse.statusCode) else {
+                if httpResponse.statusCode >= 500 && retryCount < maxRetries {
+                    // Server error - retry
+                    return await retryIfNeeded(urlString: urlString, retryCount: retryCount, error: "Server error: \(httpResponse.statusCode)")
+                }
+                return nil
+            }
+
+            guard let image = UIImage(data: data) else {
+                // Invalid image data - don't retry
                 return nil
             }
 
@@ -112,10 +236,33 @@ class ImageCacheService: ObservableObject {
             try? data.write(to: localURL)
             calculateCacheSize()
 
+            // Enforce cache size limit in background
+            Task {
+                await enforceCacheSizeLimit()
+            }
+
             return image
-        } catch {
+        } catch let error as URLError {
+            // Network errors that are worth retrying
+            let retryableErrors: [URLError.Code] = [.timedOut, .networkConnectionLost, .notConnectedToInternet]
+            if retryableErrors.contains(error.code) && retryCount < maxRetries {
+                return await retryIfNeeded(urlString: urlString, retryCount: retryCount, error: error.localizedDescription)
+            }
             return nil
+        } catch {
+            return await retryIfNeeded(urlString: urlString, retryCount: retryCount, error: error.localizedDescription)
         }
+    }
+
+    /// Retry helper with exponential backoff
+    private func retryIfNeeded(urlString: String, retryCount: Int, error: String) async -> UIImage? {
+        guard retryCount < maxRetries else { return nil }
+
+        // Exponential backoff: 1s, 2s, 4s
+        let delay = retryDelay * UInt64(1 << retryCount)
+        try? await Task.sleep(nanoseconds: delay)
+
+        return await getImage(from: urlString, retryCount: retryCount + 1)
     }
 
     // MARK: - Batch Download for Offline

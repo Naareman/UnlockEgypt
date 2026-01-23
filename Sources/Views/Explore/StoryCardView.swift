@@ -449,7 +449,7 @@ struct SingleCardView: View {
                     .tracking(2)
             }
 
-            if let question = card.quizQuestion {
+            if let question = card.quizQuestion, !question.options.isEmpty {
                 // Validate correctAnswerIndex is within bounds
                 let validCorrectIndex = question.correctAnswerIndex >= 0 && question.correctAnswerIndex < question.options.count
                     ? question.correctAnswerIndex : 0
@@ -460,9 +460,9 @@ struct SingleCardView: View {
                     .foregroundColor(.white)
 
                 VStack(spacing: 12) {
-                    ForEach(0..<question.options.count, id: \.self) { index in
+                    ForEach(Array(question.options.enumerated()), id: \.offset) { index, option in
                         QuizOptionButton(
-                            text: question.options[index],
+                            text: option,
                             isSelected: selectedAnswer == index,
                             isCorrect: showingAnswer ? index == validCorrectIndex : nil,
                             showResult: showingAnswer

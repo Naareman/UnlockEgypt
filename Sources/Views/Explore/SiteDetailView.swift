@@ -517,11 +517,27 @@ struct DiscoveryKeySection: View {
     }
 
     private func verifyWithLocation() {
-        locationManager.requestPermission()
-        locationManager.requestLocation()
+        // Check if permission is denied
+        if locationManager.isDenied {
+            alertTitle = "Location Access Denied"
+            alertMessage = "Please enable location access in Settings to verify your visit, or use 'Mark as Visited' instead."
+            showingAlert = true
+            return
+        }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let result = viewModel.verifyAndAwardExplorerBadge(for: site, userLocation: locationManager.location)
+        // Request permission if not yet determined
+        if !locationManager.isAuthorized {
+            locationManager.requestPermission()
+            // Show message that they need to grant permission
+            alertTitle = "Location Permission Needed"
+            alertMessage = "Please allow location access when prompted, then try again."
+            showingAlert = true
+            return
+        }
+
+        // Use callback-based location request
+        locationManager.requestLocationWithCallback { [self] (userLocation: CLLocation?) in
+            let result = viewModel.verifyAndAwardExplorerBadge(for: site, userLocation: userLocation)
             alertTitle = result.0 ? "Discovery Key Unlocked!" : "Oops!"
             alertMessage = result.1
             showingAlert = true

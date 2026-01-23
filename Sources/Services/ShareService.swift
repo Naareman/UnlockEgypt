@@ -4,8 +4,15 @@ import UIKit
 /// Service for sharing content from the app
 struct ShareService {
 
+    /// Published error for UI to observe
+    @MainActor static var lastError: String?
+
+    /// Callback for share completion/error
+    typealias ShareCompletion = (Bool, String?) -> Void
+
     // MARK: - Share Site
 
+    @MainActor
     static func shareSite(_ site: Site) {
         let text = """
         🏛️ \(site.name)
@@ -24,6 +31,7 @@ struct ShareService {
 
     // MARK: - Share Achievement
 
+    @MainActor
     static func shareAchievement(_ achievement: Achievement) {
         let text = """
         🏆 Achievement Unlocked!
@@ -42,6 +50,7 @@ struct ShareService {
 
     // MARK: - Share Discovery Key
 
+    @MainActor
     static func shareDiscoveryKey(for site: Site) {
         let text = """
         🗝️ Discovery Key Unlocked!
@@ -60,6 +69,7 @@ struct ShareService {
 
     // MARK: - Share Knowledge Key
 
+    @MainActor
     static func shareKnowledgeKey(for subLocation: SubLocation, siteName: String) {
         let text = """
         🗝️ Knowledge Key Unlocked!
@@ -78,6 +88,7 @@ struct ShareService {
 
     // MARK: - Share Profile Card
 
+    @MainActor
     static func shareProfileCard(
         rank: UserRank,
         points: Int,
@@ -123,18 +134,32 @@ struct ShareService {
 
     // MARK: - Private Helper
 
-    private static func share(text: String) {
+    @MainActor
+    private static func share(text: String, completion: ShareCompletion? = nil) {
         let activityVC = UIActivityViewController(
             activityItems: [text],
             applicationActivities: nil
         )
 
-        presentShareSheet(activityVC)
+        presentShareSheet(activityVC, completion: completion)
     }
 
-    private static func presentShareSheet(_ activityVC: UIActivityViewController) {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootVC = windowScene.windows.first?.rootViewController else {
+    @MainActor
+    private static func presentShareSheet(_ activityVC: UIActivityViewController, completion: ShareCompletion? = nil) {
+        // Clear any previous error
+        lastError = nil
+
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            let error = "Unable to share: No active window found"
+            lastError = error
+            completion?(false, error)
+            return
+        }
+
+        guard let rootVC = windowScene.windows.first?.rootViewController else {
+            let error = "Unable to share: No root view controller found"
+            lastError = error
+            completion?(false, error)
             return
         }
 
@@ -149,6 +174,18 @@ struct ShareService {
             popover.sourceView = topVC.view
             popover.sourceRect = CGRect(x: topVC.view.bounds.midX, y: topVC.view.bounds.midY, width: 0, height: 0)
             popover.permittedArrowDirections = []
+        }
+
+        // Add completion handler to track success/failure
+        activityVC.completionWithItemsHandler = { activityType, completed, returnedItems, error in
+            if let error = error {
+                Task { @MainActor in
+                    lastError = error.localizedDescription
+                    completion?(false, error.localizedDescription)
+                }
+            } else {
+                completion?(completed, nil)
+            }
         }
 
         topVC.present(activityVC, animated: true)

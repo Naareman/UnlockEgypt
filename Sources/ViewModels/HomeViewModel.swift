@@ -25,6 +25,11 @@ class HomeViewModel: ObservableObject {
     @Published var achievementProgress: AchievementProgress = AchievementProgress()
     @Published var recentlyUnlockedAchievement: Achievement?
 
+    // MARK: - Achievement Caching (Performance Optimization)
+    private var cachedFullyCompletedSitesCount: Int?
+    private var cachedNextAchievement: (achievement: Achievement, progress: Int, required: Int)?
+    private var achievementCacheValid: Bool = false
+
     // MARK: - Favorites
     @Published var favoriteSites: Set<String> = []
 
@@ -199,6 +204,7 @@ class HomeViewModel: ObservableObject {
         if !completedQuizzes.contains(quizId) {
             completedQuizzes.insert(quizId)
             addPoints(10)
+            invalidateAchievementCache()
             saveProgress()
             checkAndAwardAchievements()
         }
@@ -233,6 +239,7 @@ class HomeViewModel: ObservableObject {
         scholarBadges.insert(subLocationId)
         completedSubLocations.insert(subLocationId) // For backward compatibility
         addPoints(1)
+        invalidateAchievementCache()
         saveProgress()
         checkAndAwardAchievements()
     }
@@ -271,6 +278,7 @@ class HomeViewModel: ObservableObject {
                     selfReportedSites.remove(siteId)
                     verifiedVisits[siteId] = now
                     addPoints(20)
+                    invalidateAchievementCache()
                     saveProgress()
                     checkAndAwardAchievements()
                     return (true, "Location verified! +20 bonus points!", 20)
@@ -279,6 +287,7 @@ class HomeViewModel: ObservableObject {
                     explorerBadges.insert(siteId)
                     verifiedVisits[siteId] = now
                     addPoints(50)
+                    invalidateAchievementCache()
                     saveProgress()
                     checkAndAwardAchievements()
                     return (true, "Amazing! +50 points for visiting \(site.name)!", 50)
@@ -319,6 +328,7 @@ class HomeViewModel: ObservableObject {
         selfReportedSites.insert(siteId)
         verifiedVisits[siteId] = now
         addPoints(30)
+        invalidateAchievementCache()
         saveProgress()
         checkAndAwardAchievements()
         return (true, "You earned +30 points!", 30)
@@ -401,17 +411,44 @@ class HomeViewModel: ObservableObject {
         Achievements.all.filter { !achievementProgress.isUnlocked($0.id) }
     }
 
-    /// Get the next achievement the user is closest to unlocking
+    /// Get the next achievement the user is closest to unlocking (cached for performance)
     var nextAchievementToUnlock: (achievement: Achievement, progress: Int, required: Int)? {
+        // Return cached value if valid
+        if achievementCacheValid, let cached = cachedNextAchievement {
+            return cached
+        }
+
+        // Calculate and cache
         for achievement in Achievements.all {
             guard !achievementProgress.isUnlocked(achievement.id) else { continue }
 
             let (progress, required) = getAchievementProgress(achievement)
             if required > 0 && progress < required {
-                return (achievement, progress, required)
+                cachedNextAchievement = (achievement, progress, required)
+                achievementCacheValid = true
+                return cachedNextAchievement
             }
         }
+        cachedNextAchievement = nil
+        achievementCacheValid = true
         return nil
+    }
+
+    /// Invalidate achievement cache when relevant data changes
+    private func invalidateAchievementCache() {
+        achievementCacheValid = false
+        cachedNextAchievement = nil
+        cachedFullyCompletedSitesCount = nil
+    }
+
+    /// Get count of fully completed sites (cached for performance)
+    private func getFullyCompletedSitesCount() -> Int {
+        if let cached = cachedFullyCompletedSitesCount {
+            return cached
+        }
+        let count = sites.filter { isSiteFullyCompleted(site: $0) }.count
+        cachedFullyCompletedSitesCount = count
+        return count
     }
 
     /// Get progress for a specific achievement
@@ -419,12 +456,10 @@ class HomeViewModel: ObservableObject {
         switch achievement.id {
         // Exploration achievements
         case "first_discovery", "curious_traveler", "dedicated_explorer":
-            let fullyCompletedSites = sites.filter { isSiteFullyCompleted(site: $0) }.count
-            return (fullyCompletedSites, achievement.requirement)
+            return (getFullyCompletedSitesCount(), achievement.requirement)
 
         case "master_explorer":
-            let fullyCompletedSites = sites.filter { isSiteFullyCompleted(site: $0) }.count
-            return (fullyCompletedSites, sites.count)
+            return (getFullyCompletedSitesCount(), sites.count)
 
         // Knowledge achievements
         case "first_secret", "eager_learner", "knowledge_seeker":
