@@ -4,91 +4,93 @@ struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
     @State private var currentPage = 0
 
-    private let pages: [OnboardingPage] = [
-        OnboardingPage(
-            icon: "key.fill",
-            title: "Unlock Ancient Secrets",
-            subtitle: "Discover 5,000 years of Egyptian history through immersive stories and hidden knowledge.",
-            highlightText: "Welcome to Unlock Egypt"
-        ),
-        OnboardingPage(
-            icon: "book.fill",
-            title: "Knowledge Keys",
-            subtitle: "Complete stories at each location to earn Knowledge Keys. Learn the secrets that make each site legendary.",
-            highlightText: "🗝️ Read • Learn • Unlock"
-        ),
-        OnboardingPage(
-            icon: "location.fill",
-            title: "Discovery Keys",
-            subtitle: "Visit sites in person to earn Discovery Keys. Your location unlocks bonus points and proves your adventure.",
-            highlightText: "🗝️ Visit • Verify • Unlock"
-        ),
-        OnboardingPage(
-            icon: "trophy.fill",
-            title: "Rise to Pharaoh",
-            subtitle: "Earn points, unlock achievements, and climb the ranks from Tourist to Pharaoh. Your journey awaits!",
-            highlightText: "Tourist → Traveler → Explorer → Historian → Archaeologist → Pharaoh"
-        )
-    ]
-
     var body: some View {
         ZStack {
-            Theme.Colors.darkBackground.ignoresSafeArea()
+            // Background gradient
+            LinearGradient(
+                colors: [
+                    Theme.Colors.darkBackground,
+                    Theme.Colors.darkBackgroundDeep
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // Skip button
                 HStack {
                     Spacer()
-                    Button("Skip") {
-                        completeOnboarding()
+                    if currentPage < 2 {
+                        Button("Skip") {
+                            completeOnboarding()
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.5))
                     }
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.6))
-                    .padding()
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+                .frame(height: 44)
+
+                Spacer()
 
                 // Page content
                 TabView(selection: $currentPage) {
-                    ForEach(0..<pages.count, id: \.self) { index in
-                        OnboardingPageView(page: pages[index])
-                            .tag(index)
-                    }
+                    // Page 1: Welcome
+                    WelcomePage()
+                        .tag(0)
+
+                    // Page 2: How it works
+                    HowItWorksPage()
+                        .tag(1)
+
+                    // Page 3: Level up
+                    LevelUpPage()
+                        .tag(2)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
+                Spacer()
+
                 // Page indicators
-                HStack(spacing: 8) {
-                    ForEach(0..<pages.count, id: \.self) { index in
-                        Circle()
-                            .fill(currentPage == index ? Theme.Colors.gold : Color.white.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                            .scaleEffect(currentPage == index ? 1.2 : 1)
-                            .animation(.easeInOut(duration: 0.2), value: currentPage)
+                HStack(spacing: 10) {
+                    ForEach(0..<3, id: \.self) { index in
+                        Capsule()
+                            .fill(currentPage == index ? Theme.Colors.gold : Color.white.opacity(0.2))
+                            .frame(width: currentPage == index ? 24 : 8, height: 8)
+                            .animation(.spring(response: 0.3), value: currentPage)
                     }
                 }
-                .padding(.bottom, 24)
+                .padding(.bottom, 32)
 
                 // Action button
                 Button(action: {
-                    if currentPage < pages.count - 1 {
-                        withAnimation {
+                    if currentPage < 2 {
+                        withAnimation(.spring(response: 0.4)) {
                             currentPage += 1
                         }
                     } else {
                         completeOnboarding()
                     }
                 }) {
-                    Text(currentPage == pages.count - 1 ? "Start Exploring" : "Continue")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Theme.Colors.gold)
-                        .cornerRadius(25)
+                    HStack(spacing: 8) {
+                        Text(currentPage == 2 ? "Start Exploring" : "Next")
+                            .fontWeight(.semibold)
+                        if currentPage < 2 {
+                            Image(systemName: "arrow.right")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                    }
+                    .font(.headline)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(Theme.Colors.gold)
+                    .cornerRadius(16)
                 }
-                .padding(.horizontal, 32)
-                .padding(.bottom, 40)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 48)
             }
         }
         .preferredColorScheme(.dark)
@@ -96,64 +98,165 @@ struct OnboardingView: View {
 
     private func completeOnboarding() {
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-        withAnimation {
+        withAnimation(.easeOut(duration: 0.3)) {
             hasCompletedOnboarding = true
         }
     }
 }
 
-// MARK: - Onboarding Page Model
-struct OnboardingPage {
-    let icon: String
-    let title: String
-    let subtitle: String
-    let highlightText: String
+// MARK: - Welcome Page
+struct WelcomePage: View {
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            // Animated icon
+            ZStack {
+                // Outer glow
+                Circle()
+                    .fill(Theme.Colors.gold.opacity(0.1))
+                    .frame(width: 200, height: 200)
+
+                // Middle ring
+                Circle()
+                    .fill(Theme.Colors.gold.opacity(0.2))
+                    .frame(width: 140, height: 140)
+
+                // Icon
+                Image(systemName: "key.fill")
+                    .font(.system(size: 60, weight: .light))
+                    .foregroundColor(Theme.Colors.gold)
+            }
+
+            VStack(spacing: 12) {
+                Text("UNLOCK")
+                    .font(.system(size: 36, weight: .black))
+                    .foregroundColor(.white)
+                + Text(" EGYPT")
+                    .font(.system(size: 36, weight: .black))
+                    .foregroundColor(Theme.Colors.gold)
+
+                Text("5,000 years of secrets await")
+                    .font(.title3)
+                    .foregroundColor(.white.opacity(0.6))
+            }
+
+            Spacer()
+            Spacer()
+        }
+    }
 }
 
-// MARK: - Onboarding Page View
-struct OnboardingPageView: View {
-    let page: OnboardingPage
-
+// MARK: - How It Works Page
+struct HowItWorksPage: View {
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
 
-            // Icon
+            Text("Earn Keys")
+                .font(.system(size: 32, weight: .bold))
+                .foregroundColor(.white)
+
+            VStack(spacing: 24) {
+                // Knowledge Key
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(Theme.Colors.gold.opacity(0.2))
+                            .frame(width: 60, height: 60)
+                        Image(systemName: "key.fill")
+                            .font(.title2)
+                            .foregroundColor(Theme.Colors.gold)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Knowledge Key")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("Read stories & learn secrets")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 40)
+
+                // Discovery Key
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.cyan.opacity(0.2))
+                            .frame(width: 60, height: 60)
+                        Image(systemName: "key.horizontal.fill")
+                            .font(.title2)
+                            .foregroundColor(.cyan)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Discovery Key")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("Visit sites in person")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 40)
+            }
+
+            Spacer()
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Level Up Page
+struct LevelUpPage: View {
+    var body: some View {
+        VStack(spacing: 32) {
+            Spacer()
+
+            // Crown icon
             ZStack {
                 Circle()
-                    .fill(Theme.Colors.gold.opacity(0.15))
+                    .fill(Theme.Colors.gold.opacity(0.1))
                     .frame(width: 160, height: 160)
 
                 Circle()
-                    .fill(Theme.Colors.gold.opacity(0.25))
+                    .fill(Theme.Colors.gold.opacity(0.2))
                     .frame(width: 120, height: 120)
 
-                Image(systemName: page.icon)
+                Image(systemName: "crown.fill")
                     .font(.system(size: 50))
                     .foregroundColor(Theme.Colors.gold)
             }
 
-            // Text content
             VStack(spacing: 16) {
-                Text(page.title)
-                    .font(.title)
-                    .fontWeight(.bold)
+                Text("Rise to Pharaoh")
+                    .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
 
-                Text(page.subtitle)
+                Text("Earn points • Unlock achievements")
                     .font(.body)
-                    .foregroundColor(.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .foregroundColor(.white.opacity(0.6))
 
-                Text(page.highlightText)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(Theme.Colors.gold)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 8)
+                // Rank progression
+                HStack(spacing: 4) {
+                    ForEach(["Tourist", "Explorer", "Pharaoh"], id: \.self) { rank in
+                        if rank != "Tourist" {
+                            Image(systemName: "arrow.right")
+                                .font(.caption2)
+                                .foregroundColor(.white.opacity(0.3))
+                        }
+                        Text(rank)
+                            .font(.caption)
+                            .foregroundColor(rank == "Pharaoh" ? Theme.Colors.gold : .white.opacity(0.5))
+                    }
+                }
+                .padding(.top, 8)
             }
 
             Spacer()
