@@ -26,7 +26,9 @@ class ContentService: ObservableObject {
 
     private init() {
         // Load content: cache first, then bundled fallback
+        print("ContentService: Initializing...")
         loadInitialContent()
+        print("ContentService: Initialized with \(sites.count) sites")
     }
 
     // MARK: - Public Methods
@@ -117,20 +119,27 @@ class ContentService: ObservableObject {
 
     /// Load from bundled JSON file in app bundle
     private func loadBundledContent() {
+        print("ContentService: Looking for bundled JSON file: \(bundledFileName).json")
+
         guard let bundledURL = Bundle.main.url(forResource: bundledFileName, withExtension: "json") else {
-            print("ContentService: Bundled JSON not found")
+            print("ContentService: ERROR - Bundled JSON not found in bundle!")
+            print("ContentService: Bundle path: \(Bundle.main.bundlePath)")
             return
         }
 
+        print("ContentService: Found bundled JSON at: \(bundledURL.path)")
+
         do {
             let data = try Data(contentsOf: bundledURL)
+            print("ContentService: Loaded \(data.count) bytes from bundled JSON")
+
             let decoder = JSONDecoder()
             let content = try decoder.decode(ContentResponse.self, from: data)
             self.sites = content.sites
             self.lastUpdated = ISO8601DateFormatter().date(from: content.lastUpdated)
-            print("ContentService: Loaded \(sites.count) sites from bundled JSON")
+            print("ContentService: Successfully decoded \(sites.count) sites from bundled JSON")
         } catch {
-            print("ContentService: Bundled JSON load failed: \(error.localizedDescription)")
+            print("ContentService: Bundled JSON decode FAILED: \(error)")
         }
     }
 

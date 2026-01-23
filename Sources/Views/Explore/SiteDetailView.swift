@@ -2,7 +2,12 @@ import SwiftUI
 
 struct SiteDetailView: View {
     let site: Site
+    @EnvironmentObject var viewModel: HomeViewModel
     @State private var selectedTab: SiteTab = .explore
+
+    private var isFavorite: Bool {
+        viewModel.isFavorite(siteId: site.id)
+    }
 
     var body: some View {
         ZStack {
@@ -34,6 +39,25 @@ struct SiteDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
         .preferredColorScheme(.dark)
+        .toolbar {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        viewModel.toggleFavorite(siteId: site.id)
+                    }
+                }) {
+                    Image(systemName: isFavorite ? "heart.fill" : "heart")
+                        .foregroundColor(isFavorite ? .red : .white)
+                }
+
+                Button(action: {
+                    ShareService.shareSite(site)
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundColor(.white)
+                }
+            }
+        }
     }
 
     // MARK: - Hero Section
@@ -150,21 +174,24 @@ struct SiteDetailView: View {
     // MARK: - Explore Content
     private var exploreContent: some View {
         VStack(alignment: .leading, spacing: 16) {
+            // Explorer Badge Section
+            ExplorerBadgeCard(site: site)
+
             if let subLocations = site.subLocations, !subLocations.isEmpty {
-                Text("DISCOVER")
+                Text("SECRETS TO UNLOCK")
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundColor(Theme.Colors.gold)
                     .tracking(2)
 
-                Text("\(subLocations.count) places to explore")
+                Text("\(subLocations.count) mysteries await")
                     .font(.headline)
                     .foregroundColor(.white)
 
                 LazyVStack(spacing: 12) {
                     ForEach(subLocations) { subLocation in
                         NavigationLink(destination: StoryCardsView(subLocation: subLocation)) {
-                            SubLocationCard(subLocation: subLocation)
+                            SubLocationCard(subLocation: subLocation, siteId: site.id)
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -262,10 +289,19 @@ struct TagBadge: View {
 // MARK: - Sub-Location Card
 struct SubLocationCard: View {
     let subLocation: SubLocation
+    let siteId: String
     @EnvironmentObject var viewModel: HomeViewModel
 
-    private var isCompleted: Bool {
-        viewModel.isSubLocationCompleted(subLocation.id)
+    private var hasScholar: Bool {
+        viewModel.hasScholarBadge(for: subLocation.id)
+    }
+
+    private var hasExplorer: Bool {
+        viewModel.hasExplorerBadge(for: siteId)
+    }
+
+    private var isFullyCompleted: Bool {
+        hasScholar && hasExplorer
     }
 
     var body: some View {
@@ -275,8 +311,8 @@ struct SubLocationCard: View {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(LinearGradient(
                         colors: [
-                            Theme.Colors.gold.opacity(isCompleted ? 0.5 : 0.3),
-                            Theme.Colors.sand.opacity(isCompleted ? 0.6 : 0.4)
+                            Theme.Colors.gold.opacity(isFullyCompleted ? 0.5 : (hasScholar ? 0.4 : 0.3)),
+                            Theme.Colors.sand.opacity(isFullyCompleted ? 0.6 : (hasScholar ? 0.5 : 0.4))
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -288,15 +324,12 @@ struct SubLocationCard: View {
                     .font(.system(size: 30))
                     .foregroundColor(Theme.Colors.gold.opacity(0.7))
 
-                // Completed badge
-                if isCompleted {
+                // Completion checkmark (only when both badges earned)
+                if isFullyCompleted {
                     VStack {
                         HStack {
                             Spacer()
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                                .background(Circle().fill(Theme.Colors.darkBackground).padding(-2))
+                            CompletionCheckmark(isComplete: true)
                         }
                         Spacer()
                     }
@@ -306,44 +339,51 @@ struct SubLocationCard: View {
             .frame(width: 80, height: 80)
 
             VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text(subLocation.name)
-                        .font(.headline)
-                        .foregroundColor(.white)
-
-                    if isCompleted {
-                        Text("✓")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                    }
-                }
+                Text(subLocation.name)
+                    .font(.headline)
+                    .foregroundColor(.white)
 
                 Text(subLocation.shortDescription)
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.6))
                     .lineLimit(2)
 
+                // Dual badge display
                 HStack(spacing: 4) {
-                    Image(systemName: "rectangle.stack.fill")
-                        .font(.caption2)
-                    Text("\(subLocation.storyCards.count) story cards")
-                        .font(.caption2)
+                    BadgeView(type: .scholar, isEarned: hasScholar, size: .small)
+                    BadgeView(type: .explorer, isEarned: hasExplorer, size: .small)
                 }
-                .foregroundColor(Theme.Colors.gold)
             }
 
             Spacer()
 
-            Image(systemName: isCompleted ? "checkmark.circle.fill" : "play.circle.fill")
-                .font(.title)
-                .foregroundColor(isCompleted ? .green : Theme.Colors.gold)
+            // Status icon
+            VStack {
+                if isFullyCompleted {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.green)
+                } else if hasScholar {
+                    Image(systemName: "book.circle.fill")
+                        .font(.title)
+                        .foregroundColor(Theme.Colors.gold)
+                } else {
+                    Image(systemName: "play.circle.fill")
+                        .font(.title)
+                        .foregroundColor(Theme.Colors.gold)
+                }
+            }
         }
         .padding()
-        .background(Color.white.opacity(isCompleted ? 0.08 : 0.05))
+        .background(Color.white.opacity(isFullyCompleted ? 0.08 : 0.05))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(isCompleted ? Color.green.opacity(0.3) : Theme.Colors.gold.opacity(0.2), lineWidth: 1)
+                .stroke(
+                    isFullyCompleted ? Color.green.opacity(0.3) :
+                    (hasScholar ? Theme.Colors.gold.opacity(0.3) : Theme.Colors.gold.opacity(0.2)),
+                    lineWidth: 1
+                )
         )
     }
 
@@ -430,6 +470,135 @@ struct PhraseRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.white.opacity(0.03))
         .cornerRadius(8)
+    }
+}
+
+// MARK: - Discovery Key Card
+struct ExplorerBadgeCard: View {
+    let site: Site
+    @EnvironmentObject var viewModel: HomeViewModel
+    @StateObject private var locationManager = LocationManager()
+    @State private var showingAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var pointsEarned = 0
+
+    private var hasDiscoveryKey: Bool {
+        viewModel.hasExplorerBadge(for: site.id)
+    }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "key.horizontal.fill")
+                            .foregroundColor(hasDiscoveryKey ? .cyan : .white.opacity(0.6))
+                        Text("DISCOVERY KEY")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(hasDiscoveryKey ? .cyan : Theme.Colors.gold)
+                            .tracking(1)
+                    }
+
+                    if hasDiscoveryKey {
+                        Text("Site unlocked! You've been here.")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                    } else {
+                        Text("Unlock this site by visiting (+50 pts)")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                }
+
+                Spacer()
+
+                if hasDiscoveryKey {
+                    BadgeView(type: .explorer, isEarned: true, size: .large)
+                } else {
+                    Button(action: verifyVisit) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "key.horizontal.fill")
+                            Text("Unlock Site!")
+                        }
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Theme.Colors.gold)
+                        .cornerRadius(20)
+                    }
+                }
+            }
+
+            // Location status hint
+            if !hasDiscoveryKey {
+                HStack(spacing: 6) {
+                    if locationManager.authorizationStatus == .authorizedWhenInUse ||
+                       locationManager.authorizationStatus == .authorizedAlways {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.caption)
+                        Text("Location ready to verify")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.5))
+                    } else {
+                        Image(systemName: "exclamationmark.circle")
+                            .foregroundColor(.orange)
+                            .font(.caption)
+                        Text("Enable location for 50 pts, or self-report for 30 pts")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(
+            hasDiscoveryKey ?
+            Color.cyan.opacity(0.1) :
+            Color.white.opacity(0.05)
+        )
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(
+                    hasDiscoveryKey ? Color.cyan.opacity(0.3) : Theme.Colors.gold.opacity(0.2),
+                    lineWidth: 1
+                )
+        )
+        .onAppear {
+            locationManager.requestPermission()
+        }
+        .alert(alertTitle, isPresented: $showingAlert) {
+            if pointsEarned == 0 && !hasDiscoveryKey {
+                Button("Self-Report (+30 pts)") {
+                    let result = viewModel.selfReportVisit(for: site.id)
+                    if result.0 {
+                        alertTitle = "Site Unlocked!"
+                        alertMessage = result.1
+                        pointsEarned = result.2
+                        showingAlert = true
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } else {
+                Button("OK", role: .cancel) {}
+            }
+        } message: {
+            Text(alertMessage)
+        }
+    }
+
+    private func verifyVisit() {
+        let result = viewModel.verifyAndAwardExplorerBadge(for: site, userLocation: locationManager.location)
+
+        alertTitle = result.0 ? "Discovery Key Unlocked!" : "Verification"
+        alertMessage = result.1
+        pointsEarned = result.2
+        showingAlert = true
     }
 }
 

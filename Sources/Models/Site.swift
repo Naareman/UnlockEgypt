@@ -162,4 +162,8 @@ enum Era: String, Codable, CaseIterable {
         }
     }
 
+    /// Display name for UI (uses "Period" terminology)
+    var displayName: String {
+        rawValue
+    }
 }

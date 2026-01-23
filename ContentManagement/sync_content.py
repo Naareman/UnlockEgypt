@@ -26,22 +26,23 @@ SPREADSHEET_ID = "17ENW_6JgdmL6ulsDUMNlJugyYAVBr9b4znCIJkwkvzs"
 # Sheet names and their GIDs (from your Google Sheet URL)
 # You can find GID by clicking on each tab - it's in the URL after #gid=
 SHEETS = {
-    "Sites": 0,
-    "SubLocations": 1,
-    "Cards": 2,
-    "Tips": 3,
-    "ArabicPhrases": 4,
+    "Sites": 79400402,
+    "SubLocations": 1721763584,
+    "Cards": 1780906563,
+    "Tips": 1000130052,
+    "ArabicPhrases": 2026607677,
 }
 
 def get_csv_url(spreadsheet_id: str, gid: int) -> str:
-    """Generate CSV export URL for a specific sheet"""
-    return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv&gid={gid}"
+    """Generate CSV export URL for a specific sheet (using gviz format which works better)"""
+    return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&gid={gid}"
 
 def fetch_sheet_as_csv(spreadsheet_id: str, gid: int) -> list[dict]:
     """Fetch a Google Sheet tab as CSV and return as list of dicts"""
     url = get_csv_url(spreadsheet_id, gid)
     try:
-        with urllib.request.urlopen(url) as response:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as response:
             content = response.read().decode('utf-8')
             reader = csv.DictReader(content.splitlines())
             return list(reader)

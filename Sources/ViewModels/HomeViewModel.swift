@@ -1,14 +1,30 @@
 import SwiftUI
 import Combine
+import CoreLocation
 
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published var sites: [Site] = []
     @Published var totalPoints: Int = 0
-    @Published var discoveredPlaces: Set<String> = []
+    @Published var discoveredPlaces: [String: Date] = [:]  // placeId -> last visit date
     @Published var completedQuizzes: Set<String> = []
     @Published var completedSubLocations: Set<String> = []
     @Published var isLoading: Bool = false
+
+    // MARK: - Two-Badge System (Keys)
+    /// Knowledge Keys: sublocation IDs where user completed all story cards
+    @Published var scholarBadges: Set<String> = []
+    /// Discovery Keys: site IDs where user physically visited (location verified)
+    @Published var explorerBadges: Set<String> = []
+    /// Tracks when each site was physically visited
+    @Published var verifiedVisits: [String: Date] = [:]
+
+    // MARK: - Achievement System
+    @Published var achievementProgress: AchievementProgress = AchievementProgress()
+    @Published var recentlyUnlockedAchievement: Achievement?
+
+    // MARK: - Favorites
+    @Published var favoriteSites: Set<String> = []
 
     private let contentService = ContentService.shared
     private var cancellables = Set<AnyCancellable>()
@@ -17,11 +33,23 @@ class HomeViewModel: ObservableObject {
     private let discoveredKey = "discoveredPlaces"
     private let quizzesKey = "completedQuizzes"
     private let completedKey = "completedSubLocations"
+    private let scholarKey = "scholarBadges"
+    private let explorerKey = "explorerBadges"
+    private let verifiedVisitsKey = "verifiedVisits"
+    private let achievementsKey = "achievementProgress"
+    private let favoritesKey = "favoriteSites"
+
+    /// Days before a revisit earns points again
+    private let revisitDays: Double = 30
+    /// Radius in meters for location verification
+    private let verificationRadius: Double = 200
 
     init() {
+        print("HomeViewModel: Initializing...")
         loadData()
         loadProgress()
         setupContentSubscription()
+        print("HomeViewModel: Initialized with \(sites.count) sites")
     }
 
     private func setupContentSubscription() {
@@ -29,6 +57,7 @@ class HomeViewModel: ObservableObject {
         contentService.$sites
             .receive(on: DispatchQueue.main)
             .sink { [weak self] sites in
+                print("HomeViewModel: Received \(sites.count) sites from ContentService")
                 if !sites.isEmpty {
                     self?.sites = sites
                 }
@@ -54,8 +83,9 @@ class HomeViewModel: ObservableObject {
         // Load from UserDefaults
         totalPoints = UserDefaults.standard.integer(forKey: pointsKey)
 
-        if let discovered = UserDefaults.standard.array(forKey: discoveredKey) as? [String] {
-            discoveredPlaces = Set(discovered)
+        // Load discovered places with dates
+        if let discoveredData = UserDefaults.standard.dictionary(forKey: discoveredKey) as? [String: Double] {
+            discoveredPlaces = discoveredData.mapValues { Date(timeIntervalSince1970: $0) }
         }
         if let quizzes = UserDefaults.standard.array(forKey: quizzesKey) as? [String] {
             completedQuizzes = Set(quizzes)
@@ -63,23 +93,99 @@ class HomeViewModel: ObservableObject {
         if let completed = UserDefaults.standard.array(forKey: completedKey) as? [String] {
             completedSubLocations = Set(completed)
         }
+
+        // Load badge data
+        if let scholars = UserDefaults.standard.array(forKey: scholarKey) as? [String] {
+            scholarBadges = Set(scholars)
+        }
+        if let explorers = UserDefaults.standard.array(forKey: explorerKey) as? [String] {
+            explorerBadges = Set(explorers)
+        }
+        if let visitsData = UserDefaults.standard.dictionary(forKey: verifiedVisitsKey) as? [String: Double] {
+            verifiedVisits = visitsData.mapValues { Date(timeIntervalSince1970: $0) }
+        }
+
+        // Load achievements
+        if let achievementData = UserDefaults.standard.data(forKey: achievementsKey),
+           let progress = try? JSONDecoder().decode(AchievementProgress.self, from: achievementData) {
+            achievementProgress = progress
+        }
+
+        // Load favorites
+        if let favorites = UserDefaults.standard.array(forKey: favoritesKey) as? [String] {
+            favoriteSites = Set(favorites)
+        }
     }
 
     private func saveProgress() {
         UserDefaults.standard.set(totalPoints, forKey: pointsKey)
-        UserDefaults.standard.set(Array(discoveredPlaces), forKey: discoveredKey)
+        // Save discovered places with dates as timestamps
+        let discoveredData = discoveredPlaces.mapValues { $0.timeIntervalSince1970 }
+        UserDefaults.standard.set(discoveredData, forKey: discoveredKey)
         UserDefaults.standard.set(Array(completedQuizzes), forKey: quizzesKey)
         UserDefaults.standard.set(Array(completedSubLocations), forKey: completedKey)
+
+        // Save badge data
+        UserDefaults.standard.set(Array(scholarBadges), forKey: scholarKey)
+        UserDefaults.standard.set(Array(explorerBadges), forKey: explorerKey)
+        let visitsData = verifiedVisits.mapValues { $0.timeIntervalSince1970 }
+        UserDefaults.standard.set(visitsData, forKey: verifiedVisitsKey)
+
+        // Save achievements
+        if let achievementData = try? JSONEncoder().encode(achievementProgress) {
+            UserDefaults.standard.set(achievementData, forKey: achievementsKey)
+        }
+
+        // Save favorites
+        UserDefaults.standard.set(Array(favoriteSites), forKey: favoritesKey)
+    }
+
+    // MARK: - Favorites
+
+    func toggleFavorite(siteId: String) {
+        if favoriteSites.contains(siteId) {
+            favoriteSites.remove(siteId)
+        } else {
+            favoriteSites.insert(siteId)
+        }
+        saveFavorites()
+    }
+
+    func isFavorite(siteId: String) -> Bool {
+        favoriteSites.contains(siteId)
+    }
+
+    var favoriteSitesList: [Site] {
+        sites.filter { favoriteSites.contains($0.id) }
+    }
+
+    private func saveFavorites() {
+        UserDefaults.standard.set(Array(favoriteSites), forKey: favoritesKey)
     }
 
     // MARK: - Gamification
 
-    /// Award 1 point for discovering a new place (story card)
+    /// Award 1 point for discovering a place (or revisiting after 30 days)
     func discoverPlace(_ placeId: String) {
-        if !discoveredPlaces.contains(placeId) {
-            discoveredPlaces.insert(placeId)
+        let now = Date()
+
+        if let lastVisit = discoveredPlaces[placeId] {
+            // Check if 30 days have passed since last visit
+            let daysSinceVisit = now.timeIntervalSince(lastVisit) / (60 * 60 * 24)
+            if daysSinceVisit >= revisitDays {
+                // Revisit after 30 days - award point again
+                discoveredPlaces[placeId] = now
+                addPoints(1)
+                saveProgress()
+                print("Revisit bonus! +1 point for revisiting \(placeId) after \(Int(daysSinceVisit)) days")
+            }
+            // Otherwise, no points (visited recently)
+        } else {
+            // First time visit
+            discoveredPlaces[placeId] = now
             addPoints(1)
             saveProgress()
+            print("First visit! +1 point for discovering \(placeId)")
         }
     }
 
@@ -89,10 +195,11 @@ class HomeViewModel: ObservableObject {
             completedQuizzes.insert(quizId)
             addPoints(10)
             saveProgress()
+            checkAndAwardAchievements()
         }
     }
 
-    /// Mark a sub-location as completed
+    /// Mark a sub-location as completed (for backward compatibility)
     func completeSubLocation(_ subLocationId: String) {
         if !completedSubLocations.contains(subLocationId) {
             completedSubLocations.insert(subLocationId)
@@ -100,7 +207,7 @@ class HomeViewModel: ObservableObject {
         }
     }
 
-    /// Check if a sub-location is completed
+    /// Check if a sub-location is completed (for backward compatibility)
     func isSubLocationCompleted(_ subLocationId: String) -> Bool {
         completedSubLocations.contains(subLocationId)
     }
@@ -111,13 +218,269 @@ class HomeViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Two-Badge System
+
+    /// Award Knowledge Key when user completes all story cards for a sublocation
+    /// Awards 1 point for completing stories
+    func awardScholarBadge(for subLocationId: String) {
+        guard !scholarBadges.contains(subLocationId) else { return }
+
+        scholarBadges.insert(subLocationId)
+        completedSubLocations.insert(subLocationId) // For backward compatibility
+        addPoints(1)
+        saveProgress()
+        checkAndAwardAchievements()
+        print("🗝️ Knowledge Key earned for \(subLocationId)! +1 point")
+    }
+
+    /// Check if user has Scholar badge for a sublocation
+    func hasScholarBadge(for subLocationId: String) -> Bool {
+        scholarBadges.contains(subLocationId)
+    }
+
+    /// Verify user's location and award Explorer badge if within range
+    /// Awards 50 points for verified visit, 30 points for self-reported visit
+    /// Returns: (success, message, pointsAwarded)
+    func verifyAndAwardExplorerBadge(for site: Site, userLocation: CLLocation?) -> (Bool, String, Int) {
+        let siteId = site.id
+        let now = Date()
+
+        // Check if already has badge and 30 days haven't passed
+        if let lastVisit = verifiedVisits[siteId] {
+            let daysSinceVisit = now.timeIntervalSince(lastVisit) / (60 * 60 * 24)
+            if daysSinceVisit < revisitDays {
+                let daysRemaining = Int(revisitDays - daysSinceVisit)
+                return (false, "You've already visited! Come back in \(daysRemaining) days for bonus points.", 0)
+            }
+        }
+
+        // If user has location, verify it
+        if let userLocation = userLocation {
+            let siteLocation = site.location
+            let distance = userLocation.distance(from: siteLocation)
+
+            if distance <= verificationRadius {
+                // Verified visit - award 50 points
+                explorerBadges.insert(siteId)
+                verifiedVisits[siteId] = now
+                addPoints(50)
+                saveProgress()
+                checkAndAwardAchievements()
+                print("🗝️ Discovery Key earned for \(siteId)! Location verified. +50 points")
+                return (true, "Site Unlocked! You're at \(site.name)!", 50)
+            } else {
+                let distanceKm = distance / 1000
+                return (false, String(format: "You're %.1f km away from %@. Get closer to verify your visit!", distanceKm, site.name), 0)
+            }
+        } else {
+            // No location - allow self-report with fewer points
+            return (false, "Enable location to earn 50 points, or self-report for 30 points.", 0)
+        }
+    }
+
+    /// Self-report a visit without location verification (awards fewer points)
+    func selfReportVisit(for siteId: String) -> (Bool, String, Int) {
+        let now = Date()
+
+        // Check if already has badge and 30 days haven't passed
+        if let lastVisit = verifiedVisits[siteId] {
+            let daysSinceVisit = now.timeIntervalSince(lastVisit) / (60 * 60 * 24)
+            if daysSinceVisit < revisitDays {
+                let daysRemaining = Int(revisitDays - daysSinceVisit)
+                return (false, "You've already visited! Come back in \(daysRemaining) days for bonus points.", 0)
+            }
+        }
+
+        // Self-reported visit - award 30 points
+        explorerBadges.insert(siteId)
+        verifiedVisits[siteId] = now
+        addPoints(30)
+        saveProgress()
+        checkAndAwardAchievements()
+        print("🗝️ Discovery Key earned for \(siteId)! Self-reported. +30 points")
+        return (true, "Site Unlocked! Enable location next time for bonus points.", 30)
+    }
+
+    /// Check if user has Explorer badge for a site
+    func hasExplorerBadge(for siteId: String) -> Bool {
+        explorerBadges.contains(siteId)
+    }
+
+    /// Check if site is fully completed (both Scholar for all sublocations AND Explorer)
+    func isSiteFullyCompleted(site: Site) -> Bool {
+        guard hasExplorerBadge(for: site.id) else { return false }
+
+        // Check all sublocations have Scholar badge
+        guard let subLocations = site.subLocations, !subLocations.isEmpty else {
+            return true // No sublocations, just need Explorer
+        }
+
+        return subLocations.allSatisfy { hasScholarBadge(for: $0.id) }
+    }
+
+    /// Get completion status for a sublocation
+    /// Returns: (hasScholarBadge, hasExplorerBadgeForSite, isFullyCompleted)
+    func getSubLocationStatus(subLocationId: String, siteId: String) -> (scholar: Bool, explorer: Bool, complete: Bool) {
+        let scholar = hasScholarBadge(for: subLocationId)
+        let explorer = hasExplorerBadge(for: siteId)
+        return (scholar, explorer, scholar && explorer)
+    }
+
     // MARK: - Reset (for testing)
     func resetProgress() {
         totalPoints = 0
-        discoveredPlaces.removeAll()
+        discoveredPlaces = [:]
         completedQuizzes.removeAll()
         completedSubLocations.removeAll()
+        scholarBadges.removeAll()
+        explorerBadges.removeAll()
+        verifiedVisits = [:]
+        achievementProgress = AchievementProgress()
+        recentlyUnlockedAchievement = nil
         saveProgress()
+    }
+
+    // MARK: - Achievement System
+
+    /// Current user rank based on points
+    var currentRank: UserRank {
+        UserRank.rank(for: totalPoints)
+    }
+
+    /// Points needed to reach next rank
+    var pointsToNextRank: Int? {
+        currentRank.pointsToNextRank(currentPoints: totalPoints)
+    }
+
+    /// Progress percentage to next rank (0.0 to 1.0)
+    var rankProgress: Double {
+        let rank = currentRank
+        guard let maxPoints = rank.maxPoints else { return 1.0 } // Pharaoh = 100%
+        let minPoints = rank.minPoints
+        let range = maxPoints - minPoints
+        let progress = totalPoints - minPoints
+        return Double(progress) / Double(range)
+    }
+
+    /// Number of unlocked achievements
+    var unlockedAchievementsCount: Int {
+        achievementProgress.unlockedAchievements.count
+    }
+
+    /// All unlocked achievements
+    var unlockedAchievements: [Achievement] {
+        Achievements.all.filter { achievementProgress.isUnlocked($0.id) }
+    }
+
+    /// All locked achievements
+    var lockedAchievements: [Achievement] {
+        Achievements.all.filter { !achievementProgress.isUnlocked($0.id) }
+    }
+
+    /// Get the next achievement the user is closest to unlocking
+    var nextAchievementToUnlock: (achievement: Achievement, progress: Int, required: Int)? {
+        for achievement in Achievements.all {
+            guard !achievementProgress.isUnlocked(achievement.id) else { continue }
+
+            let (progress, required) = getAchievementProgress(achievement)
+            if required > 0 && progress < required {
+                return (achievement, progress, required)
+            }
+        }
+        return nil
+    }
+
+    /// Get progress for a specific achievement
+    func getAchievementProgress(_ achievement: Achievement) -> (current: Int, required: Int) {
+        switch achievement.id {
+        // Exploration achievements
+        case "first_discovery", "curious_traveler", "dedicated_explorer":
+            let fullyCompletedSites = sites.filter { isSiteFullyCompleted(site: $0) }.count
+            return (fullyCompletedSites, achievement.requirement)
+
+        case "master_explorer":
+            let fullyCompletedSites = sites.filter { isSiteFullyCompleted(site: $0) }.count
+            return (fullyCompletedSites, sites.count)
+
+        // Knowledge achievements
+        case "first_secret", "eager_learner", "knowledge_seeker":
+            return (scholarBadges.count, achievement.requirement)
+
+        // Quiz achievements
+        case "quiz_starter", "quiz_apprentice", "quiz_master":
+            return (completedQuizzes.count, achievement.requirement)
+
+        // Special achievements
+        case "city_champion":
+            // Check if any city is fully completed
+            for city in City.allCases {
+                let citySites = sites.filter { $0.city == city }
+                if !citySites.isEmpty && citySites.allSatisfy({ isSiteFullyCompleted(site: $0) }) {
+                    return (1, 1) // Completed
+                }
+            }
+            return (0, 1)
+
+        case "era_expert":
+            // Check if any era is fully completed
+            for era in Era.allCases {
+                let eraSites = sites.filter { $0.era == era }
+                if !eraSites.isEmpty && eraSites.allSatisfy({ isSiteFullyCompleted(site: $0) }) {
+                    return (1, 1) // Completed
+                }
+            }
+            return (0, 1)
+
+        case "true_pharaoh":
+            let fullyCompletedSites = sites.filter { isSiteFullyCompleted(site: $0) }.count
+            return (fullyCompletedSites, sites.count)
+
+        default:
+            return (0, achievement.requirement)
+        }
+    }
+
+    /// Check and award any newly earned achievements
+    func checkAndAwardAchievements() {
+        for achievement in Achievements.all {
+            guard !achievementProgress.isUnlocked(achievement.id) else { continue }
+
+            let (current, required) = getAchievementProgress(achievement)
+            if required > 0 && current >= required {
+                // Achievement unlocked!
+                achievementProgress.unlock(achievement.id)
+                addPoints(achievement.points)
+                recentlyUnlockedAchievement = achievement
+                saveProgress()
+                print("🏆 Achievement unlocked: \(achievement.name)! +\(achievement.points) points")
+            }
+        }
+    }
+
+    /// Dismiss the recently unlocked achievement notification
+    func dismissAchievementNotification() {
+        recentlyUnlockedAchievement = nil
+    }
+
+    /// Get encouragement message for home screen
+    var encouragementMessage: String {
+        if let next = nextAchievementToUnlock {
+            let remaining = next.required - next.progress
+            if remaining == 1 {
+                return "You're 1 away from unlocking \"\(next.achievement.name)\"!"
+            } else {
+                return "Unlock \(remaining) more to earn \"\(next.achievement.name)\""
+            }
+        } else if unlockedAchievementsCount == Achievements.all.count {
+            return "Congratulations! You've unlocked all achievements!"
+        } else {
+            return "Start exploring to unlock achievements!"
+        }
+    }
+
+    /// Count of fully unlocked sites (both keys)
+    var fullyUnlockedSitesCount: Int {
+        sites.filter { isSiteFullyCompleted(site: $0) }.count
     }
 
 }

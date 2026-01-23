@@ -142,11 +142,11 @@ struct StoryCardsView: View {
             // Next/Finish button
             Button(action: {
                 if currentIndex == subLocation.storyCards.count - 1 {
-                    // Show completion screen
+                    // Award Scholar badge and show completion screen
+                    viewModel.awardScholarBadge(for: subLocation.id)
                     withAnimation {
                         showCompletion = true
                     }
-                    viewModel.completeSubLocation(subLocation.id)
                 } else {
                     goToNext()
                 }
@@ -170,46 +170,70 @@ struct StoryCardsView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            // Success icon
-            ZStack {
-                Circle()
-                    .fill(Theme.Colors.gold.opacity(0.2))
-                    .frame(width: 120, height: 120)
-                Circle()
-                    .fill(Theme.Colors.gold.opacity(0.3))
-                    .frame(width: 100, height: 100)
-                Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 50))
+            // Knowledge Key
+            VStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Theme.Colors.gold.opacity(0.2))
+                        .frame(width: 120, height: 120)
+                    Circle()
+                        .fill(Theme.Colors.gold.opacity(0.3))
+                        .frame(width: 100, height: 100)
+                    Image(systemName: "key.fill")
+                        .font(.system(size: 50))
+                        .foregroundColor(Theme.Colors.gold)
+                }
+
+                Text("KNOWLEDGE KEY UNLOCKED")
+                    .font(.caption)
+                    .fontWeight(.bold)
                     .foregroundColor(Theme.Colors.gold)
+                    .tracking(2)
             }
 
             VStack(spacing: 8) {
-                Text("🎉 Congratulations!")
+                Text("Secret Unlocked!")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
-                Text("You explored \(subLocation.name)")
+                Text("You've unlocked the secrets of \(subLocation.name)")
                     .font(.headline)
                     .foregroundColor(.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
             }
 
             // Points summary
             VStack(spacing: 16) {
                 HStack {
-                    Text("Points earned")
+                    Image(systemName: "key.fill")
+                        .foregroundColor(Theme.Colors.gold)
+                    Text("Knowledge Key")
                         .foregroundColor(.white.opacity(0.6))
                     Spacer()
-                    Text("+\(sessionPoints) pts")
+                    Text("+1 pt")
                         .fontWeight(.bold)
                         .foregroundColor(Theme.Colors.gold)
+                }
+
+                if sessionPoints > 1 {
+                    HStack {
+                        Image(systemName: "star.fill")
+                            .foregroundColor(Theme.Colors.gold)
+                        Text("Quiz mastery")
+                            .foregroundColor(.white.opacity(0.6))
+                        Spacer()
+                        Text("+\(sessionPoints - 1) pts")
+                            .fontWeight(.bold)
+                            .foregroundColor(Theme.Colors.gold)
+                    }
                 }
 
                 Divider()
                     .background(Color.white.opacity(0.2))
 
                 HStack {
-                    Text("Total points")
+                    Text("Total Ankh Points")
                         .foregroundColor(.white.opacity(0.6))
                     Spacer()
                     Text("\(viewModel.totalPoints) pts")
@@ -222,11 +246,21 @@ struct StoryCardsView: View {
             .cornerRadius(16)
             .padding(.horizontal, 32)
 
+            // Hint about Discovery Key
+            HStack(spacing: 8) {
+                Image(systemName: "key.horizontal.fill")
+                    .foregroundColor(.cyan.opacity(0.7))
+                Text("Visit this site to unlock the Discovery Key!")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.5))
+            }
+            .padding(.top, 8)
+
             Spacer()
 
             // Done button
             Button(action: { dismiss() }) {
-                Text("Done")
+                Text("Seal Discovery")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.black)

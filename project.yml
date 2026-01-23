@@ -20,6 +20,9 @@ targets:
     sources:
       - path: Sources
         type: group
+      - path: Resources
+        type: group
+        buildPhase: resources
     settings:
       base:
         INFOPLIST_FILE: Sources/Info.plist
@@ -29,10 +32,3 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.unlockegypt.app
         PRODUCT_NAME: "Unlock Egypt"
         GENERATE_INFOPLIST_FILE: NO
-    resources:
-      - path: Resources/Assets.xcassets
-      - path: Resources/unlock_egypt_content.json
-      - path: Resources/Images
-        optional: true
-      - path: Resources/Audio
-        optional: true

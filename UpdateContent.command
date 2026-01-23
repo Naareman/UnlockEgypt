@@ -5,9 +5,8 @@
 # Double-click this file to update app content from Google Sheets
 # ============================================================
 
-# Configuration - Change this URL if you use a different spreadsheet
+# Configuration
 SPREADSHEET_ID="17ENW_6JgdmL6ulsDUMNlJugyYAVBr9b4znCIJkwkvzs"
-# Full URL: https://docs.google.com/spreadsheets/d/17ENW_6JgdmL6ulsDUMNlJugyYAVBr9b4znCIJkwkvzs/edit
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DATA_DIR="$SCRIPT_DIR/ContentManagement/data"
 CONTENT_DIR="$SCRIPT_DIR/content"
@@ -29,39 +28,40 @@ cd "$SCRIPT_DIR"
 # Step 1: Download CSV files from Google Sheets
 echo -e "${YELLOW}Step 1: Downloading from Google Sheets...${NC}"
 
-# Sheet GIDs - Update these if your sheet structure changes
-# To find GID: click on each tab, look at URL for #gid=NUMBER
-declare -A SHEETS
-SHEETS["1_sites.csv"]=0
-SHEETS["2_sublocations.csv"]=1
-SHEETS["3_cards.csv"]=2
-SHEETS["4_tips.csv"]=3
-SHEETS["5_arabicphrases.csv"]=4
-
 # Create data directory if needed
 mkdir -p "$DATA_DIR"
 
-# Download each sheet
+# Download each sheet (using gviz format which works better)
 DOWNLOAD_SUCCESS=true
-for filename in "${!SHEETS[@]}"; do
-    gid="${SHEETS[$filename]}"
-    url="https://docs.google.com/spreadsheets/d/$SPREADSHEET_ID/export?format=csv&gid=$gid"
+
+download_sheet() {
+    local filename=$1
+    local gid=$2
+    local url="https://docs.google.com/spreadsheets/d/$SPREADSHEET_ID/gviz/tq?tqx=out:csv&gid=$gid"
 
     echo "  Downloading $filename..."
 
-    if curl -sL "$url" -o "$DATA_DIR/$filename"; then
+    if curl -sL -A "Mozilla/5.0" "$url" -o "$DATA_DIR/$filename"; then
         # Check if file has content (not an error page)
         if head -1 "$DATA_DIR/$filename" | grep -q "<!DOCTYPE"; then
             echo -e "  ${RED}✗ Failed - Sheet may not be shared publicly${NC}"
-            DOWNLOAD_SUCCESS=false
+            return 1
         else
             echo -e "  ${GREEN}✓ Downloaded${NC}"
+            return 0
         fi
     else
         echo -e "  ${RED}✗ Download failed${NC}"
-        DOWNLOAD_SUCCESS=false
+        return 1
     fi
-done
+}
+
+# Download all sheets (using correct GIDs from Google Sheets)
+download_sheet "1_sites.csv" 79400402 || DOWNLOAD_SUCCESS=false
+download_sheet "2_sublocations.csv" 1721763584 || DOWNLOAD_SUCCESS=false
+download_sheet "3_cards.csv" 1780906563 || DOWNLOAD_SUCCESS=false
+download_sheet "4_tips.csv" 1000130052 || DOWNLOAD_SUCCESS=false
+download_sheet "5_arabicphrases.csv" 2026607677 || DOWNLOAD_SUCCESS=false
 
 if [ "$DOWNLOAD_SUCCESS" = false ]; then
     echo ""
@@ -123,6 +123,6 @@ echo -e "${GREEN}✓ Content updated successfully!${NC}"
 echo "============================================================"
 echo ""
 echo "The app will fetch the new content automatically."
-echo "Raw URL: https://raw.githubusercontent.com/Naareman/UnlockEgypt/main/content/unlock_egypt_content.json"
+echo "Or rebuild in Xcode to include in the bundled app."
 echo ""
 read -p "Press Enter to close..."
