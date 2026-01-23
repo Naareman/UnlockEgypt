@@ -501,7 +501,6 @@ struct EncouragementBanner: View {
                     lineWidth: 1
                 )
         )
-        .pressEffect()
     }
 }
 

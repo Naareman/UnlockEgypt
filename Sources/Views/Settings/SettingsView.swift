@@ -3,8 +3,8 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var viewModel: HomeViewModel
-    @StateObject private var contentService = ContentService.shared
-    @StateObject private var imageCache = ImageCacheService.shared
+    @ObservedObject private var contentService = ContentService.shared
+    @ObservedObject private var imageCache = ImageCacheService.shared
     @State private var showingResetAlert = false
     @State private var showingClearCacheAlert = false
     @State private var showingDownloadAlert = false
@@ -247,17 +247,6 @@ struct SettingsView: View {
                     }
                 }
 
-                // Show fetch result feedback
-                if let result = contentService.lastFetchResult {
-                    HStack {
-                        Image(systemName: contentService.error != nil ? "exclamationmark.circle" : "checkmark.circle")
-                            .foregroundColor(contentService.error != nil ? .orange : .green)
-                        Text(result)
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                }
-
                 Divider().background(Color.white.opacity(0.1))
 
                 Button(action: refreshContent) {
@@ -275,6 +264,17 @@ struct SettingsView: View {
                     .foregroundColor(Theme.Colors.gold)
                 }
                 .disabled(contentService.isLoading)
+
+                // Show fetch result feedback (below the button)
+                if let result = contentService.lastFetchResult {
+                    HStack {
+                        Image(systemName: contentService.error != nil ? "exclamationmark.circle" : "checkmark.circle")
+                            .foregroundColor(contentService.error != nil ? .orange : .green)
+                        Text(result)
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                }
             }
             .font(.subheadline)
         }
@@ -437,6 +437,7 @@ struct SettingsView: View {
     // MARK: - Actions
 
     private func downloadForOffline() {
+        guard !viewModel.sites.isEmpty else { return }
         Task {
             await imageCache.downloadAllImages(from: viewModel.sites)
         }

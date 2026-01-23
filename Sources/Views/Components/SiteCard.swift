@@ -115,7 +115,7 @@ struct SiteCard: View {
                     lineWidth: 1
                 )
         )
-        .pressEffect()
+        .contentShape(Rectangle()) // Ensure entire card is tappable
     }
 }
 

@@ -1,6 +1,17 @@
 import SwiftUI
 
-// MARK: - Press Effect Modifier
+// MARK: - Press Effect Button Style
+/// A button style that provides a press effect without blocking taps
+struct PressEffectButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(Theme.Animation.quick, value: configuration.isPressed)
+    }
+}
+
+// MARK: - Press Effect Modifier (for non-button views)
 struct PressEffect: ViewModifier {
     @State private var isPressed = false
 
@@ -9,11 +20,9 @@ struct PressEffect: ViewModifier {
             .scaleEffect(isPressed ? 0.97 : 1.0)
             .opacity(isPressed ? 0.9 : 1.0)
             .animation(Theme.Animation.quick, value: isPressed)
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { _ in isPressed = true }
-                    .onEnded { _ in isPressed = false }
-            )
+            .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
+                isPressed = pressing
+            }, perform: {})
     }
 }
 
