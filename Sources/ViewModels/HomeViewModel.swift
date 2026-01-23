@@ -18,6 +18,8 @@ class HomeViewModel: ObservableObject {
     @Published var explorerBadges: Set<String> = []
     /// Tracks when each site was physically visited
     @Published var verifiedVisits: [String: Date] = [:]
+    /// Tracks sites that were only self-reported (can be upgraded with location verification)
+    @Published var selfReportedSites: Set<String> = []
 
     // MARK: - Achievement System
     @Published var achievementProgress: AchievementProgress = AchievementProgress()
@@ -36,6 +38,7 @@ class HomeViewModel: ObservableObject {
     private let scholarKey = "scholarBadges"
     private let explorerKey = "explorerBadges"
     private let verifiedVisitsKey = "verifiedVisits"
+    private let selfReportedKey = "selfReportedSites"
     private let achievementsKey = "achievementProgress"
     private let favoritesKey = "favoriteSites"
 
@@ -101,6 +104,9 @@ class HomeViewModel: ObservableObject {
         if let explorers = UserDefaults.standard.array(forKey: explorerKey) as? [String] {
             explorerBadges = Set(explorers)
         }
+        if let selfReported = UserDefaults.standard.array(forKey: selfReportedKey) as? [String] {
+            selfReportedSites = Set(selfReported)
+        }
         if let visitsData = UserDefaults.standard.dictionary(forKey: verifiedVisitsKey) as? [String: Double] {
             verifiedVisits = visitsData.mapValues { Date(timeIntervalSince1970: $0) }
         }
@@ -128,6 +134,7 @@ class HomeViewModel: ObservableObject {
         // Save badge data
         UserDefaults.standard.set(Array(scholarBadges), forKey: scholarKey)
         UserDefaults.standard.set(Array(explorerBadges), forKey: explorerKey)
+        UserDefaults.standard.set(Array(selfReportedSites), forKey: selfReportedKey)
         let visitsData = verifiedVisits.mapValues { $0.timeIntervalSince1970 }
         UserDefaults.standard.set(visitsData, forKey: verifiedVisitsKey)
 
@@ -242,8 +249,9 @@ class HomeViewModel: ObservableObject {
         let siteId = site.id
         let now = Date()
 
-        // Check if already has badge and 30 days haven't passed
-        if let lastVisit = verifiedVisits[siteId] {
+        // Check if already location-verified (not just self-reported) and 30 days haven't passed
+        let wasLocationVerified = explorerBadges.contains(siteId) && !selfReportedSites.contains(siteId)
+        if wasLocationVerified, let lastVisit = verifiedVisits[siteId] {
             let daysSinceVisit = now.timeIntervalSince(lastVisit) / (60 * 60 * 24)
             if daysSinceVisit < revisitDays {
                 let daysRemaining = Int(revisitDays - daysSinceVisit)
@@ -257,20 +265,31 @@ class HomeViewModel: ObservableObject {
             let distance = userLocation.distance(from: siteLocation)
 
             if distance <= verificationRadius {
-                // Verified visit - award 50 points
-                explorerBadges.insert(siteId)
-                verifiedVisits[siteId] = now
-                addPoints(50)
-                saveProgress()
-                checkAndAwardAchievements()
-                return (true, "Site Unlocked! You're at \(site.name)!", 50)
+                // Check if upgrading from self-report
+                if selfReportedSites.contains(siteId) {
+                    // Upgrade from self-report: give delta (20 points)
+                    selfReportedSites.remove(siteId)
+                    verifiedVisits[siteId] = now
+                    addPoints(20)
+                    saveProgress()
+                    checkAndAwardAchievements()
+                    return (true, "Location Verified! Bonus +20 points!", 20)
+                } else {
+                    // Fresh location verification: 50 points
+                    explorerBadges.insert(siteId)
+                    verifiedVisits[siteId] = now
+                    addPoints(50)
+                    saveProgress()
+                    checkAndAwardAchievements()
+                    return (true, "Discovery Key Unlocked! You're at \(site.name)!", 50)
+                }
             } else {
                 let distanceKm = distance / 1000
-                return (false, String(format: "You're %.1f km away from %@. Get closer to verify your visit!", distanceKm, site.name), 0)
+                return (false, String(format: "You're %.1f km away from %@. Get closer to verify!", distanceKm, site.name), 0)
             }
         } else {
-            // No location - allow self-report with fewer points
-            return (false, "Enable location to earn 50 points, or self-report for 30 points.", 0)
+            // No location available
+            return (false, "Location not available. Try again or use 'I'm Here' for 30 points.", 0)
         }
     }
 
@@ -278,22 +297,31 @@ class HomeViewModel: ObservableObject {
     func selfReportVisit(for siteId: String) -> (Bool, String, Int) {
         let now = Date()
 
-        // Check if already has badge and 30 days haven't passed
-        if let lastVisit = verifiedVisits[siteId] {
-            let daysSinceVisit = now.timeIntervalSince(lastVisit) / (60 * 60 * 24)
-            if daysSinceVisit < revisitDays {
-                let daysRemaining = Int(revisitDays - daysSinceVisit)
-                return (false, "You've already visited! Come back in \(daysRemaining) days for bonus points.", 0)
+        // Check if already has badge (either way)
+        if explorerBadges.contains(siteId) {
+            if selfReportedSites.contains(siteId) {
+                // Already self-reported, suggest location verification
+                return (false, "Already reported! Use 'Verify Location' for +20 bonus points.", 0)
+            } else {
+                // Already location-verified
+                if let lastVisit = verifiedVisits[siteId] {
+                    let daysSinceVisit = now.timeIntervalSince(lastVisit) / (60 * 60 * 24)
+                    if daysSinceVisit < revisitDays {
+                        let daysRemaining = Int(revisitDays - daysSinceVisit)
+                        return (false, "Already visited! Come back in \(daysRemaining) days.", 0)
+                    }
+                }
             }
         }
 
         // Self-reported visit - award 30 points
         explorerBadges.insert(siteId)
+        selfReportedSites.insert(siteId)
         verifiedVisits[siteId] = now
         addPoints(30)
         saveProgress()
         checkAndAwardAchievements()
-        return (true, "Site Unlocked! Enable location next time for bonus points.", 30)
+        return (true, "Discovery Key Unlocked! Verify location for +20 bonus.", 30)
     }
 
     /// Check if user has Explorer badge for a site
@@ -329,6 +357,7 @@ class HomeViewModel: ObservableObject {
         completedSubLocations.removeAll()
         scholarBadges.removeAll()
         explorerBadges.removeAll()
+        selfReportedSites.removeAll()
         verifiedVisits = [:]
         achievementProgress = AchievementProgress()
         recentlyUnlockedAchievement = nil

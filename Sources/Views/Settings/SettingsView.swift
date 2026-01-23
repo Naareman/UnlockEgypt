@@ -173,7 +173,7 @@ struct SettingsView: View {
                         }
 
                         if let lastUpdate = imageCache.lastCacheUpdate {
-                            Text(lastUpdate, style: .relative)
+                            Text("Saved \(lastUpdate.formatted(date: .abbreviated, time: .shortened))")
                                 .font(.caption2)
                                 .foregroundColor(.white.opacity(0.4))
                         }

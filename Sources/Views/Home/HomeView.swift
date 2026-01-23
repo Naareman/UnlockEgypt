@@ -88,12 +88,13 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("UNLOCK")
-                        .font(.system(size: 32, weight: .black))
+                    (Text("UNLOCK")
                         .foregroundColor(.white)
                     + Text(" EGYPT")
-                        .font(.system(size: 32, weight: .black))
-                        .foregroundColor(Theme.Colors.gold)
+                        .foregroundColor(Theme.Colors.gold))
+                        .font(.system(size: 28, weight: .black))
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
 
                     Text("Discover 5,000 years of history")
                         .font(.subheadline)
