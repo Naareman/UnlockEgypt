@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Color Extension for Hex Colors
+/// Extension to create Color from hex string
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -25,14 +25,4 @@ extension Color {
             opacity: Double(a) / 255
         )
     }
-}
-
-// MARK: - App Theme Colors
-extension Color {
-    static let egyptGold = Color(hex: "d4af37")
-    static let egyptDarkBg = Color(hex: "1a1a2e")
-    static let egyptDarkBg2 = Color(hex: "16213e")
-    static let egyptDarkBg3 = Color(hex: "0f0f1a")
-    static let egyptBrown = Color(hex: "8b7355")
-    static let egyptBlue = Color(hex: "4da6ff")
 }

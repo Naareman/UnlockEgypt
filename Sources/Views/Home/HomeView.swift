@@ -200,7 +200,7 @@ struct AllSitesView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 FilterChip(
-                    title: selectedEra?.shortName ?? "Era",
+                    title: selectedEra?.rawValue ?? "Era",
                     isActive: selectedEra != nil,
                     icon: "calendar"
                 ) {

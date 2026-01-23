@@ -10,7 +10,7 @@ struct SiteCard: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(LinearGradient(
-                        colors: [Theme.Colors.gold.opacity(0.35), Color(hex: "8b7355").opacity(0.5)],
+                        colors: [Theme.Colors.gold.opacity(0.35), Theme.Colors.sand.opacity(0.5)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))
@@ -47,7 +47,7 @@ struct SiteCard: View {
                 .foregroundColor(Theme.Colors.gold)
 
                 HStack(spacing: 12) {
-                    Label(site.era.shortName, systemImage: "calendar")
+                    Label(site.era.rawValue, systemImage: "calendar")
                     if let subLocations = site.subLocations {
                         Label("\(subLocations.count) places", systemImage: "rectangle.stack")
                     }

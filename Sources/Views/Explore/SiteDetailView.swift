@@ -86,7 +86,7 @@ struct SiteDetailView: View {
 
                 // Tags
                 HStack(spacing: 8) {
-                    TagBadge(text: site.era.shortName, icon: "calendar")
+                    TagBadge(text: site.era.rawValue, icon: "calendar")
                     TagBadge(text: site.placeType.rawValue, icon: site.placeType.icon)
                     TagBadge(text: site.city.rawValue, icon: "mappin")
                 }

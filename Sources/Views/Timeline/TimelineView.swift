@@ -83,7 +83,7 @@ struct TimelineEraPill: View {
                     .shadow(color: hasSites ? eraColor.opacity(0.5) : .clear, radius: 3)
 
                 // Era name
-                Text(era.shortName)
+                Text(era.rawValue)
                     .font(.caption2)
                     .fontWeight(.medium)
                     .foregroundColor(hasSites ? .white : .white.opacity(0.4))
@@ -103,17 +103,7 @@ struct TimelineEraPill: View {
     }
 
     private var eraColor: Color {
-        switch era {
-        case .preDynastic: return Color(hex: "9b59b6")
-        case .oldKingdom: return Theme.Colors.gold
-        case .middleKingdom: return Color(hex: "f39c12")
-        case .newKingdom: return Color(hex: "e74c3c")
-        case .latePeriod: return Color(hex: "3498db")
-        case .ptolemaic: return Color(hex: "2ecc71")
-        case .roman: return Color(hex: "e91e63")
-        case .islamic: return Color(hex: "00bcd4")
-        case .modern: return Color(hex: "95a5a6")
-        }
+        Theme.Colors.color(for: era)
     }
 }
 

@@ -183,17 +183,4 @@ enum Era: String, Codable, CaseIterable {
         }
     }
 
-    var shortName: String {
-        switch self {
-        case .preDynastic: return "Pre-Dynastic"
-        case .oldKingdom: return "Old Kingdom"
-        case .middleKingdom: return "Middle Kingdom"
-        case .newKingdom: return "New Kingdom"
-        case .latePeriod: return "Late Period"
-        case .ptolemaic: return "Ptolemaic"
-        case .roman: return "Roman"
-        case .islamic: return "Islamic"
-        case .modern: return "Modern"
-        }
-    }
 }

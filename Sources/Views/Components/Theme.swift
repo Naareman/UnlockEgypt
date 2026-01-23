@@ -20,6 +20,32 @@ enum Theme {
         static let sand = Color(hex: "8b7355")
         /// Quiz blue
         static let quizBlue = Color(hex: "4da6ff")
+
+        // MARK: - Era Colors (for Timeline)
+        static let eraPreDynastic = Color(hex: "9b59b6")
+        static let eraOldKingdom = gold
+        static let eraMiddleKingdom = Color(hex: "f39c12")
+        static let eraNewKingdom = Color(hex: "e74c3c")
+        static let eraLatePeriod = Color(hex: "3498db")
+        static let eraPtolemaic = Color(hex: "2ecc71")
+        static let eraRoman = Color(hex: "e91e63")
+        static let eraIslamic = Color(hex: "00bcd4")
+        static let eraModern = Color(hex: "95a5a6")
+
+        /// Get color for a specific era
+        static func color(for era: Era) -> Color {
+            switch era {
+            case .preDynastic: return eraPreDynastic
+            case .oldKingdom: return eraOldKingdom
+            case .middleKingdom: return eraMiddleKingdom
+            case .newKingdom: return eraNewKingdom
+            case .latePeriod: return eraLatePeriod
+            case .ptolemaic: return eraPtolemaic
+            case .roman: return eraRoman
+            case .islamic: return eraIslamic
+            case .modern: return eraModern
+            }
+        }
     }
 
     // MARK: - Gradients
