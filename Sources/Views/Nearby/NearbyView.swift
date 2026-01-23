@@ -53,7 +53,7 @@ struct NearbyView: View {
                                 }
                                 Text("\(location.coordinate.latitude, specifier: "%.4f"), \(location.coordinate.longitude, specifier: "%.4f")")
                                     .font(.caption2)
-                                    .foregroundColor(.white.opacity(0.4))
+                                    .foregroundColor(.white.opacity(0.5))
                             }
                             .padding(.horizontal)
                         }

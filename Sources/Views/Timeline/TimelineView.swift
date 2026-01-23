@@ -86,7 +86,7 @@ struct TimelineEraPill: View {
                 Text(era.rawValue)
                     .font(.caption2)
                     .fontWeight(.medium)
-                    .foregroundColor(hasSites ? .white : .white.opacity(0.4))
+                    .foregroundColor(hasSites ? .white : .white.opacity(0.5))
                     .frame(width: 70)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -154,7 +154,7 @@ struct TimelineEraRow: View {
                 } else {
                     Text("No sites from this era yet")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.4))
+                        .foregroundColor(.white.opacity(0.5))
                         .italic()
                 }
             }

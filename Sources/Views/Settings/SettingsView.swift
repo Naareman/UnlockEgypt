@@ -171,7 +171,7 @@ struct SettingsView: View {
                         if let lastUpdate = imageCache.lastCacheUpdate {
                             Text("Saved \(lastUpdate.formatted(date: .abbreviated, time: .shortened))")
                                 .font(.caption2)
-                                .foregroundColor(.white.opacity(0.4))
+                                .foregroundColor(.white.opacity(0.5))
                         }
                     }
                 }
@@ -351,7 +351,7 @@ struct SettingsView: View {
 
                     Text("Content sources: Ministry of Tourism and Antiquities, UNESCO World Heritage")
                         .font(.caption2)
-                        .foregroundColor(.white.opacity(0.4))
+                        .foregroundColor(.white.opacity(0.5))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 

@@ -142,7 +142,7 @@ struct AchievementsView: View {
             StatItem(
                 value: "\(viewModel.explorerBadges.count)",
                 label: "Discovery Keys",
-                icon: "key.horizontal.fill"
+                icon: "mappin.circle.fill"
             )
 
             Divider()
@@ -246,7 +246,7 @@ struct AchievementRow: View {
 
                 Text(achievement.description)
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.4))
+                    .foregroundColor(.white.opacity(0.5))
 
                 // Progress bar for locked achievements
                 if !isUnlocked && progress.required > 0 {
@@ -272,7 +272,7 @@ struct AchievementRow: View {
             } else {
                 Text("\(progress.current)/\(progress.required)")
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.4))
+                    .foregroundColor(.white.opacity(0.5))
             }
         }
         .padding(12)

@@ -158,7 +158,7 @@ struct BadgeProgressView: View {
                 } else {
                     Text("Not visited")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.4))
+                        .foregroundColor(.white.opacity(0.5))
                 }
             }
         }
