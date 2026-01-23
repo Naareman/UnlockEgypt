@@ -77,15 +77,22 @@ fi
 
 echo ""
 
-# Step 2: Convert to JSON
-echo -e "${YELLOW}Step 2: Converting to JSON...${NC}"
+# Step 2: Validate and Convert to JSON
+echo -e "${YELLOW}Step 2: Validating and converting to JSON...${NC}"
 
 cd "$SCRIPT_DIR/ContentManagement"
 
 if python3 sync_content.py; then
-    echo -e "${GREEN}✓ JSON generated${NC}"
+    echo -e "${GREEN}✓ Validation passed and JSON generated${NC}"
 else
-    echo -e "${RED}✗ Conversion failed${NC}"
+    echo ""
+    echo -e "${RED}============================================================${NC}"
+    echo -e "${RED}  CONTENT UPDATE ABORTED - Validation errors found!${NC}"
+    echo -e "${RED}============================================================${NC}"
+    echo ""
+    echo "Please fix the issues listed above in your Google Sheet,"
+    echo "then run this script again."
+    echo ""
     read -p "Press Enter to exit..."
     exit 1
 fi
